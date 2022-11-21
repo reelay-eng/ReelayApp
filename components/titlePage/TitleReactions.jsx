@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -12,6 +12,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 import * as Haptics from 'expo-haptics';
 import ProfilePicture from '../global/ProfilePicture';
+import { FlashList } from '@shopify/flash-list';
 
 const { height, width } = Dimensions.get('window');
 const MAX_DISPLAY_EMOJIS = 5;
@@ -77,13 +78,14 @@ const ReactionHeaderRow = styled(View)`
     justify-content: space-between;
     width: 100%;
 `
-const OtherReactionView = styled(View)`
+const ReactionView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
+    height: 40px;
     width: 100%;
 `
-const OtherReactionLeftView = styled(View)`
+const ReactionLeftView = styled(View)`
     align-items: center;
     flex-direction: row;
 `
@@ -111,7 +113,7 @@ const DEFAULT_REACTIONS_BY_EMOJI = {
     '🐐': 0,
 }
 
-export default TitleReactions = ({ navigation, titleObj }) => {
+export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
 
     // authoritative state:
     // all reactions
@@ -134,6 +136,7 @@ export default TitleReactions = ({ navigation, titleObj }) => {
             title: titleObj,
             reactEmojis: '',
             userSub: reelayDBUser?.sub,
+            username: reelayDBUser?.username,
         };
 
         return myWatchlistItems.find(matchWatchlistItem) ?? newWatchlistItem;
@@ -181,23 +184,25 @@ export default TitleReactions = ({ navigation, titleObj }) => {
                 <ReactEmojiPressable>
                     <FontAwesomeIcon icon={faPlus} color='white' size={20} />
                 </ReactEmojiPressable>
-                <ReactEmojiCount>{''}</ReactEmojiCount>
             </ReactEmojiView>
         )
     }
 
-    const OtherReactionRow = ({ reaction }) => {
+    const ReactionRow = ({ reaction }) => {
         const reactEmojis = reaction?.reactEmojis;
         const user = { sub: reaction?.userSub , username: reaction?.username };
 
+        // not proud of this hack: the query doesn't return your own username
+        const displayUsername = user?.username ?? reelayDBUser?.username;
+
         return (
-            <OtherReactionView>
-                <OtherReactionLeftView>
+            <ReactionView>
+                <ReactionLeftView>
                     <ProfilePicture navigation={navigation} user={user} size={30} />
-                    <ReactUsernameText>{user?.username}</ReactUsernameText>
-                </OtherReactionLeftView>
+                    <ReactUsernameText>{displayUsername}</ReactUsernameText>
+                </ReactionLeftView>
                 <ReactEmojiText>{reactEmojis}</ReactEmojiText>
-            </OtherReactionView>
+            </ReactionView>
         );
     }
 
@@ -229,7 +234,18 @@ export default TitleReactions = ({ navigation, titleObj }) => {
             };
             setMyReaction(nextMyReaction);
             const removeMyReaction = (reaction) => reaction?.userSub !== reelayDBUser?.sub
-            const nextAllReactions = [nextMyReaction, ...allReactions.filter(removeMyReaction)];
+            
+            const myReactionCondensed = {
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
+                reactEmojis: nextReactEmojis
+            };
+
+            const nextAllReactions = [
+                myReactionCondensed, 
+                ...allReactions.filter(removeMyReaction)
+            ];
+
             setAllReactions(nextAllReactions);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             return nextReactEmojis;
@@ -287,10 +303,7 @@ export default TitleReactions = ({ navigation, titleObj }) => {
         return (
             <ReactionHeaderRow>
                 <HeaderText>{'Reactions'}</HeaderText>
-                <MarkSeenButton 
-                    showText={true}
-                    watchlistItem={myReaction}            
-                />
+                { !seeAll && <MarkSeenButton showText={true} watchlistItem={myReaction} /> }
             </ReactionHeaderRow>
         );
     }
@@ -309,14 +322,38 @@ export default TitleReactions = ({ navigation, titleObj }) => {
 
     const SeeOtherReactions = () => {
         const removeMyReaction = reaction => reaction?.userSub !== reelayDBUser?.sub;
-        const displayOtherReactions = allReactions.slice(0,3).filter(removeMyReaction)
+        const displayReactions = seeAll ? allReactions : allReactions.slice(0,3).filter(removeMyReaction);
+        const showSeeAll = !seeAll && (displayReactions.length > 0);
+
+        const SeeAll = () => {
+            const advanceToSeeAllScreen = () => {
+                navigation.navigate('SeeAllTitleReactionsScreen', { titleObj });
+            }
+            return (
+                <SeeAllPressable onPress={advanceToSeeAllScreen}>
+                    <SeeAllText>{'see all'}</SeeAllText>
+                </SeeAllPressable>
+            )
+        }
+
+        const renderReactionRow = ({ item, index }) => {
+            const reaction = item;
+            return <ReactionRow key={reaction?.userSub} reaction={reaction} />;
+        }
 
         return (
             <SeeOtherReactionsView>
-                { displayOtherReactions.map(reaction => <OtherReactionRow key={reaction?.userSub} reaction={reaction} /> )}
-                <SeeAllPressable>
-                    <SeeAllText>{'see all'}</SeeAllText>
-                </SeeAllPressable>
+                { seeAll && (
+                    <FlatList 
+                        data={displayReactions}
+                        estimatedItemSize={30}
+                        keyExtractor={reaction => reaction?.userSub}
+                        renderItem={renderReactionRow}
+                        showsVerticalScrollIndicator={false}
+                    />                
+                )}
+                { !seeAll && (displayReactions.map(reaction => renderReactionRow({ item: reaction })))}
+                { showSeeAll && <SeeAll /> }
             </SeeOtherReactionsView>
         );
     }

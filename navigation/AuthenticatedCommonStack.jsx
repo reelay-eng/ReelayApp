@@ -32,6 +32,7 @@ import SelectTitleScreen from '../screens/authenticated/SelectTitleScreen';
 import InstaStoryClubScreen from '../screens/authenticated/InstaStoryClubScreen';
 import InstaStoryGuessingGameScreen from '../screens/authenticated/InstaStoryGuessingGameScreen';
 import InstaStoryReelayScreen from '../screens/authenticated/InstaStoryReelayScreen';
+import SeeAllTitleReactionsScreen from '../screens/authenticated/SeeAllTitleReactionsScreen';
 import SelectCorrectGuessScreen from '../screens/authenticated/SelectCorrectGuessScreen';
 import SingleGuessingGameScreen from '../screens/authenticated/SingleGuessingGameScreen';
 import SingleReelayScreen from '../screens/authenticated/SingleReelayScreen';
@@ -82,6 +83,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='ReportedTopicsFeedScreen' component={ReportedTopicsFeedScreen} options={commonOptions} />
             <CommonStack.Screen name='ReportIssueScreen' component={ReportIssueScreen} options={commonOptions} />
             <CommonStack.Screen name='SearchScreen' component={SearchScreen} options={commonOptions} />
+            <CommonStack.Screen name='SeeAllTitleReactionsScreen' component={SeeAllTitleReactionsScreen} options={commonOptions} />
             <CommonStack.Screen name='SelectCorrectGuessScreen' component={SelectCorrectGuessScreen} options={commonOptions} />
             <CommonStack.Screen name='SingleGuessingGameScreen' component={SingleGuessingGameScreen} options={commonOptions} />
             <CommonStack.Screen name='SingleReelayScreen' component={SingleReelayScreen} options={commonOptions} />
