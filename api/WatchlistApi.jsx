@@ -207,8 +207,8 @@ export const removeFromMyWatchlist = async ({ reqUserSub, tmdbTitleID, titleType
 }
 
 // RECOMMENDATIONS
-export const getWatchlistRecs = async ({ authSession, reqUserSub, category = 'all'}) => {
-    const routeGet = `${REELAY_API_BASE_URL}/watchlists/recs?category=${category}`;
+export const getWatchlistRecs = async ({ authSession, reqUserSub, category = 'all', page = 0 }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/watchlists/recs?category=${category}&page=${page}`;
     try {
         const recommendedTitles = await fetchResults(routeGet, {
             method: 'GET',
@@ -222,7 +222,6 @@ export const getWatchlistRecs = async ({ authSession, reqUserSub, category = 'al
             const tmdbTitleID = title?.tmdbTitleID ?? 0;
             const titleType = title?.titleType;
             const isSeries = (titleType === 'tv');
-            console.log('preparing title: ', title);
             return await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
         }
 

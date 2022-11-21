@@ -29,6 +29,7 @@ const TitleText = styled(ReelayText.H6Emphasized)`
 
 export default SeeAllTitleReactionsScreen = ({ navigation, route }) => {
     const titleObj = route?.params?.titleObj;
+    const allReactions = route?.params?.allReactions;
     const topOffset = useSafeAreaInsets().top;
     
     const Header = () => {
@@ -44,7 +45,12 @@ export default SeeAllTitleReactionsScreen = ({ navigation, route }) => {
     return (
         <ScreenView>
             <Header />
-            <TitleReactions navigation={navigation} seeAll={true} titleObj={titleObj} />
+            <TitleReactions 
+                navigation={navigation} 
+                loadedReactions={allReactions}
+                seeAll={true} 
+                titleObj={titleObj} 
+            />
         </ScreenView>
     )
 }

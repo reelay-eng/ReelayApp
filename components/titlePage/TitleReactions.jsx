@@ -113,7 +113,7 @@ const DEFAULT_REACTIONS_BY_EMOJI = {
     '🐐': 0,
 }
 
-export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
+export default TitleReactions = ({ navigation, titleObj, seeAll = false, loadedReactions = [] }) => {
 
     // authoritative state:
     // all reactions
@@ -148,7 +148,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const [myReaction, setMyReaction] = useState(getMyReaction());
-    const [allReactions, setAllReactions] = useState([]);
+    const [allReactions, setAllReactions] = useState(loadedReactions);
 
     const getReactionsByEmoji = () => allReactions.reduce((emojiCounts, nextReaction) => {
         const utf16EmojiBuffer = nextReaction?.reactEmojis ?? '';
@@ -327,7 +327,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
 
         const SeeAll = () => {
             const advanceToSeeAllScreen = () => {
-                navigation.navigate('SeeAllTitleReactionsScreen', { titleObj });
+                navigation.navigate('SeeAllTitleReactionsScreen', { titleObj, allReactions });
             }
             return (
                 <SeeAllPressable onPress={advanceToSeeAllScreen}>
@@ -368,7 +368,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
     }, [myWatchlistItems]);
 
     useEffect(() => {
-        if (!titleObj?.reactions) loadReactions();
+        if (!loadedReactions?.length) loadReactions();
     }, []);
 
     return (

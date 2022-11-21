@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, FlatList, RefreshControl, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Animated, Dimensions, FlatList, RefreshControl, TouchableOpacity, View } from 'react-native';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { AuthContext } from '../../context/AuthContext';
@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import FanOfPosters from '../../components/watchlist/FanOfPosters';
 import BackButton from '../../components/utils/BackButton';
 import WatchlistItemCard from '../../components/watchlist/WatchlistItemCard';
-import { getWatchlistItems } from '../../api/WatchlistApi';
+import { getWatchlistItems, getWatchlistRecs } from '../../api/WatchlistApi';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faRefresh, faRepeat, faXmark } from '@fortawesome/free-solid-svg-icons';
 import TitlePoster from '../../components/global/TitlePoster';
@@ -42,7 +42,7 @@ const BottomGradient = styled(LinearGradient)`
     height: 72px;
     width: 100%;
 `
-const RefreshRecsPressable = styled(TouchableHighlight)`
+const RefreshRecsPressable = styled(TouchableOpacity)`
     justify-content: center;
     margin-right: 12px;
     padding: 6px;
@@ -180,6 +180,7 @@ const WatchlistScreenContainer = styled(View)`
 `
 
 export default WatchlistScreen = ({ navigation, route }) => {
+    const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
     const topOffset = useSafeAreaInsets().top;
@@ -330,11 +331,32 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const RecommendedTitles = () => {
         const initRecDisplayTitles = myWatchlistRecs;
         const [recDisplayTitles, setRecDisplayTitles] = useState(initRecDisplayTitles);
+        const recQueryPageRef = useRef(1);
+        const [recsRefreshing, setRecsRefreshing] = useState(false);
 
         const RefreshRecsButton = () => {
+
+            const refreshRecs = async () => {
+                setRecsRefreshing(true);
+                const nextRecs = await getWatchlistRecs({
+                    authSession,
+                    reqUserSub: reelayDBUser?.sub,
+                    category: 'all',
+                    page: recQueryPageRef.current,
+                })
+                recQueryPageRef.current += 1;
+                dispatch({ type: 'setMyWatchlistRecs', payload: nextRecs });
+
+                console.log('next recs: ', nextRecs);
+
+                setRecDisplayTitles(nextRecs);
+                setRecsRefreshing(false);
+            }
+
             return (
-                <RefreshRecsPressable onPress={() => {}}>
-                    <FontAwesomeIcon icon={faRefresh} color='white' size={20} />
+                <RefreshRecsPressable onPress={refreshRecs}>
+                    { recsRefreshing && <ActivityIndicator /> }
+                    { !recsRefreshing && <FontAwesomeIcon icon={faRefresh} color='white' size={20} /> }
                 </RefreshRecsPressable>
             )
         }

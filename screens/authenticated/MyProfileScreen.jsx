@@ -160,6 +160,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
                 dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
                 dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
+                dispatch({ type: 'setMyWatchlistRecs', payload: nextMyWatchlistRecs });
                 dispatch({ type: 'setMyFollowing', payload: nextMyFollowing });
 
                 dispatch({ type: 'setMyStreamingSubscriptions', payload: nextMyStreamingSubscriptions });
