@@ -19,6 +19,7 @@ import SuggestedTitlesGrid from '../../components/search/SuggestedTitlesGrid';
 import { TopicsBannerIconSVG } from '../../components/global/SVGs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmptyTitleObject } from '../../api/TMDbApi';
+import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
 
@@ -110,6 +111,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
         const topOffset = useSafeAreaInsets().top;
 
         const skipToCameraScreen = () => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             navigation.push('ReelayCameraScreen', { 
                 titleObj: EmptyTitleObject, 
                 venue: '', 

@@ -28,17 +28,25 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import * as Haptics from 'expo-haptics';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 
-const BottomBackButtonContainer = styled(View)`
+const BackButtonCircleView = styled(View)`
 	align-items: center;
 	background-color: #1a1a1a;
 	border-radius: 24px;
 	justify-content: center;
-	margin-left: 16px;
 	height: 48px;
 	width: 48px;
+`
+const BackButtonPressable = styled(TouchableOpacity)`
+	align-items: center;
+	height: 100%;
+	justify-content: center;
+	width: 100%;
 `
 const CreateReelayPressable = styled(TouchableOpacity)`
 	align-items: center;
@@ -53,6 +61,7 @@ const CreateReelayPressable = styled(TouchableOpacity)`
 `
 const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
 	color: white;
+	margin-left: 8px;
 `
 const HeaderView = styled(View)`
 	align-items: center;
@@ -104,6 +113,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
 	const CreateReelayButton = () => {
 		const advanceToCreateReelay = () => {
+			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 			if (showMeSignupIfGuest()) return;
 			navigation.push('VenueSelectScreen', { titleObj: titleObj });
 			logAmplitudeEventProd('advanceToCreateReelay', {
@@ -115,7 +125,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			
 		return (
 			<CreateReelayPressable onPress={advanceToCreateReelay}>
-				<CreateReelayText>{'Create a reelay'}</CreateReelayText>
+				<FontAwesomeIcon icon={faPlusCircle} color='white' size={16} />
+				<CreateReelayText>{'Create reelay'}</CreateReelayText>
 			</CreateReelayPressable>
 		)
 	}
@@ -137,9 +148,11 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
 		return (
 			<HeaderView topOffset={headerTopOffset}>
-				<TouchableOpacity onPress={() => goBack()}>
+				<BackButtonCircleView>
+				<BackButtonPressable onPress={() => goBack()}>
 					<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
-				</TouchableOpacity>
+				</BackButtonPressable>
+				</BackButtonCircleView>
 				<AddToWatchlistButton navigation={navigation} shouldGoToWatchlist={true} showLabel={true} titleObj={titleObj} />
 			</HeaderView>
 		);
@@ -159,6 +172,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	
 		return (
 			<WatchTrailerPressable onPress={advanceToWatchTrailer}>
+				<FontAwesomeIcon icon={faPlay} color='white' size={16} />
 				<CreateReelayText>{'Watch trailer'}</CreateReelayText>
 			</WatchTrailerPressable>
 		)
@@ -184,10 +198,10 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
 const BottomBackButton = ({ navigation }) => {
 	return (
-		<BottomBackButtonContainer>
+		<BackButtonCircleView>
 			<Pressable onPress={() => navigation.goBack()}>
 				<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
 			</Pressable>
-		</BottomBackButtonContainer>
+		</BackButtonCircleView>
 	);
 }

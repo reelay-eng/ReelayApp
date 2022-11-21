@@ -20,6 +20,8 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { animate } from '../../hooks/animations';
 import { useFocusEffect } from '@react-navigation/native';
 
+import * as Haptics from 'expo-haptics';
+
 const FlexContainer = styled(View)`
     display: flex;
     flex-direction: column;
@@ -139,6 +141,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     }
 
     const advancetoCameraScreen = async (venue) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         const hasCameraPermissions = await getCameraPermissions();
         const hasMicPermissions = await getMicPermissions();
 

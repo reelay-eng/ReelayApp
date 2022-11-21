@@ -35,11 +35,14 @@ const AddToWatchlistText = styled(ReelayText.Body2Bold)`
 const BackButtonView = styled(View)`
     margin-bottom: -4px;
 `
-const BottomGradient = styled(LinearGradient)`
-    position: absolute;
+const BottomBar = styled(View)`
+    background-color: black;
     bottom: 0px;
-    opacity: 0.8;
-    height: 72px;
+    height: ${props => props.bottomOffset + 52}px;
+    position: absolute;
+    shadow-offset: 0px -2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
     width: 100%;
 `
 const RefreshRecsPressable = styled(TouchableOpacity)`
@@ -141,16 +144,11 @@ const TopBarView = styled(View)`
     position: absolute;
     padding-top: ${props => props.topOffset}px;
     padding-bottom: 6px;
+    shadow-offset: 0px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
     width: 100%;
     z-index: 100;
-`
-const TopGradient = styled(LinearGradient)`
-    height: ${props => props.topOffset + 40}px;
-    opacity: 0.3;
-    position: absolute;
-    top: ${props => -1 * props.topOffset}px;
-    width: 100%;
-    height: ${props => props.topOffset + 87}px;
 `
 const UnderlineView = styled(View)`
     margin-top: 5px;
@@ -166,6 +164,7 @@ const WatchlistHeaderText = styled(ReelayText.H5)`
     color: white;
     font-size: 32px;
     line-height: 40px;
+    margin-top: 12px;
 `
 const WatchlistHeaderView = styled(View)`
     align-items: center;
@@ -347,8 +346,6 @@ export default WatchlistScreen = ({ navigation, route }) => {
                 recQueryPageRef.current += 1;
                 dispatch({ type: 'setMyWatchlistRecs', payload: nextRecs });
 
-                console.log('next recs: ', nextRecs);
-
                 setRecDisplayTitles(nextRecs);
                 setRecsRefreshing(false);
             }
@@ -496,11 +493,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
                 refreshControl={Refresher}
                 showsVerticalScrollIndicator={false}
             />
-            <BottomGradient 
-                colors={["transparent", "#0d0d0d"]} 
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y : 0.8 }}
-            /> 
+            <BottomBar bottomOffset={bottomOffset} /> 
 		</WatchlistScreenContainer>
 	);
 };

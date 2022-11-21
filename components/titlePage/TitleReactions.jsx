@@ -13,6 +13,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import * as Haptics from 'expo-haptics';
 import ProfilePicture from '../global/ProfilePicture';
 import { FlashList } from '@shopify/flash-list';
+import AddReactEmojiDrawer from './AddReactEmojiDrawer';
 
 const { height, width } = Dimensions.get('window');
 const MAX_DISPLAY_EMOJIS = 5;
@@ -113,7 +114,7 @@ const DEFAULT_REACTIONS_BY_EMOJI = {
     '🐐': 0,
 }
 
-export default TitleReactions = ({ navigation, titleObj, seeAll = false, loadedReactions = [] }) => {
+export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
 
     // authoritative state:
     // all reactions
@@ -143,12 +144,13 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false, loadedR
     }
 
     const authSession = useSelector(state => state.authSession);
+    const initReactions = titleObj?.allReactions ?? [];
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
 
     const [myReaction, setMyReaction] = useState(getMyReaction());
-    const [allReactions, setAllReactions] = useState(loadedReactions);
+    const [allReactions, setAllReactions] = useState(initReactions);
 
     const getReactionsByEmoji = () => allReactions.reduce((emojiCounts, nextReaction) => {
         const utf16EmojiBuffer = nextReaction?.reactEmojis ?? '';
@@ -173,17 +175,24 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false, loadedR
             titleType: titleObj?.titleType,
         });
 
+        titleObj.allReactions = loadReactionsObj?.allReactions;
         if (loadReactionsObj && !loadReactionsObj?.error) {
             setAllReactions(loadReactionsObj?.allReactions ?? []);
         }
     }
     
     const AddOtherEmojiButton = () => {
+        const [showEmojiDrawer, setShowEmojiDrawer] = useState(false);
+        const openDrawer = () => setShowEmojiDrawer(true);
+        const closeDrawer = () => setShowEmojiDrawer(false);
         return (
             <ReactEmojiView>
-                <ReactEmojiPressable>
+                <ReactEmojiPressable onPress={openDrawer}>
                     <FontAwesomeIcon icon={faPlus} color='white' size={20} />
                 </ReactEmojiPressable>
+                { showEmojiDrawer && (
+                    <AddReactEmojiDrawer closeDrawer={closeDrawer} titleObj={titleObj} />
+                )}
             </ReactEmojiView>
         )
     }
@@ -327,7 +336,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false, loadedR
 
         const SeeAll = () => {
             const advanceToSeeAllScreen = () => {
-                navigation.navigate('SeeAllTitleReactionsScreen', { titleObj, allReactions });
+                navigation.push('SeeAllTitleReactionsScreen', { titleObj });
             }
             return (
                 <SeeAllPressable onPress={advanceToSeeAllScreen}>
@@ -368,7 +377,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false, loadedR
     }, [myWatchlistItems]);
 
     useEffect(() => {
-        if (!loadedReactions?.length) loadReactions();
+        if (!titleObj?.allReactions?.length) loadReactions();
     }, []);
 
     return (

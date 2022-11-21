@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions, 
     KeyboardAvoidingView, 
@@ -124,7 +124,6 @@ const TitleInfoView = styled(View)`
 export default MarkedSeenModal = ({ 
     closeModal, 
     navigation,
-    setCardDisplayEmojis,
     watchlistItem,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -199,14 +198,12 @@ export default MarkedSeenModal = ({
                 setSelectedEmojis(nextSelectedEmojis);
                 watchlistItem.reactEmojis = getEmojiText(nextSelectedEmojis);
                 dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
-                // setCardDisplayEmojis(nextSelectedEmojis);
             } else {
                 setIsSelected(true);
                 nextSelectedEmojis.push(emoji)
                 setSelectedEmojis(nextSelectedEmojis);
                 watchlistItem.reactEmojis = getEmojiText(nextSelectedEmojis);
                 dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
-                // setCardDisplayEmojis(nextSelectedEmojis);
             }
 
             const setEmojisResult = await setReactEmojis({
@@ -234,13 +231,24 @@ export default MarkedSeenModal = ({
     }
 
     const TitleInfo = () => {
+        const advanceToTitleDetailScreen = () => {
+            closeModal();
+            navigation.push('TitleDetailScreen', {
+                titleObj,
+                fromWatchlist: true,
+            })
+        }
         return (
             <TitleInfoView>
-                <TitlePoster title={titleObj} width={90} />
+                <TitlePoster onPress={advanceToTitleDetailScreen} title={titleObj} width={90} />
                 <PromptText>{'What did you think?'}</PromptText>
             </TitleInfoView>
         )
     }
+
+    useEffect(() => {
+
+    }, []);
 
     return (
         <ModalView>
