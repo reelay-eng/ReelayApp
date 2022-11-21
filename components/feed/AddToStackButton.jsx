@@ -11,7 +11,17 @@ import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import ReelayColors from '../../constants/ReelayColors';
 
-const ClubsButtonCircleContainer = styled(View)`
+const AddToThreadButtonShadow = styled(View)`
+    align-items: center;
+    height: 45px;
+    justify-content: center;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.3;
+    position: absolute;
+    width: 45px;
+`
+const AddToThreadButtonCircleView = styled(View)`
     align-items: center;
     align-self: center;
     background: ${ReelayColors.reelayBlue};
@@ -20,7 +30,7 @@ const ClubsButtonCircleContainer = styled(View)`
     justify-content: center;
     width: 45px;
 `
-const ClubsButtonOuterContainer = styled(TouchableOpacity)`
+const AddToThreadButtonOuterView = styled(TouchableOpacity)`
     align-items: flex-end;
     justify-content: center;
     width: 60px;
@@ -69,11 +79,13 @@ export default AddToStackButton = ({ navigation, reelay, club=null, topic=null }
 	}
 
     return (
-        <ClubsButtonOuterContainer onPress={advanceToCreateReelay}>
-            <ClubsButtonCircleContainer markedSeen={false} userSub={reelayDBUser?.sub}>
+        <AddToThreadButtonOuterView onPress={advanceToCreateReelay}>
+            <AddToThreadButtonCircleView markedSeen={false} userSub={reelayDBUser?.sub}>
+                <AddToThreadButtonShadow>
                 { (false) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
                 { (true) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> }
-            </ClubsButtonCircleContainer>
-        </ClubsButtonOuterContainer>
+                </AddToThreadButtonShadow>
+            </AddToThreadButtonCircleView>
+        </AddToThreadButtonOuterView>
     );
 }

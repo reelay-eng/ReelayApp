@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ReelayColors from '../../constants/ReelayColors';
@@ -6,7 +6,7 @@ import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { getWatchlistItems, markWatchlistItemSeen, markWatchlistItemUnseen } from '../../api/WatchlistApi';
+import { getWatchlistItems, markWatchlistItemSeen, markWatchlistItemUnseen, setReactEmojis } from '../../api/WatchlistApi';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import moment from 'moment';
@@ -27,13 +27,14 @@ export default MarkSeenButton = ({
     size=30,
     watchlistItem,
 }) => {
-    const markSeenText = (markedSeen) ? 'Seen' : 'Mark seen';
+    const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
     const titleObj = watchlistItem?.title;
 
     const matchWatchlistItem = (nextItem) => nextItem?.id === watchlistItem?.id;
     const markedSeen = useSelector(state => state.myWatchlistItems.find(matchWatchlistItem)?.hasSeenTitle) ?? false;
+    const markSeenText = (markedSeen) ? 'Seen' : 'Mark seen';
 
     const updateWatchlistReqBody = { 
         reqUserSub: reelayDBUser?.sub, 
@@ -62,7 +63,15 @@ export default MarkSeenButton = ({
         if (watchlistItem?.id) {
             watchlistItem.hasSeenTitle = false;
             watchlistItem.updatedAt = moment().toISOString();
+            watchlistItem.reactEmojis = '';
             dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+
+            setReactEmojis({ 
+                authSession, 
+                itemID: markUnseenResult?.id, 
+                reactEmojis: '', 
+                reqUserSub: reelayDBUser?.sub,
+            })
         }
 
         const markUnseenResult = await markWatchlistItemUnseen(updateWatchlistReqBody);
@@ -85,7 +94,7 @@ export default MarkSeenButton = ({
     return (
         <MarkSeenButtonContainer onPress={(markedSeen) ? markUnseen : markSeen}>
             { showText && <MarkSeenText>{markSeenText}</MarkSeenText> }
-            { markedSeen && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={size} />}
+            { markedSeen && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayGreen} size={size} />}
             { !markedSeen && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={size} />}
         </MarkSeenButtonContainer>
     );

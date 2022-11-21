@@ -26,13 +26,14 @@ const { height, width } = Dimensions.get('window');
 const REC_TITLE_CUTOFF_INDEX = 9;
 
 const AddToWatchlistPressable = styled(TouchableOpacity)`
-    position: absolute;
-    right: 24px;
-    top: ${props => props.topOffset}px;
+    margin-right: 12px;;
 `
 const AddToWatchlistText = styled(ReelayText.Body2Bold)`
     color: ${ReelayColors.reelayBlue};
     font-size: 16px;
+`
+const BackButtonView = styled(View)`
+    margin-bottom: -4px;
 `
 const BottomGradient = styled(LinearGradient)`
     position: absolute;
@@ -141,6 +142,7 @@ const TopBarView = styled(View)`
     justify-content: space-between;
     position: absolute;
     padding-top: ${props => props.topOffset}px;
+    padding-bottom: 6px;
     width: 100%;
     z-index: 100;
 `
@@ -402,13 +404,10 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const TopBar = () => {
         return (
             <TopBarView topOffset={topOffset}>
-                <TopGradient 
-                    colors={['transparent', '#1A8BF2']} 
-                    start={{ x: 0, y: -1 }}
-                    end={{ x: 0, y : 1 }}
-                    topOffset={topOffset}
-                /> 
-                <BackButton navigation={navigation} />
+                <BackButtonView>
+                    <BackButton navigation={navigation} />
+                </BackButtonView>
+                <RecTitleText>{'My watchlist'}</RecTitleText>
                 <AddToWatchlistFromSearchButton />
             </TopBarView>
         );

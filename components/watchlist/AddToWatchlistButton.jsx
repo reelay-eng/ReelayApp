@@ -10,48 +10,59 @@ import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi'
 import { notifyOnAddedToWatchlist } from '../../api/WatchlistNotifications';
 import { showMessageToast } from '../utils/toasts';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import ReelayColors from '../../constants/ReelayColors';
 
-const WatchlistButtonCircleContainer = styled(View)`
+const ShareButtonBackground = styled(LinearGradient)`
+    border-radius: 50px;
+    height: 45px;
+    opacity: 0.9;
+    position: absolute;
+    width: 45px;
+`
+const WatchlistButtonCircleView = styled(View)`
     align-items: center;
-    align-self: center;
-    background: ${({ 
-        isAddedToWatchlist, 
-        showCircle 
-    }) => {
-        if (!showCircle) return 'transparent';
-        return (isAddedToWatchlist) 
-            ? 'rgba(41, 119, 239, 0.40)'
-            : 'rgba(255, 255, 255, 0.20)'
-    }};
     border-radius: 50px;
     height: 45px;
     justify-content: center;
+    overflow: hidden;
+    shadow-offset: 2px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.3;
     width: 45px;
 `
-const WatchlistButtonOuterContainer = styled(TouchableOpacity)`
-    align-items: flex-end;
+const WatchlistButtonOuterView = styled(TouchableOpacity)`
+    align-items: center;
     justify-content: center;
     width: 60px;
 `
 
-export default AddToWatchlistButton = ({ navigation, shouldGoToWatchlist = false, showCircle=true, titleObj, reelay }) => {
+export default AddToWatchlistButton = ({ navigation, shouldGoToWatchlist = false, showCircle=false, titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
-    const isMyReelay = reelay?.creator?.sub === reelayDBUser?.sub;
 
-    const inWatchlistIndex = myWatchlistItems.findIndex((nextItem) => {
+    const matchWatchlistItem = (nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
         const isSeries = (titleType === 'tv');
         return (tmdbTitleID === titleObj.id) 
             && (isSeries === titleObj.isSeries)
             && (hasAcceptedRec === true);
-    });
+    }
 
-    const inWatchlist = inWatchlistIndex !== -1;
+    const watchlistItem = useSelector(state => state.myWatchlistItems.find(matchWatchlistItem));    
+    const inWatchlist = !!watchlistItem;
+    const hasSeenTitle = watchlistItem?.hasSeenTitle;
     const markedSeen = (inWatchlist && inWatchlist?.hasSeenTitle);
 
+    const getGradientColors = () => {
+        if (hasSeenTitle) return [ReelayColors.reelayGreen, ReelayColors.reelayGreen];
+        if (inWatchlist) return [ReelayColors.reelayGreen, '#0789FD'];
+        return ['#0789FD', '#0789FD'];
+    }
+
+    const gradientColors = getGradientColors();
     const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
 			dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
@@ -148,14 +159,15 @@ export default AddToWatchlistButton = ({ navigation, shouldGoToWatchlist = false
     }
 
     return (
-        <WatchlistButtonOuterContainer onPress={(onPress)}>
-            <WatchlistButtonCircleContainer 
-                isAddedToWatchlist={inWatchlist && !isMyReelay}
-                showCircle={showCircle}
-            >
+        <WatchlistButtonOuterView onPress={(onPress)}>
+            <ShareButtonBackground colors={gradientColors} 
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }} 
+            />
+            <WatchlistButtonCircleView>
                 { (inWatchlist || markedSeen) && <AddedToClubsIconSVG /> }
                 { (!inWatchlist && !markedSeen) && <AddToClubsIconSVG /> }
-            </WatchlistButtonCircleContainer>
-        </WatchlistButtonOuterContainer>
+            </WatchlistButtonCircleView>
+        </WatchlistButtonOuterView>
     );
 }

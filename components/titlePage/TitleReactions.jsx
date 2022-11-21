@@ -261,25 +261,10 @@ export default TitleReactions = ({ navigation, titleObj }) => {
 
 
         const onPress = async () => {
-
             const nextReactEmojis = (isSelected) ? unselectEmoji() : selectEmoji();
-            // console.log({
-            //     itemID: myReaction?.id, 
-            //     reactEmojis: nextReactEmojis,
-            //     reqUserSub: reelayDBUser?.sub,
-            // });
-            // if (!myReaction?.hasSeenTitle) {
-            //     console.log('auto marking seen');
-            //     const markSeenResult = autoMarkSeen();
-            // } else {
-            //     console.log('not marking seen');
-            // }
-
             const nextMyReaction = (!myReaction?.hasSeenTitle)
                 ? await autoMarkSeen()
                 : myReaction;
-
-            console.log('my reaction: ', nextMyReaction);
 
             const watchlistItemWithEmojis = await setReactEmojis({
                 authSession, 
@@ -288,13 +273,9 @@ export default TitleReactions = ({ navigation, titleObj }) => {
                 reqUserSub: reelayDBUser?.sub,
             });
 
-            console.log('react emojis: ', nextReactEmojis);
-
             if (watchlistItemWithEmojis && !watchlistItemWithEmojis?.error) {
                 dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItemWithEmojis })
             }
-
-           console.log('set emojis result: ', watchlistItemWithEmojis);
         }
 
         return (

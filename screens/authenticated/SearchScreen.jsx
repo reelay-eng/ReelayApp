@@ -246,6 +246,7 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
             { !loading && !showSuggestions && <SearchResults /> }
             { !loading && showSuggestions && (
                 <SuggestedTitlesGrid 
+                    addToWatchlist={addToWatchlist ?? false}
                     navigation={navigation} 
                     selectedType={selectedType}
                     source='search'
