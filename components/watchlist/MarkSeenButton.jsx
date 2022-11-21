@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ReelayColors from '../../constants/ReelayColors';
@@ -23,6 +23,7 @@ const MarkSeenText = styled(ReelayText.CaptionEmphasized)`
 `
 
 export default MarkSeenButton = ({ 
+    onMarkedSeen = () => {},
     showText=true, 
     size=30,
     watchlistItem,
@@ -49,12 +50,15 @@ export default MarkSeenButton = ({
             watchlistItem.updatedAt = moment().toISOString();
             dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
         }
+        
+        onMarkedSeen();
         const markSeenResult = await markWatchlistItemSeen(updateWatchlistReqBody);
 
         logAmplitudeEventProd('markWatchlistItemSeen', {
             username: reelayDBUser?.username,
             title: titleObj?.display,
         });
+
     }
 
     const markUnseen = async () => {

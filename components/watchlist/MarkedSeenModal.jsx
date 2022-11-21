@@ -124,6 +124,7 @@ const TitleInfoView = styled(View)`
 export default MarkedSeenModal = ({ 
     closeModal, 
     navigation,
+    setCardDisplayEmojis,
     watchlistItem,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -132,8 +133,25 @@ export default MarkedSeenModal = ({
     const dispatch = useDispatch();
     const titleObj = watchlistItem?.title;
 
-    const [displayEmojis, setDisplayEmojis] = useState(DEFAULT_REACT_EMOJIS);
+    const getDisplayEmojis = (reactEmojis = DEFAULT_REACT_EMOJIS) => {
+        const displayEmojis = [];
+        for (let ii = 0; ii < reactEmojis.length; ii += 2) {
+            const emoji = reactEmojis.charAt(ii) + reactEmojis.charAt(ii + 1);
+            displayEmojis.push(emoji);
+        }
+        return displayEmojis;
+    }
+
+    const [displayEmojis, setDisplayEmojis] = useState(getDisplayEmojis());
     const [selectedEmojis, setSelectedEmojis] = useState([]);
+
+    const getEmojiText = (emojis = displayEmojis) => {
+        let emojiText = ''
+        for (const emoji of emojis) {
+            emojiText += emoji;
+        }
+        return emojiText;
+    }
 
     const CloseButton = () => {
         return (
@@ -174,15 +192,21 @@ export default MarkedSeenModal = ({
     const ReactEmoji = ({ emoji }) => {
         const [isSelected, setIsSelected] = useState(selectedEmojis.includes(emoji));
         const onPress = async () => {
-            let nextSelectedEmojis = selectedEmojis;
+            let nextSelectedEmojis = [...selectedEmojis];
             if (isSelected) {
                 setIsSelected(false);
                 nextSelectedEmojis = selectedEmojis.filter(nextEmoji => nextEmoji !== emoji);
                 setSelectedEmojis(nextSelectedEmojis);
+                watchlistItem.reactEmojis = getEmojiText(nextSelectedEmojis);
+                dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+                // setCardDisplayEmojis(nextSelectedEmojis);
             } else {
                 setIsSelected(true);
                 nextSelectedEmojis.push(emoji)
-                setSelectedEmojis(selectedEmojis);
+                setSelectedEmojis(nextSelectedEmojis);
+                watchlistItem.reactEmojis = getEmojiText(nextSelectedEmojis);
+                dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+                // setCardDisplayEmojis(nextSelectedEmojis);
             }
 
             const setEmojisResult = await setReactEmojis({
@@ -201,18 +225,9 @@ export default MarkedSeenModal = ({
     }
 
     const ReactEmojiRow = () => {
-        const getEmojiChars = () => {
-            const chars = [];
-            for (let ii = 0; ii < displayEmojis.length; ii += 2) {
-                const nextEmoji = displayEmojis.charAt(ii) + displayEmojis.charAt(ii + 1);
-                chars.push(nextEmoji);
-            }
-            return chars;
-        }
-
         return (
             <ReactEmojiRowView>
-                { getEmojiChars().map(emoji => <ReactEmoji emoji={emoji} /> )}
+                { displayEmojis.map(emoji => <ReactEmoji emoji={emoji} /> )}
                 <AddOtherEmojiButton />
             </ReactEmojiRowView>
         )

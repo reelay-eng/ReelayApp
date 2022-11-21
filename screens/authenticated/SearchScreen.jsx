@@ -53,10 +53,24 @@ export default SearchScreen = ({ navigation, route }) => {
     const addToWatchlist = route?.params?.addToWatchlist ?? false;
     const initialSearchType = route?.params?.initialSearchType ?? 'Film';
 
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
+
+    const goBack = () => {
+        if (addToWatchlist) {
+            navigation.navigate('WatchlistScreen', {
+                myWatchlistItems,
+                myWatchlistRecs,
+            });
+        } else {
+            navigation.goBack();
+        }
+    }
 
     return (
 		<SearchScreenView>
 			<HeaderWithBackButton 
+                onPressOverride={goBack}
                 navigation={navigation} 
                 text={addToWatchlist ? 'Add to watchlist' : 'search'} 
             />

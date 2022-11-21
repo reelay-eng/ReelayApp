@@ -28,7 +28,7 @@ const ReactEmojiCount = styled(ReelayText.Body1)`
 const ReactEmojiPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${props => props.isSelected
-        ? ReelayColors.reelayBlue
+        ? ReelayColors.reelayGreen
         : 'rgba(255,255,255,0.12)'
     };
     border-radius: 8px;

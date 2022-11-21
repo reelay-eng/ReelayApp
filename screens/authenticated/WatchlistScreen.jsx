@@ -105,9 +105,7 @@ const RecTitleRowView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    margin-top: 6px;
-    padding-left: 8px;
-    padding-bottom: 8px;
+    padding: 8px;
 `
 const RecTitleText = styled(ReelayText.H5Bold)`
     color: white;

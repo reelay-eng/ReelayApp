@@ -2,8 +2,9 @@ import React, { useContext } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import * as ReelayText from '../global/Text';
 
-import { AddedToClubsIconSVG, AddToClubsIconSVG } from '../global/SVGs';
+import { AddedToClubsIconSVG, AddToClubsIconSVG, ClubsIconSolidSVG, ClubsIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
@@ -13,11 +14,17 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
 
+const LabelText = styled(ReelayText.H6Emphasized)`
+    color: white;
+    font-size: 16px;
+    margin-right: 10px;
+`
 const ShareButtonBackground = styled(LinearGradient)`
     border-radius: 50px;
     height: 45px;
     opacity: 0.9;
     position: absolute;
+    right: 6px;
     width: 45px;
 `
 const WatchlistButtonCircleView = styled(View)`
@@ -34,14 +41,20 @@ const WatchlistButtonCircleView = styled(View)`
 const WatchlistButtonOuterView = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
-    width: 60px;
+    flex-direction: row;
+    padding-right: 6px;
 `
 
-export default AddToWatchlistButton = ({ navigation, shouldGoToWatchlist = false, showCircle=false, titleObj, reelay }) => {
+export default AddToWatchlistButton = ({ 
+    navigation, 
+    shouldGoToWatchlist = false, 
+    showLabel = false,
+    titleObj, 
+    reelay 
+}) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
 
     const matchWatchlistItem = (nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
@@ -105,13 +118,6 @@ export default AddToWatchlistButton = ({ navigation, shouldGoToWatchlist = false
         });
 
         dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
-
-        if (shouldGoToWatchlist) {
-            navigation.navigate('WatchlistScreen', {
-                myWatchlistItems: nextWatchlistItems,
-                myWatchlistRecs: myWatchlistRecs,
-            });
-        }
     }
 
     const removeFromWatchlistOnPress = async () => {
@@ -128,17 +134,6 @@ export default AddToWatchlistButton = ({ navigation, shouldGoToWatchlist = false
         })
 
         dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
-
-        if (shouldGoToWatchlist) {
-            navigation.navigate('WatchlistScreen', {
-                myWatchlistItems: nextWatchlistItems,
-                myWatchlistRecs: myWatchlistRecs,
-            });
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        } else {
-            showMessageToast(`Removed ${titleObj.display} from your watchlist`);
-        }
-
         const removeFromWatchlistResult = await removeFromMyWatchlist({
             reqUserSub: reelayDBUser?.sub,
             tmdbTitleID: titleObj?.id,
@@ -158,15 +153,24 @@ export default AddToWatchlistButton = ({ navigation, shouldGoToWatchlist = false
         }
     }
 
+    const Label = () => {
+        if (!showLabel) return <View />;
+        const label = (inWatchlist) ? 'In watchlist' : 'Add to watchlist';
+        return (
+            <LabelText>{label}</LabelText>
+        )
+    }
+
     return (
         <WatchlistButtonOuterView onPress={(onPress)}>
+            <Label />
             <ShareButtonBackground colors={gradientColors} 
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }} 
             />
             <WatchlistButtonCircleView>
-                { (inWatchlist || markedSeen) && <AddedToClubsIconSVG /> }
-                { (!inWatchlist && !markedSeen) && <AddToClubsIconSVG /> }
+                { (inWatchlist) && <AddedToClubsIconSVG /> }
+                { (!inWatchlist && !hasSeenTitle) && <AddToClubsIconSVG /> }
             </WatchlistButtonCircleView>
         </WatchlistButtonOuterView>
     );

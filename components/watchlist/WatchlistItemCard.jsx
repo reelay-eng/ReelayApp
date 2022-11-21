@@ -10,6 +10,7 @@ import WatchlistItemDotMenu from './WatchlistItemDotMenu';
 import MarkedSeenModal from './MarkedSeenModal';
 import * as ReelayText from '../global/Text';
 import { useSelector } from 'react-redux';
+import ReelayColors from '../../constants/ReelayColors';
  
 const { height, width } = Dimensions.get('window');
 const CARD_SIDE_MARGIN = 6;
@@ -70,9 +71,9 @@ export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, w
 
     const advanceToTitleDetailScreen = () => navigation.push('TitleDetailScreen', { 
         titleObj: watchlistItem.title,
+        fromWatchlist: true,
     });
 
-    const [markedSeen, setMarkedSeen] = useState(watchlistItem?.hasSeenTitle);
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [showMarkedSeenModal, setShowMarkedSeenModal] = useState(false);
     const closeDrawer = () => setDrawerVisible(false);
@@ -89,13 +90,12 @@ export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, w
     const [displayEmojis, setDisplayEmojis] = useState(getDisplayEmojis());
     const showReactEmojis = displayEmojis?.length > 0;
 
-    const onMarkedSeen = (nextMarkedSeen) => {
-        setMarkedSeen(nextMarkedSeen);
-        if (nextMarkedSeen) setShowMarkedSeenModal(true);
+    const onMarkedSeen = () => {
+        setShowMarkedSeenModal(true);
     }
 
     useEffect(() => {
-        setDisplayEmojis(getDisplayEmojis(nextWatchlistItem?.reactEmojis))
+        setDisplayEmojis(getDisplayEmojis(nextWatchlistItem?.reactEmojis));
     }, [nextWatchlistItem]);
 
     const DotMenuButton = () => {
@@ -115,7 +115,6 @@ export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, w
             );
         }
 
-        // const displayEmojis = getDisplayEmojis();
         return (
             <EmojiBadgeRowView>
                 { displayEmojis.map(renderEmojiBadge)}
@@ -127,8 +126,7 @@ export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, w
         return (
             <MarkSeenRow>
                 <MarkSeenButton 
-                    markedSeen={markedSeen} 
-                    setMarkedSeen={onMarkedSeen} 
+                    onMarkedSeen={onMarkedSeen}
                     showText={true} 
                     size={36}
                     watchlistItem={watchlistItem} 
@@ -156,6 +154,7 @@ export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, w
                 <MarkedSeenModal 
                     closeModal={() => setShowMarkedSeenModal(false)} 
                     navigation={navigation} 
+                    setCardDisplayEmojis={setDisplayEmojis}
                     watchlistItem={watchlistItem} 
                 />
             )}

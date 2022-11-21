@@ -54,7 +54,7 @@ const CreateReelayPressable = styled(TouchableOpacity)`
 const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
 	color: white;
 `
-const HeaderContainer = styled(View)`
+const HeaderView = styled(View)`
 	align-items: center;
 	flex-direction: row;
 	justify-content: space-between;
@@ -79,6 +79,8 @@ const WatchTrailerPressable = styled(CreateReelayPressable)`
 export default TitleDetailScreen = ({ navigation, route }) => {
 	// Parse Title Object
 	const { titleObj } = route.params;
+	const fromWatchlist = route.params?.fromWatchlist ?? false;
+
 	const tmdbTitleID = titleObj?.id;
 	const isSeries = titleObj?.isSeries;
 	const titleType = (isSeries) ? "tv" : "film";
@@ -87,7 +89,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const dispatch = useDispatch();
 	const headerTopOffset = useSafeAreaInsets().top - 10;
 	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
-	
+
 	const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
 			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
@@ -119,11 +121,27 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	}
 
 	const NavHeader = () => {
+		const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+		const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
+		const goBack = () => {
+			if (fromWatchlist) {
+				navigation.navigate('WatchlistScreen', {
+					myWatchlistItems,
+					myWatchlistRecs,
+				})
+			} else {
+				navigation.goBack();
+			}
+		}
+
+
 		return (
-			<HeaderContainer topOffset={headerTopOffset}>
-				<BackButton navigation={navigation} />
-				<AddToWatchlistButton navigation={navigation} shouldGoToWatchlist={true} titleObj={titleObj} />
-			</HeaderContainer>
+			<HeaderView topOffset={headerTopOffset}>
+				<TouchableOpacity onPress={() => goBack()}>
+					<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
+				</TouchableOpacity>
+				<AddToWatchlistButton navigation={navigation} shouldGoToWatchlist={true} showLabel={true} titleObj={titleObj} />
+			</HeaderView>
 		);
 	}
 

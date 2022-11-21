@@ -35,13 +35,15 @@ const HeaderTextLight = styled(ReelayText.H5)`
 
 export const HeaderWithBackButton = ({ 
 	navigation, 
+	onPressOverride,
 	text = "Settings", 
 	light=false 
 }) => {
+	const onPress = onPressOverride ?? navigation?.goBack;
 	return (
 		<>
 			<HeaderView>
-				<BackButtonPressable onPress={() => navigation.goBack()}>
+				<BackButtonPressable onPress={onPress}>
 					<Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
 				</BackButtonPressable>
 				{ light && <HeaderTextLight>{text}</HeaderTextLight> }
