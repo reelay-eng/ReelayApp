@@ -6,8 +6,6 @@ import TitlePoster from '../global/TitlePoster';
 
 import { fetchPopularMovies, fetchPopularSeries } from '../../api/TMDbApi';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AddToWatchlistButton from '../watchlist/AddToWatchlistButton';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 

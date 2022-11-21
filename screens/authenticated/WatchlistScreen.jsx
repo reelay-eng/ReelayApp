@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Dimensions, FlatList, RefreshControl, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, RefreshControl, TouchableOpacity, View } from 'react-native';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { AuthContext } from '../../context/AuthContext';
@@ -20,10 +20,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faRefresh, faRepeat, faXmark } from '@fortawesome/free-solid-svg-icons';
 import TitlePoster from '../../components/global/TitlePoster';
 import AddToWatchlistButton from '../../components/watchlist/AddToWatchlistButton';
-import { FlashList } from '@shopify/flash-list';
 
 const { height, width } = Dimensions.get('window');
 const REC_TITLE_CUTOFF_INDEX = 9;
+const CARD_SIDE_MARGIN = 6;
+const WATCHLIST_CARD_WIDTH = (width / 3) - (CARD_SIDE_MARGIN * 2);
 
 const AddToWatchlistPressable = styled(TouchableOpacity)`
     margin-right: 12px;;
@@ -224,6 +225,14 @@ export default WatchlistScreen = ({ navigation, route }) => {
             return true;
         }
         return  myWatchlistItems.filter(allFilters);
+    }
+
+    const getWatchlistItemLayout = (item, index) => {
+        return {
+            length: WATCHLIST_CARD_WIDTH + CARD_SIDE_MARGIN,
+            offset: index * (WATCHLIST_CARD_WIDTH + CARD_SIDE_MARGIN),
+            index,
+        }
     }
 
     const onMoveToFront = (watchlistItem) => {
@@ -461,33 +470,35 @@ export default WatchlistScreen = ({ navigation, route }) => {
         );
     }
 
-    const WatchlistFooter = () => {
-        return (
-            <Fragment>
-                <RecommendedTitles />
-                <FlatList
-                    data={displayItemsPostCutoff}
-                    numColumns={3}
-                    estimatedItemSize={100}
-                    keyExtractor={item => item.id}
-                    renderItem={renderWatchlistItem}
-                    refreshControl={Refresher}
-                    showsVerticalScrollIndicator={false}
-                />
-                <RecBottomSpacer height={bottomOffset + 60} />
-            </Fragment>
-        );
-    }
-
     return (
 		<WatchlistScreenContainer topOffset={topOffset}>
             <TopBar />
             <FlatList
                 ListHeaderComponent={(<WatchlistHeader />)}
-                ListFooterComponent={(<WatchlistFooter />)}
+                ListFooterComponent={(
+                    <Fragment>
+                        <RecommendedTitles />
+                        <FlatList
+                            data={displayItemsPostCutoff}
+                            decelerationRate={2}
+                            estimatedItemSize={100}
+                            getItemLayout={getWatchlistItemLayout}
+                            keyboardShouldPersistTaps="always"
+                            keyExtractor={item => item.id}
+                            numColumns={3}
+                            renderItem={renderWatchlistItem}
+                            refreshControl={Refresher}
+                            showsVerticalScrollIndicator={false}
+                            snapToStart={false}
+                        />
+                        <RecBottomSpacer height={bottomOffset + 60} />
+                    </Fragment>    
+                )}
                 data={displayItemsWithCutoff}
+                decelerationRate={2}
                 numColumns={3}
                 estimatedItemSize={100}
+                keyboardShouldPersistTaps="always"
                 keyExtractor={item => item.id}
                 renderItem={renderWatchlistItem}
                 refreshControl={Refresher}

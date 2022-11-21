@@ -72,7 +72,7 @@ export default SearchScreen = ({ navigation, route }) => {
 			<HeaderWithBackButton 
                 onPressOverride={goBack}
                 navigation={navigation} 
-                text={addToWatchlist ? 'Add to watchlist' : 'search'} 
+                text={addToWatchlist ? 'add to watchlist' : 'search'} 
             />
             <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist}/>
 		</SearchScreenView>
@@ -258,9 +258,8 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
                 />
             </SearchBarView>
             { !loading && !showSuggestions && <SearchResults /> }
-            { !loading && showSuggestions && (
+            { !loading && showSuggestions && !addToWatchlist && (
                 <SuggestedTitlesGrid 
-                    addToWatchlist={addToWatchlist ?? false}
                     navigation={navigation} 
                     selectedType={selectedType}
                     source='search'

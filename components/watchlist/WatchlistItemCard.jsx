@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
@@ -61,10 +61,11 @@ const MarkSeenRow = styled(View)`
 const WatchlistCardView = styled(Pressable)`
     border-radius: 12px;
     margin: ${CARD_SIDE_MARGIN}px;
+    height: 240px;
     width: ${WATCHLIST_CARD_WIDTH}px;
 `
 
-export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistItem }) => {
+const WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistItem }) => {
     const matchWatchlistItem = item => item?.id === watchlistItem?.id;
     const getWatchlistItem = state => state.myWatchlistItems.find(matchWatchlistItem);
     const nextWatchlistItem = useSelector(getWatchlistItem);
@@ -161,3 +162,5 @@ export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, w
         </WatchlistCardView>
     );
 }
+
+export default memo(WatchlistItemCard, (prevProps, nextProps) => true);
