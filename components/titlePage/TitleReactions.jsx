@@ -12,7 +12,6 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 import * as Haptics from 'expo-haptics';
 import ProfilePicture from '../global/ProfilePicture';
-import { FlashList } from '@shopify/flash-list';
 import AddReactEmojiDrawer from './AddReactEmojiDrawer';
 
 const { height, width } = Dimensions.get('window');
@@ -185,13 +184,18 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
         const [showEmojiDrawer, setShowEmojiDrawer] = useState(false);
         const openDrawer = () => setShowEmojiDrawer(true);
         const closeDrawer = () => setShowEmojiDrawer(false);
+
+        const onEmojiSelected = (emoji) => {
+            console.log('on emoji selected: ', emoji);
+        }
+
         return (
             <ReactEmojiView>
                 <ReactEmojiPressable onPress={openDrawer}>
                     <FontAwesomeIcon icon={faPlus} color='white' size={20} />
                 </ReactEmojiPressable>
                 { showEmojiDrawer && (
-                    <AddReactEmojiDrawer closeDrawer={closeDrawer} titleObj={titleObj} />
+                    <AddReactEmojiDrawer closeDrawer={closeDrawer} onEmojiSelected={onEmojiSelected} />
                 )}
             </ReactEmojiView>
         )

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions, 
     KeyboardAvoidingView, 
@@ -22,6 +22,7 @@ import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { BlurView } from 'expo-blur'
 import ReelayColors from '../../constants/ReelayColors';
 import { setReactEmojis } from '../../api/WatchlistApi';
+import AddReactEmojiDrawer from '../titlePage/AddReactEmojiDrawer';
 
 const { width } = Dimensions.get('window');
 
@@ -161,10 +162,24 @@ export default MarkedSeenModal = ({
     }
 
     const AddOtherEmojiButton = () => {
+        const [showEmojiDrawer, setShowEmojiDrawer] = useState(false);
+        const openDrawer = () => setShowEmojiDrawer(true);
+        const closeDrawer = () => setShowEmojiDrawer(false);
+
+        const onEmojiSelected = (emoji) => {
+            console.log('on emoji selected: ', emoji);
+        }
+
+
         return (
-            <ReactEmojiPressable>
-                <FontAwesomeIcon icon={faPlus} color='white' size={20} />
-            </ReactEmojiPressable>
+            <Fragment>
+                <ReactEmojiPressable onPress={openDrawer}>
+                    <FontAwesomeIcon icon={faPlus} color='white' size={20} />
+                </ReactEmojiPressable>
+                { showEmojiDrawer && (
+                    <AddReactEmojiDrawer closeDrawer={closeDrawer} onEmojiSelected={onEmojiSelected} />
+                )}
+            </Fragment>
         )
     }
 

@@ -4,7 +4,6 @@ import { Dimensions, Modal, Pressable, TouchableOpacity, View } from 'react-nati
 import * as ReelayText from '../global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// import Share from 'react-native-share';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -58,17 +57,20 @@ const ShareOptionsRowView = styled(View)`
     padding-right: ${BUTTON_MARGIN_WIDTH}px;
 `
 
-export default AddReactEmojiDrawer = ({ closeDrawer, titleObj }) => {
+export default AddReactEmojiDrawer = ({ closeDrawer, onEmojiSelected }) => {
     const authSession = useSelector(state => state.authSession);
     const bottomOffset = useSafeAreaInsets().bottom;
     const { reelayDBUser } = useContext(AuthContext);
 
+    useEffect(() => {
+
+    }, []);
 
     const DrawerHeader = () => {
         return (
             <DrawerHeaderView>
                 <LeftSpacer />
-                <HeaderText>{'Share club'}</HeaderText>
+                <HeaderText>{'Add Reaction'}</HeaderText>
                 <CloseDrawerButton onPress={closeDrawer}>
                     <FontAwesomeIcon icon={faXmark} size={20} color='white' />
                 </CloseDrawerButton>
