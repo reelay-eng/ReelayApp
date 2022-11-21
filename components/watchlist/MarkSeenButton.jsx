@@ -50,7 +50,6 @@ export default MarkSeenButton = ({
             dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
         }
         const markSeenResult = await markWatchlistItemSeen(updateWatchlistReqBody);
-        console.log('mark seen result: ', markSeenResult);
 
         logAmplitudeEventProd('markWatchlistItemSeen', {
             username: reelayDBUser?.username,
@@ -60,22 +59,21 @@ export default MarkSeenButton = ({
 
     const markUnseen = async () => {
         if (showMeSignupIfGuest()) return;
+        const markUnseenResult = await markWatchlistItemUnseen(updateWatchlistReqBody);
+
         if (watchlistItem?.id) {
             watchlistItem.hasSeenTitle = false;
             watchlistItem.updatedAt = moment().toISOString();
             watchlistItem.reactEmojis = '';
             dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
 
-            setReactEmojis({ 
+            const reactEmojisResult = await setReactEmojis({ 
                 authSession, 
-                itemID: markUnseenResult?.id, 
+                itemID: watchlistItem?.id, 
                 reactEmojis: '', 
                 reqUserSub: reelayDBUser?.sub,
-            })
+            });
         }
-
-        const markUnseenResult = await markWatchlistItemUnseen(updateWatchlistReqBody);
-        console.log('mark unseen result: ', markUnseenResult);
 
         logAmplitudeEventProd('markWatchlistItemUnseen', {
             username: reelayDBUser?.username,

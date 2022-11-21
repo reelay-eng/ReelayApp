@@ -215,12 +215,7 @@ export default TitleReactions = ({ navigation, titleObj }) => {
                     titleType: myReaction?.titleType,
                 });
 
-                console.log('mark seen result: ', watchlistItemMarkedSeen);
                 watchlistItemMarkedSeen.title = titleObj;
-                if (watchlistItemMarkedSeen && !watchlistItemMarkedSeen?.error) {
-                    dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItemMarkedSeen });    
-                }
-
                 return watchlistItemMarkedSeen;
             }
         }
@@ -233,7 +228,6 @@ export default TitleReactions = ({ navigation, titleObj }) => {
                 hasSeenTitle: true,
             };
             setMyReaction(nextMyReaction);
-
             const removeMyReaction = (reaction) => reaction?.userSub !== reelayDBUser?.sub
             const nextAllReactions = [nextMyReaction, ...allReactions.filter(removeMyReaction)];
             setAllReactions(nextAllReactions);
@@ -273,6 +267,7 @@ export default TitleReactions = ({ navigation, titleObj }) => {
                 reqUserSub: reelayDBUser?.sub,
             });
 
+            watchlistItemWithEmojis.title = titleObj;
             if (watchlistItemWithEmojis && !watchlistItemWithEmojis?.error) {
                 dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItemWithEmojis })
             }
@@ -318,7 +313,7 @@ export default TitleReactions = ({ navigation, titleObj }) => {
 
         return (
             <SeeOtherReactionsView>
-                { displayOtherReactions.map(reaction => <OtherReactionRow reaction={reaction} /> )}
+                { displayOtherReactions.map(reaction => <OtherReactionRow key={reaction?.userSub} reaction={reaction} /> )}
                 <SeeAllPressable>
                     <SeeAllText>{'see all'}</SeeAllText>
                 </SeeAllPressable>
@@ -327,9 +322,17 @@ export default TitleReactions = ({ navigation, titleObj }) => {
     }
 
     useEffect(() => {
+        const nextMyReaction = getMyReaction();
         setMyReaction(getMyReaction());
+        if (myReaction?.reactEmojis?.length === 0) {
+            const removeMyReaction = reaction => reaction?.userSub !== nextMyReaction?.userSub;
+            setAllReactions(allReactions.filter(removeMyReaction));
+        }
+    }, [myWatchlistItems]);
+
+    useEffect(() => {
         if (!titleObj?.reactions) loadReactions();
-    }, [myWatchlistItems])
+    }, []);
 
     return (
         <ReactionCardView>

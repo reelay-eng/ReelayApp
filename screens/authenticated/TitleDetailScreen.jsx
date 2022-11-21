@@ -87,7 +87,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const dispatch = useDispatch();
 	const headerTopOffset = useSafeAreaInsets().top - 10;
 	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
-
+	
 	const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
 			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
