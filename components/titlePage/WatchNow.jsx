@@ -15,17 +15,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Linking from 'expo-linking';
 import ReelayColors from '../../constants/ReelayColors';
 
-const SeenOnContainer = styled(View)`
+const WatchNowContainer = styled(View)`
     width: 95%;
     left: 5%;
     margin-bottom: 32px;
 `;
-const SeenOnHeader = styled(ReelayText.H5Emphasized)`
-    padding: 10px;
+const WatchNowHeader = styled(ReelayText.H5Emphasized)`
     color: white;
-    margin-top: 2px;
+    font-size: 24px;
+    padding: 10px;
 `;
-const SeenOnHeaderContainer = styled(View)`
+const WatchNowHeaderContainer = styled(View)`
     flex-direction: row;
     align-items: center;
     height: 40px;
@@ -38,16 +38,16 @@ const VenuesScrollContainer = styled(View)`
     padding-left: 5px;
 `;
 
-export default SeenOn = ({ titleType, tmdbTitleID}) => {
+export default WatchNow = ({ titleType, tmdbTitleID}) => {
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
     const myStreamingSubscriptionsUnboxed = myStreamingSubscriptions.map(ss => ss.platform);
     const streamingVenues = getStreamingVenues();
     const streamingVenuesUnboxed = streamingVenues.map(vi => vi.venue);
 
-    const [venuesSeenOnMyStreaming, setVenuesSeenOnMyStreaming] = useState([]);
+    const [venuesWatchNowMyStreaming, setVenuesWatchNowMyStreaming] = useState([]);
     const [venuesSeenNotOnMyStreaming, setVenuesSeenNotOnMyStreaming] = useState([]);
 
-    const totalVenuesLength = (venuesSeenOnMyStreaming.length + venuesSeenNotOnMyStreaming?.length) ?? 0;
+    const totalVenuesLength = (venuesWatchNowMyStreaming.length + venuesSeenNotOnMyStreaming?.length) ?? 0;
 
     const loadVenuesWhereSeen = async () => {
         const venues = await getVenuesWhereSeen(titleType, tmdbTitleID);
@@ -60,7 +60,7 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
         const venuesInMySubscriptions = streamingVenues.filter(byVenueInMySubscriptions);
         const venuesNotInMySubscriptions = streamingVenues.filter(byVenueNotInMySubscriptions);
 
-        setVenuesSeenOnMyStreaming(venuesInMySubscriptions);
+        setVenuesWatchNowMyStreaming(venuesInMySubscriptions);
         setVenuesSeenNotOnMyStreaming(venuesNotInMySubscriptions);
     }
 
@@ -97,7 +97,7 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
             if (deeplinkURL) {
                 try {
                     if (await Linking.canOpenURL(deeplinkURL)) {
-                        logAmplitudeEventProd("seenOnStreamingAppOpened", {
+                        logAmplitudeEventProd("watchNowStreamingAppOpened", {
                             titleType,
                             tmdbTitleID,
                             venue,
@@ -108,7 +108,7 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
                     }
                     else {
                         showErrorToast("You must first install that app.");
-                        logAmplitudeEventProd("seenOnStreamingAppNotInstalled", {
+                        logAmplitudeEventProd("watchNowStreamingAppNotInstalled", {
                             titleType,
                             tmdbTitleID,
                             venue,
@@ -119,7 +119,7 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
                 }
                 catch(e) {
                     showErrorToast("Something went wrong.");
-                    logAmplitudeEventProd("seenOnStreamingAppError", {
+                    logAmplitudeEventProd("watchNowStreamingAppError", {
                         titleType,
                         tmdbTitleID,
                         venue,
@@ -132,7 +132,7 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
             }
         }
 
-        const SeenOnButtonGradient = styled(LinearGradient)`
+        const WatchNowButtonGradient = styled(LinearGradient)`
             flex: 1;
             opacity: 1;
             position: absolute;
@@ -159,7 +159,7 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
 			<>
                 {source && (
 					<TouchableVenue onPress={attemptOpenDeeplinkURL} activeOpacity={0.6}>
-                        <SeenOnButtonGradient colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}/>
+                        <WatchNowButtonGradient colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}/>
                         <PrimaryVenueImage source={source} />
                         { isOnMyStreaming && <CheckmarkCircle />}
 					</TouchableVenue>
@@ -171,18 +171,17 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
     return (
         <>
             { (totalVenuesLength > 0) && (
-                <SeenOnContainer>
-                    <SeenOnHeaderContainer>
-                        <SeenOnHeader>Seen On </SeenOnHeader>
-                        <Icon type='ionicon' name='exit-outline' size={24} color='white' />
-                    </SeenOnHeaderContainer>
+                <WatchNowContainer>
+                    <WatchNowHeaderContainer>
+                        <WatchNowHeader>{'Watch now'}</WatchNowHeader>
+                    </WatchNowHeaderContainer>
                     <VenuesScrollContainer>
                         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} scrollEnabled={totalVenuesLength > 3}>
-                            {venuesSeenOnMyStreaming.map((venue, index) => <VenueBadge key={index} venue={venue} isOnMyStreaming />)}
+                            {venuesWatchNowMyStreaming.map((venue, index) => <VenueBadge key={index} venue={venue} isOnMyStreaming />)}
                             {venuesSeenNotOnMyStreaming.map((venue, index) => <VenueBadge key={index} venue={venue} />)}
                         </ScrollView>
                     </VenuesScrollContainer>
-                </SeenOnContainer>
+                </WatchNowContainer>
             )}
         </>
     )

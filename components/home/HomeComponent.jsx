@@ -3,8 +3,6 @@ import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 import styled from 'styled-components';
 
 import HomeHeader from './HomeHeader';
-import InTheaters from './InTheaters';
-import FriendsAreWatching from './FriendsAreWatching';
 import TopicsCarousel from '../topics/TopicsCarousel';
 import OnStreaming from './OnStreaming';
 
@@ -19,14 +17,13 @@ import AppUpdateOverlay from '../overlay/AppUpdateOverlay';
 import NoticeOverlay from '../overlay/NoticeOverlay';
 import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 import PopularTitles from './PopularTitles';
-import DiscoverClubs from './DiscoverClubs';
 
 import { LinearGradient } from 'expo-linear-gradient';
-import MyWatchlistGrid from '../watchlist/MyWatchlistGrid';
 import DiscoverSearch from './DiscoverSearch';
 import RecommendedForYou from './RecommendedForYou';
 import GuessingGames from './GuessingGames';
 import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
+import HomeWatchlistCard from './HomeWatchlistCard';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -53,7 +50,7 @@ const HomeComponent = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
-    const showWatchlistGrid = (reelayDBUser?.username !== 'be_our_guest');
+    const showWatchlistCard = (reelayDBUser?.username !== 'be_our_guest');
 
     const [selectedTab, setSelectedTab] = useState('discover');
     const tabOptions = ['discover', 'my stuff'];
@@ -146,12 +143,12 @@ const HomeComponent = ({ navigation }) => {
             </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
+                { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> }
                 <GuessingGames navigation={navigation} />
                 <RecommendedForYou navigation={navigation} />
                 <PopularTitles navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
                 <TopicsCarousel navigation={navigation} source='discover' /> 
-                { showWatchlistGrid && <MyWatchlistGrid navigation={navigation} /> }
                 <OnStreaming navigation={navigation} source='discover' />
                 <DiscoverSearch navigation={navigation} />
                 <Spacer />

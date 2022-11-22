@@ -12,7 +12,7 @@ import {
     getStacksByCreator,
     getStreamingSubscriptions,
 } from '../../api/ReelayDBApi';
-import { getWatchlistItems } from '../../api/WatchlistApi';
+import { getWatchlistItems, getWatchlistRecs } from '../../api/WatchlistApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
 
 // Components
@@ -80,6 +80,7 @@ const Spacer = styled(View)`
 `
 
 export default MyProfileScreen = ({ navigation, route }) => {
+    const authSession = useSelector(state => state.authSession);
     const [refreshing, setRefreshing] = useState(false);
 	const { reelayDBUser } = useContext(AuthContext); 
     const currentAppLoadStage = useSelector(state => state.currentAppLoadStage);
@@ -139,6 +140,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     nextMyFollowing,
                     nextMyNotifications,
                     nextMyWatchlistItems,
+                    nextMyWatchlistRecs,
                     nextMyStreamingSubscriptions
                 ] = await Promise.all([
                     getStacksByCreator(userSub),
@@ -146,6 +148,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     getFollowing(userSub),
                     getAllMyNotifications(userSub),
                     getWatchlistItems(userSub),
+                    getWatchlistRecs({ authSession, reqUserSub: userSub, category: 'all' }),
                     getStreamingSubscriptions(userSub),
                 ]);
                 
@@ -157,6 +160,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
                 dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
                 dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
+                dispatch({ type: 'setMyWatchlistRecs', payload: nextMyWatchlistRecs });
                 dispatch({ type: 'setMyFollowing', payload: nextMyFollowing });
 
                 dispatch({ type: 'setMyStreamingSubscriptions', payload: nextMyStreamingSubscriptions });
@@ -186,7 +190,9 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }
 
     const SeeMyWatchlistButton = () => {
-        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
+        const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+        const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
+        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems, myWatchlistRecs });
         return (
             <MyWatchlistPressable onPress={advanceToWatchlistScreen}>
                 <MyWatchlistText>{'See my watchlist'}</MyWatchlistText>

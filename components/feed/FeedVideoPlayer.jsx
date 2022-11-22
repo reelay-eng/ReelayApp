@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, memo, useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, Keyboard, Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
@@ -44,28 +44,6 @@ const PlayPauseIcon = ({ onPress, type = 'play' }) => {
     );
 }
 
-const ReelayVideo = ({ 
-	onPlaybackStatusUpdate,
-	shouldPlay,
-	videoURI,
-}) => {
-	return (
-		<Video
-			isLooping={true}
-			isMuted={false}
-			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
-			progressUpdateIntervalMillis={50}
-			rate={1.0}
-			resizeMode='cover'
-			shouldPlay={shouldPlay}
-			source={{ uri: videoURI }}
-			style={{ height, width }}
-			useNativeControls={false}
-			volume={1.0}
-		/>
-	);
-}
-
 export default FeedVideoPlayer = ({ gameID = null, navigation, reelay, viewable }) => {
 	const canOpenTrailer = (!gameID && reelay?.titleKey !== 'film-0');
 	const dispatch = useDispatch();
@@ -75,9 +53,8 @@ export default FeedVideoPlayer = ({ gameID = null, navigation, reelay, viewable 
 	const [focused, setFocused] = useState(false);
 	const [paused, setPaused] = useState(false);
 	const [playPauseVisible, setPlayPauseVisible] = useState(false);
-	const [showWatchlistIcon, setShowWatchlistIcon] = useState(false);
-
 	const [showShareOutDrawer, setShowShareOutDrawer] = useState(false);
+
 	const closeShareOutDrawer = () => setShowShareOutDrawer(false);
 
 	const shouldPlay = viewable && focused && finishedLoading && !paused;
@@ -90,13 +67,6 @@ export default FeedVideoPlayer = ({ gameID = null, navigation, reelay, viewable 
 		}
 	}, [viewable, paused, focused]);
 
-	useEffect(() => {
-		if (showWatchlistIcon) {
-			setTimeout(() => {
-				setShowWatchlistIcon(false);
-			}, ADD_TO_WATCHLIST_ICON_TIMEOUT_MS);
-		}
-	}, [showWatchlistIcon]);
 
     useFocusEffect(React.useCallback(() => {
 		if (viewable) setFocused(true);

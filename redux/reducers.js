@@ -198,11 +198,23 @@ export const sortByLastActivity = (club0, club1) => {
     return lastActivity1.diff(lastActivity0, 'seconds') > 0;
 }
 
+const sortWatchlistItems = (item0, item1) => {
+    const item0Date = item0.lastMovedToFrontAt ?? item0.createdAt;
+    const item1Date = item1.lastMovedToFrontAt ?? item1.createdAt;
+    return item1Date > item0Date ? 1 : -1;
+}
+
 export const updateClubReducer = (myClubs, updatedClub) => {
     const myClubsFiltered = myClubs.filter(nextClub => nextClub.id !== updatedClub.id);
     const updatedClubObj = { ...updatedClub };
     updatedClubObj.memberCount = updatedClubObj?.members?.length;
     return [ updatedClubObj, ...myClubsFiltered].sort(sortByLastActivity);
+}
+
+export const updateWatchlistReducer = (myWatchlistItems, updatedItem) => {
+    const myWatchlistItemsFiltered = myWatchlistItems.filter(item => item.id !== updatedItem.id);
+    const updatedItemObj = { ...updatedItem };
+    return [ updatedItemObj, ...myWatchlistItemsFiltered].sort(sortWatchlistItems);
 }
 
 export const watchlistRecsReducer = (watchlistItems) => {

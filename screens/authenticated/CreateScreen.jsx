@@ -33,7 +33,7 @@ const CreateGuessingGamePressable = styled(CreateOptionPressable)`
     height: ${props => props.height}px;
     width: ${props => props.width}px;
 `
-const CreateReviewPressable = styled(CreateOptionPressable)`
+const CreateReelayPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
     height: ${props => props.height}px;
     width: ${props => props.width}px;
@@ -115,18 +115,18 @@ export default CreateScreen = ({ navigation }) => {
         )
     }
 
-    const CreateReviewButton = () => {
-        const advanceToCreateReview = () => navigation.push('SelectTitleScreen');
+    const CreateReelayButton = () => {
+        const advanceToCreateReelay = () => navigation.push('SelectTitleScreen');
         return (
             <CreateOptionView>
-                <CreateReviewPressable 
-                    onPress={advanceToCreateReview}
+                <CreateReelayPressable 
+                    onPress={advanceToCreateReelay}
                     height={buttonHeight}
                     width={buttonWidth}
                 >
                     <ReviewIconSVG />
-                </CreateReviewPressable>
-                <CreateOptionText>{'review'}</CreateOptionText>
+                </CreateReelayPressable>
+                <CreateOptionText>{'reelay'}</CreateOptionText>
             </CreateOptionView>
         )
     }
@@ -156,7 +156,7 @@ export default CreateScreen = ({ navigation }) => {
             <Header />
             <HeaderSpacer />
             <CreateOptionsRowView>
-                <CreateReviewButton />
+                <CreateReelayButton />
                 <CenterSpacer />
                 <CreateTopicButton />
                 { canCreateGuessingGame && (

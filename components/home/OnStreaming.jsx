@@ -19,6 +19,7 @@ const EditStreamingServicesButton = styled(TouchableOpacity)`
 `
 const EditText = styled(ReelayText.Caption)`
     color: ${ReelayColors.reelayBlue};
+    font-size: 16px;
 `
 const ReelayCount = styled(ReelayText.CaptionEmphasized)`
     margin-top: 8px;

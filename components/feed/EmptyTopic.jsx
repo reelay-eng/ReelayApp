@@ -8,6 +8,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import ReelayInfo from './ReelayInfo';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faVideo } from '@fortawesome/free-solid-svg-icons';
 const { height, width } = Dimensions.get('window');
 
 const BottomGradient = styled(LinearGradient)`
@@ -20,13 +22,15 @@ const BottomGradient = styled(LinearGradient)`
 const StartConvoPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    height: 40px;
+    border-radius: 26px;
+    height: 52px;
+    flex-direction: row;
     justify-content: center;
-    width: 60%;
+    width: 80%;
 `
 const StartConvoText = styled(ReelayText.Overline)`
     color: white;
+    margin-left: 8px;
 `
 const TopicCenterView = styled(View)`
     align-items: center;
@@ -62,6 +66,7 @@ export default EmptyTopic = ({ navigation, topic }) => {
         const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubID: topic?.clubID, topic });
         return (
             <StartConvoPressable onPress={advanceToCreateReelay}>
+                <FontAwesomeIcon icon={faVideo} color='white' size={20} />
                 <StartConvoText>{'Start the conversation'}</StartConvoText>
             </StartConvoPressable>
         );

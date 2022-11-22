@@ -7,6 +7,8 @@ import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import ReelayFeedHeader from './ReelayFeedHeader';
+import { useFocusEffect } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
@@ -25,7 +27,7 @@ const FixedReelayFeed = ({
     forceRefresh = false, 
     navigation,
 }) => {
-
+    const dispatch = useDispatch();
     const feedPager = useRef();
     const { reelayDBUser } = useContext(AuthContext);
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
@@ -87,7 +89,9 @@ const FixedReelayFeed = ({
         setFeedPosition(nextFeedPosition);
     }
 
-    console.log('display text ', headerDisplayText);
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: true });
+    })
 
     return (
         <ReelayFeedContainer>

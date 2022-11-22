@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import { fetchAnnotatedTitle } from './TMDbApi';
-import ReelayAPIHeaders from './ReelayAPIHeaders';
+import ReelayAPIHeaders, { getReelayAuthHeaders } from './ReelayAPIHeaders';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
@@ -126,7 +126,7 @@ export const markWatchlistItemSeen = async ({
             },
             body: JSON.stringify(patchBody),
         });
-        return await patchResult;    
+        return patchResult;    
     } catch (error) {
         console.error(error);
         return [];
@@ -154,9 +154,30 @@ export const markWatchlistItemUnseen = async ({
             },
             body: JSON.stringify(patchBody),
         });
-        return await patchResult;    
+        return patchResult;    
     } catch (error) {
         console.error(error);
+        return [];
+    }
+}
+
+export const moveWatchlistItemToFront = async ({ authSession, itemID, reqUserSub }) => {
+    const routePatch = `${REELAY_API_BASE_URL}/watchlists/moveToFront`;
+    const patchBody = { itemID };
+    console.log(routePatch);
+
+    try {
+        const sendRecResult = await fetchResults(routePatch, {
+            method: 'PATCH',
+            headers: { 
+                ...getReelayAuthHeaders(authSession), 
+                requsersub: reqUserSub,
+            },
+            body: JSON.stringify(patchBody),
+        });
+        return sendRecResult;    
+    } catch (error) {
+        console.log(error);
         return [];
     }
 }
@@ -178,7 +199,7 @@ export const removeFromMyWatchlist = async ({ reqUserSub, tmdbTitleID, titleType
             },
             body: JSON.stringify(patchBody),
         });
-        return await removeResult;    
+        return removeResult;    
     } catch (error) {
         console.error(error);
         return [];
@@ -186,108 +207,88 @@ export const removeFromMyWatchlist = async ({ reqUserSub, tmdbTitleID, titleType
 }
 
 // RECOMMENDATIONS
+export const getWatchlistRecs = async ({ authSession, reqUserSub, category = 'all', page = 0 }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/watchlists/recs?category=${category}&page=${page}`;
+    try {
+        const recommendedTitles = await fetchResults(routeGet, {
+            method: 'GET',
+            headers: { 
+                ...getReelayAuthHeaders(authSession), 
+                requsersub: reqUserSub,
+            },
+        });
 
-export const sendRecommendation = async ({
-    recommendedReelaySub, // optional
-    recReelayCreatorName,
-    reqUserSub,
-    reqUsername,
-    sendToUserSub,
-    tmdbTitleID,
-    titleType,
-}) => {
-    const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
-    if (check.error) return check.error;
+        const prepareRecTitle = async (title) => {
+            const tmdbTitleID = title?.tmdbTitleID ?? 0;
+            const titleType = title?.titleType;
+            const isSeries = (titleType === 'tv');
+            return await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
+        }
 
-    const routePost = `${REELAY_API_BASE_URL}/watchlists/${sendToUserSub}/recs`;
-    const postBody = { 
-        recommendedBySub: reqUserSub,
-        recommendedByUsername: reqUsername,
-        recommendedReelaySub,
-        recReelayCreatorName,
-        tmdbTitleID,
-        titleType,
+        return await Promise.all(recommendedTitles.map(prepareRecTitle));
+    } catch (error) {
+        console.error(error);
+        return [];
     }
+}
+
+// EMOJI REACTIONS
+export const getPreferredReactEmojis = async ({ authSession, reqUserSub }) => {
+    const routePost = `${REELAY_API_BASE_URL}/watchlists/preferredReactEmojis`
     console.log(routePost);
 
     try {
-        const sendRecResult = await fetchResults(routePost, {
-            method: 'POST',
+        const resultGet = await fetchResults(routePost, {
+            method: 'GET',
             headers: { 
-                ...ReelayAPIHeaders, 
+                ...getReelayAuthHeaders(authSession), 
                 requsersub: reqUserSub,
             },
-            body: JSON.stringify(postBody),
         });
-        return await sendRecResult;    
+        return resultGet;    
     } catch (error) {
         console.log(error);
         return [];
     }
 }
 
-export const acceptRecommendation = async ({
-    recommendedBySub,
-    reqUserSub,
-    tmdbTitleID,
-    titleType,
-}) => {
-    const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
-    if (check.error) return check.error;
-
-    const routePatch = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/acceptRec`;
-    const patchBody = { 
-        recommendedBySub,
-        tmdbTitleID,
-        titleType,
-    }
-    console.log(routePatch);
+export const getTitleReactEmojis = async ({ authSession, tmdbTitleID, titleType, reqUserSub }) => {
+    const queryParams = `tmdbTitleID=${tmdbTitleID}&titleType=${titleType}`;
+    const routePost = `${REELAY_API_BASE_URL}/watchlists/titleReactEmojis?${queryParams}`;
+    console.log(routePost);
 
     try {
-        const sendRecResult = await fetchResults(routePatch, {
-            method: 'PATCH',
+        const resultGet = await fetchResults(routePost, {
+            method: 'GET',
             headers: { 
-                ...ReelayAPIHeaders, 
+                ...getReelayAuthHeaders(authSession), 
                 requsersub: reqUserSub,
             },
-            body: JSON.stringify(patchBody),
         });
-        return await sendRecResult;    
+        return resultGet;    
     } catch (error) {
-        console.error(error);
+        console.log(error);
         return [];
     }
 }
 
-export const ignoreRecommendation = async ({
-    recommendedBySub,
-    reqUserSub,
-    tmdbTitleID,
-    titleType,
-}) => {
-    const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
-    if (check.error) return check.error;
-
-    const routePatch = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/ignoreRec`;
-    const deleteBody = { 
-        recommendedBySub,
-        tmdbTitleID,
-        titleType,
-    }
+export const setReactEmojis = async ({ authSession, itemID, reactEmojis, reqUserSub }) => {
+    const routePatch = `${REELAY_API_BASE_URL}/watchlists/setEmojis`
+    const patchBody = { itemID, reactEmojis }
     console.log(routePatch);
 
     try {
-        const sendRecResult = await fetchResults(routePatch, {
-            method: 'DELETE',
+        const resultPatch = await fetchResults(routePatch, {
+            method: 'PATCH',
             headers: { 
-                ...ReelayAPIHeaders, 
+                ...getReelayAuthHeaders(authSession), 
                 requsersub: reqUserSub,
             },
-            body: JSON.stringify(deleteBody),
+            body: JSON.stringify(patchBody),
         });
-        return await sendRecResult;    
+        return resultPatch;    
     } catch (error) {
-        console.error(error);
+        console.log(error);
         return [];
     }
 }

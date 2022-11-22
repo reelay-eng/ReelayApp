@@ -11,7 +11,8 @@ import {
     sortByLastActivity,
     updateClubReducer, 
     watchlistRecsReducer,
-    updateGuessingGameReducer, 
+    updateGuessingGameReducer,
+    updateWatchlistReducer, 
 } from "./reducers";
 
 import { getNewSettings } from '../api/SettingsApi';
@@ -30,6 +31,7 @@ const initialState = {
     myClubs: [],
     myClubActivities: [],
     myWatchlistItems: [],
+    myWatchlistRecs: [],
     newTopicCreatedInClub: null,
     openedActivityDotMenu: null,
 
@@ -177,11 +179,16 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };    
+        case 'setMyWatchlistRecs':
+            return { ...state, myWatchlistRecs: action.payload };        
         case 'setNewTopicCreatedInClub':
             return { ...state, newTopicCreatedInClub: action.payload }
         case 'setOpenedActivityDotMenu':
             return { ...state, openedActivityDotMenu: action.payload }
-
+        case 'setUpdatedWatchlistItem':
+            const updatedItem = action.payload;
+            const updatedMyWatchlistItems = updateWatchlistReducer(state.myWatchlistItems, updatedItem);
+            return { ...state, myWatchlistItems: updatedMyWatchlistItems };    
 
         // FEEDS (migrating stuff over here in 1.05)
         case 'setDiscoverMostRecent':
@@ -382,6 +389,7 @@ export const mapStateToProps = (state) => ({
     myClubs: state.myClubs,
     myClubActivities: state.myClubActivities,
     myWatchlistItems: state.myWatchlistItems,
+    myWatchlistRecs: state.myWatchlistRecs,
     newTopicCreatedInClub: state.newTopicCreatedInClub,
     openedActivityDotMenu: state.openedActivityDotMenu,
 

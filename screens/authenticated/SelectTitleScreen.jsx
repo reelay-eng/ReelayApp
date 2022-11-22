@@ -19,6 +19,7 @@ import SuggestedTitlesGrid from '../../components/search/SuggestedTitlesGrid';
 import { TopicsBannerIconSVG } from '../../components/global/SVGs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmptyTitleObject } from '../../api/TMDbApi';
+import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
 
@@ -73,7 +74,7 @@ const TopicTitleContainer = styled(View)`
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 12px;
-    width:100%;
+    width: ${width}px;
 `
 const TopicTitleText = styled(ReelayText.H6)`
     color: white;
@@ -110,6 +111,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
         const topOffset = useSafeAreaInsets().top;
 
         const skipToCameraScreen = () => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             navigation.push('ReelayCameraScreen', { 
                 titleObj: EmptyTitleObject, 
                 venue: '', 
@@ -158,9 +160,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     }
 
     useFocusEffect(() => {
-        if (!topic) {
-            dispatch({ type: 'setTabBarVisible', payload: true }); 
-        }
+        dispatch({ type: 'setTabBarVisible', payload: true }); 
     })
 
     useEffect(() => {

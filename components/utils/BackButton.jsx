@@ -1,7 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import styled from 'styled-components/native';
 

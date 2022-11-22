@@ -44,13 +44,6 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 	const followOnPress = async () => {
 		if (showMeSignupIfGuest()) return;
 
-		const userResult = await getRegisteredUser(creator?.sub);
-		if (userResult.username === '[deleted]') {
-			showErrorToast("Could not follow. User doesn't exist!")
-			return;
-		}
-		// uuidv4 will be replaced by the real uuid next time the app loads
-		// this allows us to still use id as the list key in FollowResults
 		const followObj = {
 			id: v4(), 
 			creatorName: creator?.username,
@@ -59,6 +52,15 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 			followerSub: reelayDBUser?.sub,
 		}
 		dispatch({ type: 'setMyFollowing', payload: [followObj, ...myFollowing] });
+
+		const userResult = await getRegisteredUser(creator?.sub);
+		if (userResult.username === '[deleted]') {
+			showErrorToast("Could not follow. User doesn't exist!")
+			return;
+		}
+		// uuidv4 will be replaced by the real uuid next time the app loads
+		// this allows us to still use id as the list key in FollowResults
+		
 		const followResult = await followCreator(creator?.sub, reelayDBUser?.sub);
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
 
@@ -85,21 +87,9 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 	}
 
 	const unfollowOnPress = async () => {
-        const unfollowResult = await unfollowCreator(creator?.sub, reelayDBUser?.sub);
+		removeFollowObjsFromState();
+		const unfollowResult = await unfollowCreator(creator?.sub, reelayDBUser?.sub);
         console.log('UNFOLLOW RESULT: ', unfollowResult);
-        if (unfollowResult && !unfollowResult?.error) {
-            removeFollowObjsFromState();
-        } else {
-            logAmplitudeEventProd('unfollowedCreatorError', {
-                creatorName: creator?.username,
-                creatorSub: creator?.sub,
-                username: reelayDBUser?.username,
-                userSub: reelayDBUser?.sub,
-            });   
-             
-            showErrorToast('Cannot unfollow creator. Please reach out to the Reelay team');
-            return;
-        }
     };
 
     const removeFollowObjsFromState = () => {

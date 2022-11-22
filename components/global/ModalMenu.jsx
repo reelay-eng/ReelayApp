@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Modal, Pressable, View } from 'react-native';
-import { AuthContext } from '../../context/AuthContext';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 
@@ -35,7 +34,7 @@ const MenuOptionsView = styled(View)`
 `
 const MenuOptionText = styled(ReelayText.H6)`
     color: ${ReelayColors.reelayBlue};
-	font-size: 16px;
+	font-size: 18px;
     text-align: center;
 `
 const ModalView = styled(View)`
@@ -46,7 +45,6 @@ const Spacer = styled(View)`
 `
 
 export default MenuModal = ({ closeMenu, menuOptions }) => {
-	const { reelayDBUser } = useContext(AuthContext);
     const removeMalformedOptions = option => option?.text && option.action;
     const displayMenuOptions = menuOptions.filter(removeMalformedOptions);
 

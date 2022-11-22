@@ -132,6 +132,7 @@ const TopicAddFirstReelay = ({ navigation, setDrawerVisible, refreshTopics, topi
 
 	const advanceToCreateReelay = () => {
 		if (showMeSignupIfGuest()) return;
+        if (refreshTopics) refreshTopics();
         setDrawerVisible(false);
         navigation.navigate('SelectTitleScreen', { topic, clubID: topic?.clubID });
         

@@ -1,21 +1,15 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from "react"
+import React, { useState, useRef, useLayoutEffect } from "react"
 import {
-    ActivityIndicator,
 	Image,
     ImageBackground,
 	View,
     Dimensions,
     ScrollView, 
-    SafeAreaView,
-    Modal,
     TouchableOpacity,
-    KeyboardAvoidingView,
-    Pressable
 } from "react-native";
 
 import { AnimatedText } from "../../components/global/Text";
 import * as ReelayText from "../../components/global/Text";
-import { Icon } from "react-native-elements";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from "react-redux";
 
@@ -23,7 +17,6 @@ import styled from "styled-components"
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Video } from 'expo-av'
 
-import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../../components/global/SVGs';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
@@ -32,10 +25,6 @@ import P2 from "../../assets/images/Onboarding/Posters/P2.png"
 import P3 from "../../assets/images/Onboarding/Posters/P3.png"
 import P4 from "../../assets/images/Onboarding/Posters/P4.png"
 import P5 from "../../assets/images/Onboarding/Posters/P5.png"
-
-import MyWatchlist from "../../assets/images/Onboarding/ClubDrawer/MyWatchlist.png";
-
-import PressThisArrow from "../../assets/images/Onboarding/PressThisArrow.png";
 
 const AutoPlayReelays = [
     "https://di92fpd9s7eko.cloudfront.net/public/reelayvid-09cad7f0-3838-465a-b33e-78a6662e8797-1663606398746.mp4", 
@@ -47,6 +36,7 @@ const AutoPlayReelays = [
 
 import { LinearGradient } from "expo-linear-gradient";
 import { animate, animateCustom } from "../../hooks/animations";
+import { faBookmark } from "@fortawesome/free-regular-svg-icons";
 import ReelayColors from "../../constants/ReelayColors";
 
 const windowWidth = Dimensions.get('window').width;
@@ -119,10 +109,8 @@ const MutedVideoPlayer = ({ source }) => {
             isMuted={true}
             rate={1.0}
             resizeMode='cover'
-            // shouldDuckAndroid={true}
             shouldPlay={true}
             source={source}
-            // staysActiveInBackground={false}
             useNativeControls={false}
             volume={1.0}
         />
@@ -244,172 +232,6 @@ const TutorialFooter = ({ children, arrow=null }) => {
     )
 }
 
-const WatchlistRowContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    display: flex;
-    flex: 1;
-`
-const ClubNameText = styled(ReelayText.Subtitle1Emphasized)`
-    color: white;
-`
-const DrawerContainer = styled(View)`
-    background-color: #1a1a1a;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    margin-top: auto;
-    max-height: 60%;
-    padding-bottom: ${props => props.bottomOffset}px;
-    width: 100%;
-`
-const ModalContainer = styled(View)`
-    position: absolute;
-`
-const RowContainer = styled(Pressable)`
-    align-items: center;
-    background-color: ${(props) => props.backgroundColor};
-    flex-direction: row;
-    padding: 6px;
-    padding-left: 20px;
-    padding-right: 20px;   
-`
-const WatchlistItemsContainer = styled(View)`
-    margin-bottom: 10px;
-    align-items: center;
-`
-const ProfileImage = styled(Image)`
-    border-color: white;
-    border-radius: ${(props) => props.size/2}px;
-    border-width: ${(props) => (props.border) ? 1 : 0}px;
-    height: ${(props) => props.size}px;
-    width: ${(props) => props.size}px;
-`
-
-const AddTitleButtonContainer = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${props => props.disabled ? ReelayColors.reelayBlack : ReelayColors.reelayBlue};
-    border-radius: 24px;
-    flex-direction: row;
-    justify-content: center;
-    opacity: ${props => props.disabled ? "0.8" : "1"};
-    border: ${props => props.disabled ? "solid 1px gray" : "none"};
-    height: 48px;
-    width: ${windowWidth - 32}px;
-`
-const AddTitleButtonOuterContainer = styled(View)`
-    align-items: center;
-    margin-top: 20px;
-    width: 100%;
-`
-const AddTitleButtonText = styled(ReelayText.Subtitle2)`
-    color: white;
-    margin-left: 4px;
-`
-
-const AddTitleButton = ({ onPress, disabled }) => {
-    return (
-        <AddTitleButtonOuterContainer>
-            <AddTitleButtonContainer onPress={onPress} disabled={disabled}>
-                <React.Fragment>
-                    <Icon type='ionicon' name='bookmark' size={16} color='white' />                 
-                    <AddTitleButtonText>{'Add title to continue'}</AddTitleButtonText>   
-                </React.Fragment>
-            </AddTitleButtonContainer>
-        </AddTitleButtonOuterContainer>
-    );
-}
-
-const CheckmarkIconContainer = styled(View)`
-    align-items: center;
-    justify-content: center;
-    height: 30px;
-    width: 30px;
-`
-const ProfilePictureContainer = styled(View)`
-    margin-top: 6px;
-    margin-bottom: 6px;
-    margin-right: 10px;
-`
-
-const WatchlistRow = ({ name, image, selected, setSelected }) => {
-    const onPress = () => {
-        setSelected(prev => !prev);
-    }
-
-    return (
-        <RowContainer 
-            backgroundColor={selected ? ReelayColors.reelayBlue : "#1a1a1a"} 
-            onPress={onPress}>
-            <WatchlistRowContainer>
-                <ProfilePictureContainer>
-                    <ProfileImage 
-                        border={true}
-                        size={32}
-                        source={image}
-                        PlaceholderContent={<ActivityIndicator />}
-                    />
-                </ProfilePictureContainer>
-                <ClubNameText>{name}</ClubNameText>
-            </WatchlistRowContainer>
-            { selected && (
-                <CheckmarkIconContainer>
-                    <Icon type='ionicon' name={"checkmark-done"} size={30} color="white" />
-                </CheckmarkIconContainer>                        
-            )}
-            { !selected && (
-                <CheckmarkIconContainer>
-                    <AddToClubsIconSVG size={30} />
-                </CheckmarkIconContainer>
-            )}
-
-        </RowContainer>
-    )
-}
-
-const HeaderContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: center;
-    padding: 10px;
-    padding-bottom: 10px;
-`
-const HeaderBar = styled(View)`
-    width: 20%;
-    height: 4px;
-    border-radius: 2px;
-    background-color: white;
-    opacity: 0.2;
-`
-
-const Header = () => {
-    return (
-        <HeaderContainer>
-            <HeaderBar />
-        </HeaderContainer>
-    )
-}
-
-const AddToWatchlistDrawer = ({ drawerIsOpen, onFinish }) => {
-    const bottomOffset = useSafeAreaInsets().bottom;
-    const [selected, setSelected] = useState(false);
-
-    return (
-        <ModalContainer>
-            <Modal animationType='slide' transparent={true} visible={drawerIsOpen}>
-                <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-                <DrawerContainer bottomOffset={bottomOffset}>
-                    <Header />
-                    <WatchlistItemsContainer>
-                        <WatchlistRow name={"My Watchlist"} image={MyWatchlist} selected={selected} setSelected={setSelected}/>
-                    </WatchlistItemsContainer>
-                    <AddTitleButton disabled={!selected} onPress={onFinish}/>
-                </DrawerContainer>
-                </KeyboardAvoidingView>
-            </Modal>
-        </ModalContainer>
-    )
-}
-
 const AddToWatchlistContainer = styled(View)`
     position: absolute;
     width: 100%;
@@ -417,18 +239,14 @@ const AddToWatchlistContainer = styled(View)`
     justify-content: center;
     align-items: center;
 `
-
-const ArrowContainer = styled(View)`
-    position: absolute;
-    height: 38%;
-    left: 40%;
-    bottom: 20%;
+const AddToWatchlistButtonPressable = styled(View)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 22px;
+    height: 44px;
+    justify-content: center;
+    width: 44px;
 `
-
-const Arrow = styled(Image)`
-    height: 100%;
-`
-
 const WatchlistPosterBackground = styled(ImageBackground)`
     width: ${REELAY_WIDTH * 0.6}px;
     height: ${REELAY_HEIGHT * 0.6}px;
@@ -550,18 +368,6 @@ const Tutorial = ({ navigation }) => {
         horizontalScrollRef.current.scrollTo({ x: 1100})
     }
 
-    const OpenAddToWatchlistDrawer = () => {
-        setSmallText("");
-        setDrawerIsOpen(true);
-    }
-
-    const finishAddingToWatchlist = () => {
-        setDrawerIsOpen(false);
-        setAddedToWatchlist(true);
-        setBigText("We'll let you figure the rest out yourself!");
-        setSmallText("");
-    }
-
     const handleFinishedOnboarding = () => {
         AsyncStorage.setItem('isReturningUser', '1');
 		dispatch({ type: 'setIsReturningUser', payload: true });
@@ -597,20 +403,16 @@ const Tutorial = ({ navigation }) => {
             </ContentContainer>
             { hasScrolledRight && (
                 <AddToWatchlistContainer>
-                    <WatchlistPoster source={P4} onPress={OpenAddToWatchlistDrawer} pressDisabled={addedToWatchlist}>
+                    <WatchlistPoster source={P4}>
                         <View style={{position: 'absolute', width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.4, borderRadius: 10}} />
                         <View style={{transform: [
                             { scale: 1.2 }
                         ]}}>
-                            { addedToWatchlist ? <AddedToClubsIconSVG width={46} height={33} /> : <AddToClubsIconSVG width={46} height={33}/> }
+                            <AddToWatchlistButtonPressable>
+                                <FontAwesomeIcon icon={faBookmark} color='white' size={22} />
+                            </AddToWatchlistButtonPressable>
                         </View>
                     </WatchlistPoster>
-                    {/* { (!drawerIsOpen && !addedToWatchlist) && 
-                        <ArrowContainer>
-                            <Arrow source={PressThisArrow} resizeMode={"contain"}/>
-                        </ArrowContainer>
-                    }
-                    <AddToWatchlistDrawer drawerIsOpen={drawerIsOpen} setDrawerIsOpen={setDrawerIsOpen} onFinish={finishAddingToWatchlist}/> */}
                 </AddToWatchlistContainer>
             )}
             { hasScrolledRight && <FinishButton bottomOffset={bottomOffset} onPress={handleFinishedOnboarding} /> }

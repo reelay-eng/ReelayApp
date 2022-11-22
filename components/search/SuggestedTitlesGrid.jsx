@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
+import React, { Fragment, useEffect, useRef } from 'react';
+import { Dimensions, FlatList, Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
@@ -18,7 +18,7 @@ const POSTER_ROW_LENGTH = 3;
 const POSTER_WIDTH = (GRID_WIDTH / POSTER_ROW_LENGTH) - (2 * POSTER_HALF_MARGIN);
 const POSTER_HEIGHT_WITH_MARGIN = (POSTER_WIDTH * 1.5) + (2 * POSTER_HALF_MARGIN);
 
-const PosterContainer = styled(View)`
+const PosterContainer = styled(Pressable)`
     align-items: center;
     margin: ${POSTER_HALF_MARGIN}px;
     height: ${POSTER_WIDTH * 1.5}px;
@@ -88,8 +88,8 @@ export default SuggestedTitlesGrid = ({
         const advanceToSelectVenue = () => navigation.push('VenueSelectScreen', { titleObj, clubID, topicID });
         const onPress = (source === 'search') ? advanceToTitleScreen : advanceToSelectVenue;
         return (
-            <PosterContainer>
-                <TitlePoster title={titleObj} onPress={onPress} width={POSTER_WIDTH} />
+            <PosterContainer onPress={onPress}>
+                <TitlePoster title={titleObj} width={POSTER_WIDTH} />
             </PosterContainer>
         );
     }
