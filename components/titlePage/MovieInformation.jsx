@@ -12,7 +12,6 @@ import styled from 'styled-components/native';
 
 // Components
 import * as ReelayText from "../../components/global/Text";
-import { DirectorBadge, ActorBadge } from "../../components/global/Badges";
 
 // Media
 import GRating from "../../assets/images/MPAA_Ratings/GRating.png";
@@ -45,13 +44,10 @@ const DescriptionText = styled(ReelayText.Body1)`
 	color: white;
 	opacity: 1;
 `
-const HeadingText = styled(ReelayText.H5Emphasized)`
-	color: white;
-`
 const MIExternalView = styled(View)`
 	margin-right: 4%;
 	margin-left: 4%;
-	border-radius: 8px;
+	border-radius: 16px;
 	background-color: #191919;
 `
 const MIInternalView = styled(View)`

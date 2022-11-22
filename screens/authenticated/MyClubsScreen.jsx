@@ -22,15 +22,16 @@ import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
 import DiscoverClubs from '../../components/home/DiscoverClubs';
 import { getAllClubsFollowing, searchPublicClubs } from '../../api/ClubsApi';
 import SearchField from '../../components/create-reelay/SearchField';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-const BottomGradient = styled(LinearGradient)`
+const BottomGradient = styled(View)`
     position: absolute;
+    background-color: black;
     bottom: 0px;
-    opacity: 0.8;
-    height: 40px;
+    height: ${props => props.bottomOffset + 52}px;
     width: 100%;
 `
 const ClubNameText = styled(ReelayText.H6Emphasized)`
@@ -161,6 +162,7 @@ const TopBarButtonView = styled(View)`
 
 export default MyClubsScreen = ({ navigation }) => {
     const authSession = useSelector(state => state.authSession);
+    const bottomOffset = useSafeAreaInsets().bottom;
     const currentAppLoadStage = useSelector(state => state.currentAppLoadStage);
     const dispatch = useDispatch();
     const myClubs = useSelector(state => state.myClubs);
@@ -440,7 +442,6 @@ export default MyClubsScreen = ({ navigation }) => {
                 <DiscoverClubs navigation={navigation} refreshCounter={refreshCounter} />
                 { (myClubs?.length > 0) && <AllMyClubs /> }
                 { (myClubs?.length === 0) && <EmptyClubs /> }
-                <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
             </View>
         )
     }
@@ -467,6 +468,7 @@ export default MyClubsScreen = ({ navigation }) => {
                 <SearchBar />
                 <SearchlessContent />
             </ScrollView>
+            <BottomGradient bottomOffset={bottomOffset} colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 		</MyClubsScreenView>
 	);
 };

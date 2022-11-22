@@ -11,6 +11,7 @@ import MarkedSeenModal from './MarkedSeenModal';
 import * as ReelayText from '../global/Text';
 import { useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
+import { LinearGradient } from 'expo-linear-gradient';
  
 const { height, width } = Dimensions.get('window');
 const CARD_SIDE_MARGIN = 6;
@@ -19,13 +20,21 @@ const WATCHLIST_CARD_WIDTH = (width / 3) - (CARD_SIDE_MARGIN * 2);
 const BADGE_SIZE = (WATCHLIST_CARD_WIDTH / MAX_EMOJI_BADGE_COUNT) - 4;
 const EMOJI_SIZE = BADGE_SIZE - 16;
 
+const DotMenuGradient = styled(LinearGradient)`
+    height: 100%;
+    position: absolute;
+    width: 100%;
+`
 const DotMenuPressable = styled(TouchableOpacity)`
     align-items: center;
+    border-bottom-left-radius: 10px;
     justify-content: center;
-    padding: 6px;
+    height: 32px;
+    width: 32px;
+    overflow: hidden;
     position: absolute;
-    right: 4px;
-    top: 4px;
+    right: 0px;
+    top: 0px;
 `
 const EmojiBadgeRowView = styled(View)`
     align-items: center;
@@ -101,7 +110,8 @@ const WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistI
 
     const DotMenuButton = () => {
         return (
-            <DotMenuPressable onPress={() => setDrawerVisible(true)}>
+            <DotMenuPressable activeOpacity={0.7} onPress={() => setDrawerVisible(true)}>
+                <DotMenuGradient colors={['transparent', ReelayColors.reelayBlack]} start={{x: 0, y: 1}} end={{ x: 2, y: -2}} />
                 <FontAwesomeIcon icon={faEllipsis} color='white' size={20} />
             </DotMenuPressable>
         );

@@ -11,6 +11,8 @@ import TopicDotMenuDrawer from './TopicDotMenuDrawer';
 import ReelayColors from '../../constants/ReelayColors';
 import TitlePoster from '../global/TitlePoster';
 import { TopicsCardIconSmallSVG, TopicsGiantIconSVG } from '../global/SVGs';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faVideo } from '@fortawesome/free-solid-svg-icons';
 
 const { height, width } = Dimensions.get('window');
 const CARD_WIDTH_CAROUSEL = width - 48;
@@ -123,15 +125,16 @@ const Spacer = styled(View)`
 const StartConvoButton = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
-    border-radius: 18px;
+    border-radius: 26px;
     flex-direction: row;
     justify-content: center;
-    height: 36px;
-    margin-bottom: 10px;
+    height: 52px;
+    margin-bottom: 4px;
     width: ${props => getContentRowWidth(props) - 32}px;
 `
 const StartConvoText = styled(ReelayText.Overline)`
     color: white;
+    margin-left: 8px;
 `
 const TitleLine = styled(View)`
     display: flex;
@@ -197,6 +200,7 @@ export default TopicCard = ({
         return (
             <BottomRowContainerNoReelays horizontal={horizontal}>
                 <StartConvoButton horizontal={horizontal} onPress={advanceToCreateReelay}>
+                    <FontAwesomeIcon icon={faVideo} color='white' size={20} />
                     <StartConvoText>{'Start the conversation'}</StartConvoText>
                 </StartConvoButton>
             </BottomRowContainerNoReelays>

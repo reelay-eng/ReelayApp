@@ -38,7 +38,7 @@ const CreateGuessingGamePressable = styled(CreateOptionPressable)`
     height: ${props => props.height}px;
     width: ${props => props.width}px;
 `
-const CreateReviewPressable = styled(CreateOptionPressable)`
+const CreateReelayPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
     height: ${props => props.height}px;
     width: ${props => props.width}px;
@@ -125,21 +125,21 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
         )
     }
 
-    const CreateReviewButton = () => {
-        const advanceToCreateReview = () => {
+    const CreateReelayButton = () => {
+        const advanceToCreateReelay = () => {
             closeDrawer();
             navigation.navigate('Create', { screen: 'SelectTitleScreen' });
         }
         return (
             <CreateOptionView>
-                <CreateReviewPressable 
-                    onPress={advanceToCreateReview} 
+                <CreateReelayPressable 
+                    onPress={advanceToCreateReelay} 
                     height={buttonHeight} 
                     width={buttonWidth}
                 >
                     <ReviewIconSVG />
-                </CreateReviewPressable>
-                <CreateOptionText>{'review'}</CreateOptionText>
+                </CreateReelayPressable>
+                <CreateOptionText>{'reelay'}</CreateOptionText>
             </CreateOptionView>
         )
     }
@@ -169,7 +169,7 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
             <DrawerView bottomOffset={bottomOffset}>
                 <DrawerHeader />
                 <CreateOptionsRowView>
-                    <CreateReviewButton />
+                    <CreateReelayButton />
                     <CenterSpacer />
                     <CreateTopicButton />
                     { canCreateGuessingGame && (

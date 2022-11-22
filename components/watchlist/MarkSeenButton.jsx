@@ -10,6 +10,7 @@ import { getWatchlistItems, markWatchlistItemSeen, markWatchlistItemUnseen, setR
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import moment from 'moment';
+import * as Haptics from 'expo-haptics';
 
 const MarkSeenButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -45,12 +46,13 @@ export default MarkSeenButton = ({
 
     const markSeen = async () => {
         if (showMeSignupIfGuest()) return;
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         if (watchlistItem?.id) {
             watchlistItem.hasSeenTitle = true;
             watchlistItem.updatedAt = moment().toISOString();
             dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
         }
-        
+
         onMarkedSeen();
         const markSeenResult = await markWatchlistItemSeen(updateWatchlistReqBody);
 
@@ -63,6 +65,7 @@ export default MarkSeenButton = ({
 
     const markUnseen = async () => {
         if (showMeSignupIfGuest()) return;
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         const markUnseenResult = await markWatchlistItemUnseen(updateWatchlistReqBody);
 
         if (watchlistItem?.id) {

@@ -7,7 +7,7 @@ import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faAdd } from "@fortawesome/free-solid-svg-icons";
+import { faAdd, faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import ReelayColors from '../../constants/ReelayColors';
 
@@ -82,8 +82,7 @@ export default AddToStackButton = ({ navigation, reelay, club=null, topic=null }
         <AddToThreadButtonOuterView onPress={advanceToCreateReelay}>
             <AddToThreadButtonCircleView markedSeen={false} userSub={reelayDBUser?.sub}>
                 <AddToThreadButtonShadow>
-                { (false) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
-                { (true) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> }
+                    <FontAwesomeIcon icon={faVideo} color='white' size={22} />
                 </AddToThreadButtonShadow>
             </AddToThreadButtonCircleView>
         </AddToThreadButtonOuterView>

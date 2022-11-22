@@ -30,7 +30,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import * as Haptics from 'expo-haptics';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faPlay, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faPlusCircle, faVideo } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -50,9 +50,9 @@ const BackButtonPressable = styled(TouchableOpacity)`
 const CreateReelayPressable = styled(TouchableOpacity)`
 	align-items: center;
 	background-color: ${ReelayColors.reelayBlue};
-	border-radius: 20px;
+	border-radius: 26px;
 	flex-direction: row;
-	height: 40px;
+	height: 52px;
 	justify-content: center;
 	margin: 16px;
 	margin-top: 0px;
@@ -60,12 +60,18 @@ const CreateReelayPressable = styled(TouchableOpacity)`
 `
 const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
 	color: white;
+	font-size: 16px;
+	line-height: 20px;
 	margin-left: 8px;
 `
 const HeaderText = styled(ReelayText.Body1)`
 	color: white;
+	display: flex;
+	flex: 1;
 	font-size: 18px;
-	margin-top: 8px;
+	margin-top: 4px;
+	padding-left: 8px;
+	padding-right: 8px;
 `
 const HeaderView = styled(View)`
 	align-items: center;
@@ -131,7 +137,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			
 		return (
 			<CreateReelayPressable onPress={advanceToCreateReelay}>
-				<FontAwesomeIcon icon={faPlusCircle} color='white' size={16} />
+				<FontAwesomeIcon icon={faVideo} color='white' size={24} />
 				<CreateReelayText>{'Create reelay'}</CreateReelayText>
 			</CreateReelayPressable>
 		)
@@ -159,7 +165,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 						<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
 					</BackButtonPressable>
 				</BackButtonCircleView>
-				<HeaderText>{titleObj?.display}</HeaderText>
+				<HeaderText numberOfLines={1}>{titleObj?.display}</HeaderText>
 				<AddToWatchlistButton 
 					buttonSize={32}
 					iconSize={18}
@@ -197,7 +203,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			<TitleDetailHeader navigation={navigation} titleObj={titleObj} />
 			<TitleReactions navigation={navigation} titleObj={titleObj} />
 			<CreateReelayButton />
-			<WatchTrailerButton />
+			{/* <WatchTrailerButton /> */}
 			<MovieInformation titleObj={titleObj} />
 			<Spacer height={20} />
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />

@@ -67,7 +67,7 @@ const ReactUsernameText = styled(ReelayText.H6)`
 `
 const ReactionCardView = styled(View)`
     align-items: center;
-    background-color: #0D0D0D;
+    background-color: #191919;
     border-radius: 16px;
     margin: 16px;
     padding: 12px;

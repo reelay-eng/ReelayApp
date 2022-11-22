@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Dimensions, Image, SafeAreaView, View } from 'react-native';
+import { Dimensions, Image, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 
 // Styling
@@ -19,6 +19,8 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import { useDispatch } from 'react-redux';
 import { changeSize } from '../../api/TMDbApi';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
 
 const { height, width } = Dimensions.get('window');
 
@@ -27,11 +29,6 @@ const PosterGradient = styled(LinearGradient)`
     top: ${-0.05 * height}px;
     position: absolute;
     width: 100%;
-`
-const GradientView = styled(View)`
-	width: 100%;
-	height: 100%;
-	flex: 1;
 `
 const InfoBarView = styled(View)`
 	align-items: center;
@@ -87,9 +84,19 @@ const TaglineText = styled(ReelayText.Body1)`
 	color: #ffffff;
 	opacity: 0.6;
 `
+const TrailerButtonPressable = styled(TouchableOpacity)`
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+`
 const TrailerButtonView = styled(View)`
-	width: 100%;
-	height: 40px;
+    align-self: flex-end;
+    border-radius: 44px;
+    background-color: ${ReelayColors.reelayGreen};
+	height: 44px;
+    margin: 16px;
+    width: 44px;
 `
 
 export default TitleDetailHeader = ({ navigation, titleObj }) => {
@@ -111,16 +118,6 @@ export default TitleDetailHeader = ({ navigation, titleObj }) => {
 				<PosterImage source={posterSource} />
 				<PosterOverlay color={ReelayColors.reelayBlack} opacity={0.2} />
                 <PosterGradient colors={['transparent', 'black']} />
-				{/* <GradientView>
-					<LinearGradient
-						colors={["transparent", ReelayColors.reelayBlack]}
-						style={{
-							opacity: 1,
-							width: '100%', 
-							height: '100%'
-						}}
-					/>
-				</GradientView> */}
 			</View>
 		);
 	};
@@ -141,36 +138,23 @@ export default TitleDetailHeader = ({ navigation, titleObj }) => {
 		);
 	};
 
-	const showMeSignupIfGuest = () => {
-		if (reelayDBUser?.username === 'be_our_guest') {
-			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
-			return true;
-		}
-		return false;
-	}
-
-	const advanceToWatchTrailer = () => {
-		navigation.push("TitleTrailerScreen", {
-			trailerURI: trailerURI,
-		});
-		logAmplitudeEventProd("watchTrailer", {
-			title: title,
-			tmdbTitleID: tmdbTitleID,
-			source: "poster",
-		});
-	}
-
     const WatchTrailerButton = () => {
-		const watchTrailerIcon = <Icon color={"white"} type="ionicon" name="play-circle-outline" size={20} />;
+        const advanceToWatchTrailer = () => {
+            navigation.push("TitleTrailerScreen", {
+                trailerURI: trailerURI,
+            });
+            logAmplitudeEventProd("watchTrailer", {
+                title: title,
+                tmdbTitleID: tmdbTitleID,
+                source: "poster",
+            });
+        }
+
 		return (
 			<TrailerButtonView>
-				<ActionButton
-					color='green'
-					text={"Watch Trailer"}
-					leftIcon={watchTrailerIcon}
-					onPress={advanceToWatchTrailer}
-					borderRadius={"20px"}
-				/>
+                <TrailerButtonPressable onPress={advanceToWatchTrailer}>
+                    <FontAwesomeIcon icon={faPlay} color='white' size={24} />
+                </TrailerButtonPressable>
 			</TrailerButtonView>
 		);
 	}
@@ -184,6 +168,7 @@ export default TitleDetailHeader = ({ navigation, titleObj }) => {
 						<PosterTitle>{title}</PosterTitle>
 						<PosterTagline />
 					</PosterTitleView>
+                    <WatchTrailerButton />
 				</InfoBarView>
 			</PosterInfoView>
 		</PosterView>

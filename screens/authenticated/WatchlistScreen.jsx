@@ -74,7 +74,7 @@ const FilterText = styled(ReelayText.CaptionEmphasized)`
 `
 const HeaderCardGradient = styled(LinearGradient)`
     border-radius: 12px;
-    height: ${props => props.topOffset + 800}px;
+    height: ${props => (2 * props.topOffset) + (height * 0.4)}px;
     opacity: 0.3;
     position: absolute;
     top: ${props => -2 * props.topOffset}px;

@@ -46,7 +46,7 @@ const CreateGuessingGamePressable = styled(CreateOptionPressable)`
     height: ${props => props.height}px;
     width: ${props => props.width}px;
 `
-const CreateReviewPressable = styled(CreateOptionPressable)`
+const CreateReelayPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
     height: ${props => props.height}px;
     width: ${props => props.width}px;
@@ -129,21 +129,21 @@ export default AddToClubsDrawer = ({ navigation, club, drawerVisible, setDrawerV
         )
     }
 
-    const CreateReviewButton = () => {
+    const CreateReelayButton = () => {
         const advanceToAddTitleScreen = () => {
             closeDrawer();
             navigation.push('SelectTitleScreen', { clubID: club?.id });
         }    
         return (
             <CreateOptionView>
-                <CreateReviewPressable 
+                <CreateReelayPressable 
                     onPress={advanceToAddTitleScreen}
                     height={buttonHeight}
                     width={buttonWidth}
                 >
                     <ReviewIconSVG />
-                </CreateReviewPressable>
-                <CreateOptionText>{'review'}</CreateOptionText>
+                </CreateReelayPressable>
+                <CreateOptionText>{'reelay'}</CreateOptionText>
             </CreateOptionView>
         )
     }
@@ -187,7 +187,7 @@ export default AddToClubsDrawer = ({ navigation, club, drawerVisible, setDrawerV
                 <DrawerView bottomOffset={bottomOffset}>
                     <DrawerHeader />
                     <CreateOptionsRowView>
-                        <CreateReviewButton />
+                        <CreateReelayButton />
                         <OptionsSpacer />
                         <CreateTopicButton />
                         { canCreateGuessingGame && (
