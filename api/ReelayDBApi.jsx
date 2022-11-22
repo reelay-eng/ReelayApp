@@ -817,13 +817,13 @@ export const removeStreamingSubscription = async (userSub, removeSubscriptionBod
     return resultRemove;
 }
 
-export const searchTitles = async (searchText, isSeries, page = 0) => {
+export const searchTitles = async (searchText, isSeries, page = 0, abortController = null) => {
     const cleanSearchText = searchText.toLowerCase().replace(/[\u2018\u2019\u201c\u201d/'/"]/g, "").replaceAll(' ', '%20');
     const routeGet = `${REELAY_API_BASE_URL}/search/titles?searchText=${cleanSearchText}&isSeries=${isSeries}&page=${page}`;
-    console.log('route get: ', routeGet);
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
         headers: ReelayAPIHeaders,
+        abortController,
     });
     
     const annotatedResults = await Promise.all(

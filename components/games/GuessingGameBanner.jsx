@@ -319,6 +319,8 @@ const GuessingGameBanner = ({
         const showSkipButton = (guessesLeft > 1 && searchText === '');
         const updateCounter = useRef(0);
 
+        const abortController = new AbortController();
+
         const updateSearch = async (newSearchText, counter) => {
             if (searchText.length === 0) {            
                 setSearchResults([]);
@@ -328,10 +330,14 @@ const GuessingGameBanner = ({
     
             try {
                 if (!loading) setLoading(true);
-                const annotatedResults = await searchTitles(newSearchText, isSeries);
+                const page = 0;
+                const abortController = new AbortController();
+                const annotatedResults = await searchTitles(newSearchText, isSeries, page, abortController);
                 if (updateCounter.current === counter) {
                     setSearchResults(annotatedResults);
                     setLoading(false);
+                } else {
+
                 }
             } catch (error) {
                 console.log(error);
@@ -417,12 +423,17 @@ const GuessingGameBanner = ({
         }
 
         useEffect(() => {
-            updateCounter.current += 1;
-            const nextUpdateCounter = updateCounter.current;
+            try {
+                updateCounter.current += 1;
+                const nextUpdateCounter = updateCounter.current;    
 
-            setTimeout(() => {
-                updateSearch(searchText, nextUpdateCounter);
-            }, 200);    
+                setTimeout(() => {
+                    abortController.abort();
+                    updateSearch(searchText, nextUpdateCounter);
+                }, 200);        
+            } catch (error) {
+                console.log(error);
+            }
         }, [searchText]);
 
         return (
