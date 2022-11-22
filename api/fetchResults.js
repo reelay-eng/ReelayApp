@@ -3,7 +3,7 @@ export const fetchResults = async (query, options={ timeout: 30000 }) => {
     const { timeout = 30000 } = options;
 
     try {
-        const controller = options?.abortController ?? new AbortController();
+        const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeout);
       
         const response = await fetch(query, {
