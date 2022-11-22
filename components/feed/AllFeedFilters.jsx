@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
@@ -8,6 +8,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FilterMappings } from '../utils/FilterMappings';
 import { LinearGradient } from 'expo-linear-gradient';
+import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 
@@ -87,6 +88,16 @@ const SearchBarText = styled(ReelayText.Overline)`
 `
 
 export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSelectedFilters }) => {
+    const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
+    const hideCategories = isGuestUser ? ['Friends & Communities', 'Watchlist'] : [];
+    const hideOptions = isGuestUser ? [
+        'on_my_streaming', 
+        'on_my_watchlist', 
+        'on_other_streaming', 
+        'in_my_clubs',
+    ] : [];
+
     const allSelectedFiltersRef = useRef(selectedFilters);
     const bottomOffset = useSafeAreaInsets().bottom;
     const topOffset = useSafeAreaInsets().top;
@@ -144,8 +155,12 @@ export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSele
     
         const FilterCategory = ({ category }) => {
             const filterOptions = FilterMappings[category];
-            const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
-    
+            if (hideCategories.includes(category)) return <View />
+
+            const renderFilter = (filter) => {
+                return <FilterOption key={filter.option} filter={filter} />;
+            }
+
             return (
                 <CategoryView>
                     <CategoryHeader>{category}</CategoryHeader>
@@ -161,6 +176,8 @@ export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSele
             const isSelected = isFilterSelected(filter);
             const onPress = () => onSelectOrUnselectFilter(filter);
     
+            if (hideOptions.includes(option)) return <View />
+
             return (
                 <FilterPressable selected={isSelected} onPress={onPress}>
                     <FilterText>{display}</FilterText>

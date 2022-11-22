@@ -58,7 +58,7 @@ export default RecommendedForYou = ({ navigation }) => {
 
     const useNoFollowing = (recommendedStacks?.length === 0);
     const feedSource = (useNoFollowing) ? 'recommendedTitlesNoFollowing' : 'recommendedTitles';
-    const headerText = (useNoFollowing) ? 'Recommended for you' : 'Recommended for you';
+    const headerText = (useNoFollowing) ? 'Recommended' : 'Recommended for you';
     const headerSubtext = (useNoFollowing) ? 'Here’s what people are raving about' : 'People you follow recommend these titles';
 
     const displayStacks = (useNoFollowing)

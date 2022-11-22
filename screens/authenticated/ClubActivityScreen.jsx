@@ -103,7 +103,7 @@ const JoinClubButtonView = styled(TouchableOpacity)`
 `
 const JoinClubOuterView = styled(LinearGradient)`
     align-items: center;
-    bottom: 0px;
+    bottom: 10px;
     flex-direction: row;
     justify-content: space-around;
     padding-top: 20px;

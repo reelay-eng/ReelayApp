@@ -375,13 +375,22 @@ const GuessingGameBanner = ({
             guessingGame.myGuesses = [...myGuesses, nextGuess];
             dispatch({ type: 'updateHomeGuessingGames', payload: guessingGame });
 
+            logAmplitudeEventProd('guessingGameGuessedTitle', {
+                username: reelayDBUser?.username,
+                correctTitle: reelay?.title?.display,
+                guessedTitle: guessedTitleObj?.display,
+                clueIndex: clueIndex,
+                isCorrect: isCorrect,
+                isLastGuess: (isCorrect || guessesLeft === 1),
+            })
+
             if (isCorrect) {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             } else {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             }
 
-            if (!isPreview) {
+            if (!isPreview && reelayDBUser?.username !== 'be_our_guest') {
                 const postBody = {
                     authSession,
                     reqUserSub: reelayDBUser?.sub,
@@ -433,7 +442,7 @@ const GuessingGameBanner = ({
                 )}
                 { loading && (
                     <RefreshView>
-                        <ActivityIndicator color={ReelayColors.reelayBlue} /> 
+                        <ActivityIndicator /> 
                     </RefreshView>
                 )}
             </SearchView>

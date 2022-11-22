@@ -244,6 +244,7 @@ const YearView = styled(View)`
 
 export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const myGuesses = game?.myGuesses ?? [];
 
     const hasCompletedGame = game?.hasCompletedGame;
@@ -267,7 +268,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const statCount = game?.stats?.length ?? 0;
     const statRowCount = statCount + 1; // leave room for losing stats row
     const rowHeight = 32; // sorry magic numbers
-    const fixedHeight = 460;
+    const fixedHeight = isGuestUser ? 316 : 460;
     const modalViewHeight = (rowHeight * statRowCount) + fixedHeight;
 
     const CloseButton = () => {
@@ -381,6 +382,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
 
         const ClueStatRow = ({ clueStats, index }) => {
             const guesserSubs = clueStats?.guesserSubs ?? [];
+            const displayGuesserSubs = guesserSubs.slice(0,5);
             const numCorrect = clueStats?.numCorrect ?? 0;
             const numGuesses = totalGuesses; // clueStats?.numGuesses ?? 1;
             const correctGuessIndex = myGuesses.findIndex(guess => guess?.isCorrect);
@@ -388,7 +390,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
             const correctRatio = (numGuesses === 0) ? 0 : numCorrect / numGuesses;
 
             const correctRatioStr = (100 * correctRatio).toFixed(0);
-            const statBarWidth = (correctRatioStr * 1.5) + 20;
+            const statBarWidth = (correctRatioStr * 1.4) + 10;
 
             return (
                 <ClueStatRowView isCorrect={isCorrect}>
@@ -402,7 +404,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
                         </CluePercentView>
                     </ClueCenterView>
                     <GuesserPicsRow>
-                        { guesserSubs.map(sub => <ProfilePicture user={{ sub, username: '' }} size={24} />)}
+                        { displayGuesserSubs.map(sub => <ProfilePicture user={{ sub, username: '' }} size={24} />)}
                     </GuesserPicsRow>
                 </ClueStatRowView>
             );
@@ -514,7 +516,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
                     <GuessMarkers />
                     <TitleRow />
                     <GuessStats />
-                    <ShareSection />
+                    { !isGuestUser && <ShareSection /> }
                 </ShareCardView>
             </OverlayBox>
         </Modal>

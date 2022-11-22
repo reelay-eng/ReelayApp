@@ -4,9 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import GuessingGameStack from '../../components/feed/GuessingGameStack';
 
 export default SingleGuessingGameScreen = ({ navigation, route }) => {
-    // const guessingGames = useSelector(state => state.discover?.guessingGames?.current ?? []);
-    const initialStackPos = route?.params?.initialStackPos ?? 0;
     const feedPosition = route?.params?.feedPosition ?? 0;
+    const initialStackPos = route?.params?.initialStackPos ?? 0;
     const isPreview = route?.params?.isPreview ?? false;
     const feedSource = (isPreview) ? 'guessingGamePreview' : 'guessingGame';
     const previewGuessingGame = route?.params?.previewGuessingGame ?? null;

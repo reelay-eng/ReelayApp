@@ -66,7 +66,8 @@ const ReelayVideo = ({
 	);
 }
 
-export default FeedVideoPlayer = ({ navigation, reelay, viewable }) => {
+export default FeedVideoPlayer = ({ gameID = null, navigation, reelay, viewable }) => {
+	const canOpenTrailer = (!gameID && reelay?.titleKey !== 'film-0');
 	const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);
 
@@ -154,10 +155,7 @@ export default FeedVideoPlayer = ({ navigation, reelay, viewable }) => {
 	}
 
 	const onTap = () => {
-		if (tapCounter.current === 1) {
-			dispatch({ type: 'setReelayWithVisibleTrailer', payload: reelay });
-			tapCounter.current = 0;
-		} else {
+		if (tapCounter.current === 0) {
 			tapCounter.current = 1;
 			setTimeout(() => {
 				if (tapCounter.current === 1) {
@@ -165,6 +163,11 @@ export default FeedVideoPlayer = ({ navigation, reelay, viewable }) => {
 					onPlayPause();
 				}
 			}, DOUBLE_TAP_TIMEOUT_MS);
+		} else {
+			if (canOpenTrailer) {
+				dispatch({ type: 'setReelayWithVisibleTrailer', payload: reelay });
+			}
+			tapCounter.current = 0;
 		}
 		Keyboard.dismiss();
 	}
@@ -178,10 +181,18 @@ export default FeedVideoPlayer = ({ navigation, reelay, viewable }) => {
 			<LoadingBackdrop>
 				<ActivityIndicator />
 			</LoadingBackdrop>
-			<ReelayVideo 
+			<Video
+				isLooping={true}
+				isMuted={false}
 				onPlaybackStatusUpdate={onPlaybackStatusUpdate}
-				shouldPlay={shouldPlay} 
-				videoURI={reelay?.content?.videoURI}
+				progressUpdateIntervalMillis={50}
+				rate={1.0}
+				resizeMode='cover'
+				shouldPlay={shouldPlay}
+				source={{ uri: reelay?.content?.videoURI }}
+				style={{ height, width }}
+				useNativeControls={false}
+				volume={1.0}
 			/>
 			{ playPauseVisible !== 'none' && (
 				<PlayPauseIcon onPress={onTap} type={playPauseVisible} />
