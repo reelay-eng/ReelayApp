@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Dimensions, FlatList, Keyboard, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -16,6 +16,7 @@ import AddReactEmojiDrawer from './AddReactEmojiDrawer';
 
 const { height, width } = Dimensions.get('window');
 const MAX_DISPLAY_EMOJIS = 5;
+const MAX_SELECT_EMOJIS = 3;
 
 const HeaderText = styled(ReelayText.H6Emphasized)`
     color: white;
@@ -143,6 +144,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
     }
 
     const authSession = useSelector(state => state.authSession);
+    const emojiLastIndices = useRef({});
     const initReactions = titleObj?.allReactions ?? [];
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const dispatch = useDispatch();
@@ -166,6 +168,20 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
 
     const reactionsByEmoji = getReactionsByEmoji();
 
+    const autoMarkSeen = async () => {
+        if (!myReaction?.hasSeenTitle) {
+            myReaction.hasSeenTitle = true;
+            const watchlistItemMarkedSeen = await markWatchlistItemSeen({
+                reqUserSub: reelayDBUser?.sub,
+                tmdbTitleID: myReaction?.tmdbTitleID,
+                titleType: myReaction?.titleType,
+            });
+
+            watchlistItemMarkedSeen.title = titleObj;
+            return watchlistItemMarkedSeen;
+        }
+    }
+
     const loadReactions = async () => {
         const loadReactionsObj = await getTitleReactEmojis({ 
             authSession, 
@@ -179,15 +195,90 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
             setAllReactions(loadReactionsObj?.allReactions ?? []);
         }
     }
+
+    const selectEmoji = (emoji) => {
+        if (myReaction?.reactEmojis?.indexOf(emoji) !== -1) return;
+        const atMaxEmojisSelected = (myReaction?.reactEmojis?.length === MAX_SELECT_EMOJIS * 2);
+        const nextReactEmojis = (atMaxEmojisSelected)
+            ? myReaction?.reactEmojis.slice(2) + emoji
+            : myReaction?.reactEmojis + emoji;
+        const nextMyReaction = { 
+            ...myReaction, 
+            reactEmojis: nextReactEmojis,
+            hasSeenTitle: true,
+        };
+        setMyReaction(nextMyReaction);
+
+        const removeMyReaction = (reaction) => reaction?.userSub !== reelayDBUser?.sub
+        const myReactionCondensed = {
+            username: reelayDBUser?.username,
+            userSub: reelayDBUser?.sub,
+            reactEmojis: nextReactEmojis
+        };
+
+        const nextAllReactions = [
+            myReactionCondensed, 
+            ...allReactions.filter(removeMyReaction)
+        ];
+
+        titleObj.allReactions = nextAllReactions;
+        setAllReactions(nextAllReactions);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        updateReactions(nextReactEmojis);
+    }
+
+    const unselectEmoji = (emoji) => {
+        let nextReactEmojis = '';
+        for (let ii = 0; ii < myReaction?.reactEmojis?.length; ii += 2) {
+            const nextEmoji = myReaction?.reactEmojis.charAt(ii) + myReaction?.reactEmojis.charAt(ii + 1);
+            if (nextEmoji === emoji) continue;
+            nextReactEmojis += nextEmoji;
+        }
+
+        const nextMyReaction = { ...myReaction, reactEmojis: nextReactEmojis };
+        setMyReaction(nextMyReaction);
+
+        const removeMyReaction = (reaction) => reaction?.userSub !== reelayDBUser?.sub;
+        const myReactionCondensed = {
+            username: reelayDBUser?.username,
+            userSub: reelayDBUser?.sub,
+            reactEmojis: nextReactEmojis
+        };
+
+        const nextAllReactions = [
+            myReactionCondensed, 
+            ...allReactions.filter(removeMyReaction)
+        ];
+
+        titleObj.allReactions = nextAllReactions;
+        setAllReactions(nextAllReactions);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        updateReactions(nextReactEmojis);
+    }
+
+    const updateReactions = async (nextReactEmojis) => {
+        if (nextReactEmojis === myReaction?.reactEmojis) return;
+        const nextMyReaction = (!myReaction?.hasSeenTitle)
+            ? await autoMarkSeen()
+            : myReaction;
+
+        const watchlistItemWithEmojis = await setReactEmojis({
+            authSession, 
+            itemID: nextMyReaction?.id, 
+            reactEmojis: nextReactEmojis,
+            reqUserSub: reelayDBUser?.sub,
+        });
+
+        watchlistItemWithEmojis.title = titleObj;
+        if (watchlistItemWithEmojis && !watchlistItemWithEmojis?.error) {
+            dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItemWithEmojis })
+        }
+    }
     
     const AddOtherEmojiButton = () => {
         const [showEmojiDrawer, setShowEmojiDrawer] = useState(false);
         const openDrawer = () => setShowEmojiDrawer(true);
         const closeDrawer = () => setShowEmojiDrawer(false);
-
-        const onEmojiSelected = (emoji) => {
-            console.log('on emoji selected: ', emoji);
-        }
 
         return (
             <ReactEmojiView>
@@ -195,7 +286,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
                     <FontAwesomeIcon icon={faPlus} color='white' size={20} />
                 </ReactEmojiPressable>
                 { showEmojiDrawer && (
-                    <AddReactEmojiDrawer closeDrawer={closeDrawer} onEmojiSelected={onEmojiSelected} />
+                    <AddReactEmojiDrawer closeDrawer={closeDrawer} onEmojiSelected={selectEmoji} />
                 )}
             </ReactEmojiView>
         )
@@ -223,84 +314,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
         const isSelected = (myReaction?.reactEmojis?.indexOf(emoji) !== -1);
         const reactionCount = reactionsByEmoji[emoji];
         const showReactionCount = (reactionCount > 0);
-
-        const autoMarkSeen = async () => {
-            if (!myReaction?.hasSeenTitle) {
-                myReaction.hasSeenTitle = true;
-                const watchlistItemMarkedSeen = await markWatchlistItemSeen({
-                    reqUserSub: reelayDBUser?.sub,
-                    tmdbTitleID: myReaction?.tmdbTitleID,
-                    titleType: myReaction?.titleType,
-                });
-
-                watchlistItemMarkedSeen.title = titleObj;
-                return watchlistItemMarkedSeen;
-            }
-        }
-
-        const selectEmoji = () => {     
-            const nextReactEmojis = myReaction?.reactEmojis + emoji;
-            const nextMyReaction = { 
-                ...myReaction, 
-                reactEmojis: nextReactEmojis,
-                hasSeenTitle: true,
-            };
-            setMyReaction(nextMyReaction);
-            const removeMyReaction = (reaction) => reaction?.userSub !== reelayDBUser?.sub
-            
-            const myReactionCondensed = {
-                username: reelayDBUser?.username,
-                userSub: reelayDBUser?.sub,
-                reactEmojis: nextReactEmojis
-            };
-
-            const nextAllReactions = [
-                myReactionCondensed, 
-                ...allReactions.filter(removeMyReaction)
-            ];
-
-            setAllReactions(nextAllReactions);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            return nextReactEmojis;
-        }
-
-        const unselectEmoji = () => {
-            let nextReactEmojis = '';
-            for (let ii = 0; ii < myReaction?.reactEmojis?.length; ii += 2) {
-                const nextEmoji = myReaction?.reactEmojis.charAt(ii) + myReaction?.reactEmojis.charAt(ii + 1);
-                if (nextEmoji === emoji) continue;
-                nextReactEmojis += nextEmoji;
-            }
-
-            const nextMyReaction = { ...myReaction, reactEmojis: nextReactEmojis };
-            setMyReaction(nextMyReaction);
-
-            const removeMyReaction = (reaction) => reaction?.userSub !== reelayDBUser?.sub
-            const nextAllReactions = [nextMyReaction, ...allReactions.filter(removeMyReaction)]
-            setAllReactions(nextAllReactions);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            return nextReactEmojis;
-        }
-
-
-        const onPress = async () => {
-            const nextReactEmojis = (isSelected) ? unselectEmoji() : selectEmoji();
-            const nextMyReaction = (!myReaction?.hasSeenTitle)
-                ? await autoMarkSeen()
-                : myReaction;
-
-            const watchlistItemWithEmojis = await setReactEmojis({
-                authSession, 
-                itemID: nextMyReaction?.id, 
-                reactEmojis: nextReactEmojis,
-                reqUserSub: reelayDBUser?.sub,
-            });
-
-            watchlistItemWithEmojis.title = titleObj;
-            if (watchlistItemWithEmojis && !watchlistItemWithEmojis?.error) {
-                dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItemWithEmojis })
-            }
-        }
+        const onPress = async () => (isSelected) ? unselectEmoji(emoji) : selectEmoji(emoji);
 
         return (
             <ReactEmojiView>
@@ -322,12 +336,43 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
     }
 
     const ReactEmojisRow = () => {
-        const emojiKeys = Object.keys(reactionsByEmoji);
+        const sortEmojisByCount = (emoji0, emoji1) => {            
+            const isSelected0 = myReaction?.reactEmojis.indexOf(emoji0) !== -1;
+            const isSelected1 = myReaction?.reactEmojis.indexOf(emoji1) !== -1;
+
+            if (isSelected0 && !isSelected1) return -1;
+            if (!isSelected0 && isSelected1) return 1;
+
+            let lastIndex0 = emojiLastIndices?.current[emoji0] ?? 11
+            let lastIndex1 = emojiLastIndices?.current[emoji1] ?? 11;
+
+            if (lastIndex0 !== -1 || lastIndex1 !== -1) {
+                return lastIndex0 - lastIndex1;
+            }
+
+            const reactionCount0 = reactionsByEmoji[emoji0];
+            const reactionCount1 = reactionsByEmoji[emoji1];
+            return reactionCount1 - reactionCount0;
+        }
+
+        const emojiKeys = Object.keys(reactionsByEmoji).sort(sortEmojisByCount);
         const displayEmojiKeys = emojiKeys.slice(0, MAX_DISPLAY_EMOJIS);
+
+        const sortEmojisInDisplay = (emoji0, emoji1) => {
+            let lastIndex0 = emojiLastIndices?.current[emoji0] ?? 11
+            let lastIndex1 = emojiLastIndices?.current[emoji1] ?? 11;
+            return lastIndex0 - lastIndex1;
+        }
+
+        displayEmojiKeys.sort(sortEmojisInDisplay);
+        emojiKeys.slice(MAX_DISPLAY_EMOJIS).map(emoji => emojiLastIndices.current[emoji] = 11);
 
         return (
             <ReactEmojisRowView>
-                { displayEmojiKeys.map(emoji => <ReactEmoji key={emoji} emoji={emoji} /> )}
+                { displayEmojiKeys.map((emoji, index) => {
+                    emojiLastIndices.current[emoji] = index;
+                    return <ReactEmoji key={emoji} emoji={emoji} />
+                })}
                 <AddOtherEmojiButton />
             </ReactEmojisRowView>
         )
