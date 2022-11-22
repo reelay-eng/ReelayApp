@@ -4,7 +4,6 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import * as ReelayText from '../global/Text';
 
-import { AddedToClubsIconSVG, AddToClubsIconSVG, ClubsIconSolidSVG, ClubsIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
@@ -13,6 +12,9 @@ import { showMessageToast } from '../utils/toasts';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import * as RegularIcons from '@fortawesome/free-regular-svg-icons';
+import * as SolidIcons from '@fortawesome/free-solid-svg-icons';
 
 const LabelText = styled(ReelayText.H6Emphasized)`
     color: white;
@@ -169,8 +171,8 @@ export default AddToWatchlistButton = ({
                 end={{ x: 1, y: 1 }} 
             />
             <WatchlistButtonCircleView>
-                { (inWatchlist) && <AddedToClubsIconSVG /> }
-                { (!inWatchlist && !hasSeenTitle) && <AddToClubsIconSVG /> }
+                { (inWatchlist) && <FontAwesomeIcon icon={SolidIcons.faBookmark} size={22} color='white' /> }
+                { (!inWatchlist && !hasSeenTitle) && <FontAwesomeIcon icon={RegularIcons.faBookmark} size={22} color='white' /> }
             </WatchlistButtonCircleView>
         </WatchlistButtonOuterView>
     );

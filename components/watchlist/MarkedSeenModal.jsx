@@ -27,6 +27,7 @@ import AddReactEmojiDrawer from '../titlePage/AddReactEmojiDrawer';
 const { width } = Dimensions.get('window');
 
 const DEFAULT_REACT_EMOJIS = '🤣😍😴';
+const MAX_SELECT_EMOJIS = 3;
 const ICON_SIZE = 24;
 const MODAL_HEIGHT = 383;
 const MODAL_WIDTH = 265;
@@ -131,6 +132,7 @@ export default MarkedSeenModal = ({
     const authSession = useSelector(state => state.authSession);
     const bottomOffset = useSafeAreaInsets().bottom;
     const dispatch = useDispatch();
+    const emojiLastIndices = useRef({});
     const titleObj = watchlistItem?.title;
 
     const getDisplayEmojis = (reactEmojis = DEFAULT_REACT_EMOJIS) => {
@@ -142,15 +144,35 @@ export default MarkedSeenModal = ({
         return displayEmojis;
     }
 
-    const [displayEmojis, setDisplayEmojis] = useState(getDisplayEmojis());
     const [selectedEmojis, setSelectedEmojis] = useState([]);
 
-    const getEmojiText = (emojis = displayEmojis) => {
+    const getEmojiText = (emojis) => {
         let emojiText = ''
         for (const emoji of emojis) {
             emojiText += emoji;
         }
         return emojiText;
+    }
+
+    const selectEmoji = (emoji) => {
+        const atMaxEmojisSelected = (selectedEmojis?.length === MAX_SELECT_EMOJIS);
+        const nextSelectedEmojis = (atMaxEmojisSelected) 
+            ? [...selectedEmojis].slice(1) 
+            : [...selectedEmojis];
+        nextSelectedEmojis.push(emoji);
+        
+        setSelectedEmojis(nextSelectedEmojis);
+        watchlistItem.reactEmojis = getEmojiText(nextSelectedEmojis);
+        dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+        return nextSelectedEmojis;
+    }
+
+    const unselectEmoji = (emoji) => {
+        const nextSelectedEmojis = selectedEmojis.filter(nextEmoji => nextEmoji !== emoji);
+        setSelectedEmojis(nextSelectedEmojis);
+        watchlistItem.reactEmojis = getEmojiText(nextSelectedEmojis);
+        dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+        return nextSelectedEmojis;
     }
 
     const CloseButton = () => {
@@ -166,10 +188,19 @@ export default MarkedSeenModal = ({
         const openDrawer = () => setShowEmojiDrawer(true);
         const closeDrawer = () => setShowEmojiDrawer(false);
 
-        const onEmojiSelected = (emoji) => {
-            console.log('on emoji selected: ', emoji);
-        }
+        const onEmojiSelected = async (emoji) => {
+            const matchExistingEmoji = (nextEmoji) => nextEmoji === emoji;
+            if (selectedEmojis.find(matchExistingEmoji)) return;
 
+            const nextSelectedEmojis = selectEmoji(emoji);
+            const setEmojisResult = await setReactEmojis({
+                authSession, 
+                itemID: watchlistItem?.id, 
+                reactEmojis: nextSelectedEmojis.join(''),
+                reqUserSub: reelayDBUser?.sub,
+           });
+           console.log('set emojis result: ', setEmojisResult);
+        }
 
         return (
             <Fragment>
@@ -204,23 +235,10 @@ export default MarkedSeenModal = ({
     }
 
     const ReactEmoji = ({ emoji }) => {
-        const [isSelected, setIsSelected] = useState(selectedEmojis.includes(emoji));
-        const onPress = async () => {
-            let nextSelectedEmojis = [...selectedEmojis];
-            if (isSelected) {
-                setIsSelected(false);
-                nextSelectedEmojis = selectedEmojis.filter(nextEmoji => nextEmoji !== emoji);
-                setSelectedEmojis(nextSelectedEmojis);
-                watchlistItem.reactEmojis = getEmojiText(nextSelectedEmojis);
-                dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
-            } else {
-                setIsSelected(true);
-                nextSelectedEmojis.push(emoji)
-                setSelectedEmojis(nextSelectedEmojis);
-                watchlistItem.reactEmojis = getEmojiText(nextSelectedEmojis);
-                dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
-            }
+        const isSelected = (selectedEmojis.includes(emoji));    
 
+        const onPress = async () => {
+            const nextSelectedEmojis = (isSelected) ? unselectEmoji(emoji) : selectEmoji(emoji);
             const setEmojisResult = await setReactEmojis({
                 authSession, 
                 itemID: watchlistItem?.id, 
@@ -237,9 +255,19 @@ export default MarkedSeenModal = ({
     }
 
     const ReactEmojiRow = () => {
+        const nextDisplayEmojis = [...selectedEmojis];
+        for (const emoji of getDisplayEmojis()) {
+            if (!nextDisplayEmojis.includes(emoji)) {
+                nextDisplayEmojis.push(emoji);
+            }
+        }
+        const displayEmojis = nextDisplayEmojis.slice(0, MAX_SELECT_EMOJIS);
+
         return (
             <ReactEmojiRowView>
-                { displayEmojis.map(emoji => <ReactEmoji emoji={emoji} /> )}
+                { displayEmojis.map(emoji => {
+                    return <ReactEmoji key={emoji} emoji={emoji} />;
+                })}
                 <AddOtherEmojiButton />
             </ReactEmojiRowView>
         )
@@ -260,10 +288,6 @@ export default MarkedSeenModal = ({
             </TitleInfoView>
         )
     }
-
-    useEffect(() => {
-
-    }, []);
 
     return (
         <ModalView>

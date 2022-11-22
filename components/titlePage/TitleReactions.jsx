@@ -426,7 +426,8 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
     }, [myWatchlistItems]);
 
     useEffect(() => {
-        if (!titleObj?.allReactions?.length) loadReactions();
+        if (seeAll && (titleObj?.allReactions?.length > 0)) return;
+        loadReactions();
     }, []);
 
     return (

@@ -17,7 +17,6 @@ import styled from "styled-components"
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Video } from 'expo-av'
 
-import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../../components/global/SVGs';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
@@ -37,6 +36,7 @@ const AutoPlayReelays = [
 
 import { LinearGradient } from "expo-linear-gradient";
 import { animate, animateCustom } from "../../hooks/animations";
+import { faBookmark } from "@fortawesome/free-regular-svg-icons";
 import ReelayColors from "../../constants/ReelayColors";
 
 const windowWidth = Dimensions.get('window').width;
@@ -109,10 +109,8 @@ const MutedVideoPlayer = ({ source }) => {
             isMuted={true}
             rate={1.0}
             resizeMode='cover'
-            // shouldDuckAndroid={true}
             shouldPlay={true}
             source={source}
-            // staysActiveInBackground={false}
             useNativeControls={false}
             volume={1.0}
         />
@@ -234,35 +232,20 @@ const TutorialFooter = ({ children, arrow=null }) => {
     )
 }
 
-const HeaderContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: center;
-    padding: 10px;
-    padding-bottom: 10px;
-`
-const HeaderBar = styled(View)`
-    width: 20%;
-    height: 4px;
-    border-radius: 2px;
-    background-color: white;
-    opacity: 0.2;
-`
-
-const Header = () => {
-    return (
-        <HeaderContainer>
-            <HeaderBar />
-        </HeaderContainer>
-    )
-}
-
 const AddToWatchlistContainer = styled(View)`
     position: absolute;
     width: 100%;
     height: 100%;
     justify-content: center;
     align-items: center;
+`
+const AddToWatchlistButtonPressable = styled(View)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 22px;
+    height: 44px;
+    justify-content: center;
+    width: 44px;
 `
 const WatchlistPosterBackground = styled(ImageBackground)`
     width: ${REELAY_WIDTH * 0.6}px;
@@ -385,11 +368,6 @@ const Tutorial = ({ navigation }) => {
         horizontalScrollRef.current.scrollTo({ x: 1100})
     }
 
-    const OpenAddToWatchlistDrawer = () => {
-        setSmallText("");
-        setDrawerIsOpen(true);
-    }
-
     const handleFinishedOnboarding = () => {
         AsyncStorage.setItem('isReturningUser', '1');
 		dispatch({ type: 'setIsReturningUser', payload: true });
@@ -425,12 +403,14 @@ const Tutorial = ({ navigation }) => {
             </ContentContainer>
             { hasScrolledRight && (
                 <AddToWatchlistContainer>
-                    <WatchlistPoster source={P4} onPress={OpenAddToWatchlistDrawer} pressDisabled={addedToWatchlist}>
+                    <WatchlistPoster source={P4}>
                         <View style={{position: 'absolute', width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.4, borderRadius: 10}} />
                         <View style={{transform: [
                             { scale: 1.2 }
                         ]}}>
-                            { addedToWatchlist ? <AddedToClubsIconSVG width={46} height={33} /> : <AddToClubsIconSVG width={46} height={33}/> }
+                            <AddToWatchlistButtonPressable>
+                                <FontAwesomeIcon icon={faBookmark} color='white' size={22} />
+                            </AddToWatchlistButtonPressable>
                         </View>
                     </WatchlistPoster>
                 </AddToWatchlistContainer>
