@@ -4,14 +4,12 @@ import Hero from './Hero';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StackPositionBar from './StackPositionBar';
 import { getGameDetails } from '../../api/GuessingGameApi';
 import GuessingGameBanner from '../games/GuessingGameBanner';
-import ShareGuessingGameModal from '../games/ShareGuessingGameModal';
-
 
 const { height, width } = Dimensions.get('window');
 
@@ -37,6 +35,7 @@ export const GuessingGameStack = ({
     previewGuessingGame = null,
     stackViewable,
 }) => {
+    const dispatch = useDispatch();
     const guessingGames = useSelector(state => state.homeGuessingGames);
     const displayGames = guessingGames?.content ?? [];
     const guessingGame = previewGuessingGame ?? displayGames[feedPosition];
@@ -141,7 +140,7 @@ export const GuessingGameStack = ({
             return;
         }
         if (gameOver && !isPreview) {
-            setShareOutViewable(true);
+            dispatch({ type: 'setStatsVisible', payload: true });
         }
     }, [gameOver]);
 
@@ -177,13 +176,7 @@ export const GuessingGameStack = ({
             { (stack.length > 1) && (
                 <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
             )}
-            {shareOutViewable && (
-                <ShareGuessingGameModal
-                    closeModal={() => setShareOutViewable(false)}
-                    navigation={navigation}
-                    game={displayGame}
-                />
-            )}
+            {/* {shareOutViewable && <ShareGuessingGameDrawer navigation={navigation} game={displayGame} /> } */}
         </ReelayFeedContainer>
     );
 }

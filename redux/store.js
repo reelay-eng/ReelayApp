@@ -109,6 +109,7 @@ const initialState = {
     discoverHasUnseenReelays: true,
     donateLinks: [],
     dotMenuVisible: false,
+    statsVisible: false,
     reelayWithVisibleTrailer: null,
 
     // PROFILE
@@ -311,6 +312,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, likesVisible: action.payload }    
         case 'setReelayWithVisibleTrailer':
             return { ...state, reelayWithVisibleTrailer: action.payload }
+        case 'setStatsVisible':
+            return { ...state, statsVisible: action.payload }
 
         // PROFILE
         case 'setIsEditingProfile':
@@ -334,8 +337,7 @@ const appReducer = ( state = initialState, action) => {
         case 'setSuggestedSeriesResults':
             return { ...state, suggestedSeriesResults: action.payload }
 
-            return { ...state, myStreamingSubscriptions: action.payload } 
-        case 'setMySettings':
+            case 'setMySettings':
             return { ...state, mySettings: action.payload }
         case 'updateMySettings': // payload e.g. { notifyCommentsOnMyReelays: true }
             const settingsToUpdate = action.payload;
@@ -435,6 +437,7 @@ export const mapStateToProps = (state) => ({
     donateLinks: state.donateLinks,
     dotMenuVisible: state.dotMenuVisible,
     likesVisible: state.likesVisible,
+    statsVisible: state.statsVisible,
     reelayWithVisibleTrailer: state.reelayWithVisibleTrailer,
 
     // PROFILE

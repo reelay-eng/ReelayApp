@@ -18,6 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import FeedTrailerDrawer from './FeedTrailerDrawer';
 import { animate } from '../../hooks/animations';
+import ShareGuessingGameDrawer from '../games/ShareGuessingGameDrawer';
 
 const BottomGradient = styled(LinearGradient)`
     position: absolute;
@@ -27,12 +28,13 @@ const BottomGradient = styled(LinearGradient)`
     width: 100%;
 `
 
-const HeroModals = ({ reelay, navigation }) => {
+const HeroModals = ({ game = null, reelay, navigation }) => {
     const [modalsViewable, setModalsViewable] = useState(false);
     const likesVisible = useSelector(state => state.likesVisible);
     const commentsVisible = useSelector(state => state.commentsVisible);
     const dotMenuVisible = useSelector(state => state.dotMenuVisible);
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+    const statsVisible = useSelector(state => state.statsVisible);
     const trailerVisible = (useSelector(state => state.reelayWithVisibleTrailer) === reelay);
     const { reelayDBUser } = useContext(AuthContext);
 
@@ -79,6 +81,7 @@ const HeroModals = ({ reelay, navigation }) => {
             { dotMenuVisible && <Reelay3DotDrawer reelay={reelay} navigation={navigation} /> }
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
             { trailerVisible && <FeedTrailerDrawer reelay={reelay} /> }
+            { statsVisible && <ShareGuessingGameDrawer game={game} navigation={navigation} /> }
         </React.Fragment>
     );
 }
@@ -100,10 +103,9 @@ export default Hero = ({
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer gameID={game?.id ?? null} navigation={navigation} reelay={reelay} viewable={viewable} />
-
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
-
             <ReelayInfo clubStub={clubStub} feedSource={feedSource} navigation={navigation} reelay={reelay} />
+
             { !isWelcomeVideo && showSidebar && (
                 <Sidebar 
                     commentsCount={commentsCount}
@@ -112,11 +114,7 @@ export default Hero = ({
                     reelay={reelay} 
                 />
             )}
-            { viewable && <HeroModals reelay={reelay} navigation={navigation} /> }
+            { viewable && <HeroModals game={game} reelay={reelay} navigation={navigation} /> }
         </View>
     );
 }
-
-// , (prepProps, nextProps) => {
-//     return prepProps.viewable === nextProps.viewable;
-// });

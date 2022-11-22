@@ -214,7 +214,7 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 
 			<ButtonContainer>
 				<SidebarButton>
-					{ game && <ShareGameButton navigation={navigation} game={game} reelay={reelay} /> }
+					{ game && <ShareGameButton /> }
 					{ !game && <ShareOutButton navigation={navigation} reelay={reelay} /> }
 				</SidebarButton>
 				<Count>{''}</Count>

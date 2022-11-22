@@ -6,7 +6,7 @@ import { Video } from 'expo-av'
 import { useFocusEffect } from '@react-navigation/native';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import ShareReelayDrawer from './ShareReelayDrawer';
 
@@ -54,10 +54,11 @@ export default FeedVideoPlayer = ({ gameID = null, navigation, reelay, viewable 
 	const [paused, setPaused] = useState(false);
 	const [playPauseVisible, setPlayPauseVisible] = useState(false);
 	const [showShareOutDrawer, setShowShareOutDrawer] = useState(false);
+	const statsVisible = useSelector(state => state.statsVisible);
 
 	const closeShareOutDrawer = () => setShowShareOutDrawer(false);
 
-	const shouldPlay = viewable && focused && finishedLoading && !paused;
+	const shouldPlay = viewable && focused && finishedLoading && !paused && !statsVisible;
 	const tapCounter = useRef(0);
 
 	useEffect(() => {
