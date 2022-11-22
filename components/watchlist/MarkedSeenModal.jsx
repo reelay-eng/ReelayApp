@@ -160,7 +160,7 @@ export default MarkedSeenModal = ({
             ? [...selectedEmojis].slice(1) 
             : [...selectedEmojis];
         nextSelectedEmojis.push(emoji);
-        
+
         setSelectedEmojis(nextSelectedEmojis);
         watchlistItem.reactEmojis = getEmojiText(nextSelectedEmojis);
         dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
@@ -299,7 +299,7 @@ export default MarkedSeenModal = ({
                     <ShareCardWhiteLayer />
                     <ShareCardGradient colors={[ReelayColors.reelayBlue, '#4C268B']} />
                     <TitleInfo />
-                    <CloseButton />
+                    {/* <CloseButton /> */}
                     <ReactEmojiRow />
                     <CreateReelayButton />
                     <DoneButton />

@@ -22,10 +22,11 @@ import { changeSize } from '../../api/TMDbApi';
 
 const { height, width } = Dimensions.get('window');
 
-const CreateReelayButtonView = styled(View)`
-	width: 100%;
-	height: 40px;
-	margin-top: 10px;
+const PosterGradient = styled(LinearGradient)`
+    height: ${height * 0.55}px;
+    top: ${-0.05 * height}px;
+    position: absolute;
+    width: 100%;
 `
 const GradientView = styled(View)`
 	width: 100%;
@@ -39,7 +40,7 @@ const InfoBarView = styled(View)`
 	display: flex;
 `
 const PosterView = styled(View)`
-    height: ${height * 0.6}px;
+    height: ${height * 0.5}px;
     width: 100%;
 `
 const PosterImage = styled(Image)`
@@ -109,7 +110,8 @@ export default TitleDetailHeader = ({ navigation, titleObj }) => {
 			<View style={{height: "100%", width: "100%"}}>
 				<PosterImage source={posterSource} />
 				<PosterOverlay color={ReelayColors.reelayBlack} opacity={0.2} />
-				<GradientView>
+                <PosterGradient colors={['transparent', 'black']} />
+				{/* <GradientView>
 					<LinearGradient
 						colors={["transparent", ReelayColors.reelayBlack]}
 						style={{
@@ -118,7 +120,7 @@ export default TitleDetailHeader = ({ navigation, titleObj }) => {
 							height: '100%'
 						}}
 					/>
-				</GradientView>
+				</GradientView> */}
 			</View>
 		);
 	};
@@ -147,16 +149,6 @@ export default TitleDetailHeader = ({ navigation, titleObj }) => {
 		return false;
 	}
 
-	const advanceToCreateReelay = () => {
-		if (showMeSignupIfGuest()) return;
-		navigation.push('VenueSelectScreen', { titleObj: titleObj });
-		logAmplitudeEventProd('advanceToCreateReelay', {
-			username: reelayDBUser?.username,
-			title: titleObj?.title?.display,
-			source: 'titlePage',
-		});
-	}
-
 	const advanceToWatchTrailer = () => {
 		navigation.push("TitleTrailerScreen", {
 			trailerURI: trailerURI,
@@ -168,22 +160,7 @@ export default TitleDetailHeader = ({ navigation, titleObj }) => {
 		});
 	}
 
-	const CreateReelayButton = () => {
-		const createReelayIcon = <Icon color={"white"} type="ionicon" name="add-circle-outline" size={20} />;
-		return (
-			<CreateReelayButtonView>
-				<ActionButton
-					color='blue'
-					text={"Create a Reelay"}
-					leftIcon={createReelayIcon}
-					onPress={advanceToCreateReelay}
-					borderRadius={"20px"}
-				/>
-			</CreateReelayButtonView>
-		);
-	}
-
-	const WatchTrailerButton = () => {
+    const WatchTrailerButton = () => {
 		const watchTrailerIcon = <Icon color={"white"} type="ionicon" name="play-circle-outline" size={20} />;
 		return (
 			<TrailerButtonView>

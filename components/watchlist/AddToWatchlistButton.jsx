@@ -23,22 +23,22 @@ const LabelText = styled(ReelayText.H6Emphasized)`
 `
 const ShareButtonBackground = styled(LinearGradient)`
     border-radius: 50px;
-    height: 45px;
+    height: ${props => props.buttonSize}px;
     opacity: 0.9;
     position: absolute;
     right: 6px;
-    width: 45px;
+    width: ${props => props.buttonSize}px;
 `
 const WatchlistButtonCircleView = styled(View)`
     align-items: center;
     border-radius: 50px;
-    height: 45px;
+    height: ${props => props.buttonSize}px;
     justify-content: center;
     overflow: hidden;
     shadow-offset: 2px 2px;
     shadow-color: black;
     shadow-opacity: 0.3;
-    width: 45px;
+    width: ${props => props.buttonSize}px;
 `
 const WatchlistButtonOuterView = styled(TouchableOpacity)`
     align-items: center;
@@ -48,11 +48,13 @@ const WatchlistButtonOuterView = styled(TouchableOpacity)`
 `
 
 export default AddToWatchlistButton = ({ 
+    buttonSize = 45,
+    iconSize = 22,
     navigation, 
     shouldGoToWatchlist = false, 
     showLabel = false,
     titleObj, 
-    reelay 
+    reelay
 }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
@@ -166,13 +168,13 @@ export default AddToWatchlistButton = ({
     return (
         <WatchlistButtonOuterView onPress={(onPress)}>
             <Label />
-            <ShareButtonBackground colors={gradientColors} 
+            <ShareButtonBackground buttonSize={buttonSize} colors={gradientColors} 
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }} 
             />
-            <WatchlistButtonCircleView>
-                { (inWatchlist) && <FontAwesomeIcon icon={SolidIcons.faBookmark} size={22} color='white' /> }
-                { (!inWatchlist && !hasSeenTitle) && <FontAwesomeIcon icon={RegularIcons.faBookmark} size={22} color='white' /> }
+            <WatchlistButtonCircleView buttonSize={buttonSize}>
+                { (inWatchlist) && <FontAwesomeIcon icon={SolidIcons.faBookmark} size={iconSize} color='white' /> }
+                { (!inWatchlist && !hasSeenTitle) && <FontAwesomeIcon icon={RegularIcons.faBookmark} size={iconSize} color='white' /> }
             </WatchlistButtonCircleView>
         </WatchlistButtonOuterView>
     );

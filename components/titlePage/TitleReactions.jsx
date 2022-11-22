@@ -30,7 +30,7 @@ const ReactEmojiCount = styled(ReelayText.Body1)`
 const ReactEmojiPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${props => props.isSelected
-        ? ReelayColors.reelayGreen
+        ? ReelayColors.reelayBlue
         : 'rgba(255,255,255,0.12)'
     };
     border-radius: 8px;
@@ -83,8 +83,11 @@ const ReactionView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    height: 40px;
+    height: 56px;
     width: 100%;
+    border-bottom-width: ${props => props.isLastRow ? 0 : 1}px;
+    border-color: gray;
+    border-opacity: 24%;
 `
 const ReactionLeftView = styled(View)`
     align-items: center;
@@ -93,6 +96,7 @@ const ReactionLeftView = styled(View)`
 const SeeAllPressable = styled(TouchableOpacity)`
     align-items: center;
     padding: 6px;
+    padding-top: 0px;
     width: 100%;
 `
 const SeeAllText = styled(ReelayText.Body2)`
@@ -292,7 +296,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
         )
     }
 
-    const ReactionRow = ({ reaction }) => {
+    const ReactionRow = ({ reaction, isLastRow }) => {
         const reactEmojis = reaction?.reactEmojis;
         const user = { sub: reaction?.userSub , username: reaction?.username };
 
@@ -300,7 +304,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
         const displayUsername = user?.username ?? reelayDBUser?.username;
 
         return (
-            <ReactionView>
+            <ReactionView isLastRow={isLastRow}>
                 <ReactionLeftView>
                     <ProfilePicture navigation={navigation} user={user} size={30} />
                     <ReactUsernameText>{displayUsername}</ReactUsernameText>
@@ -396,7 +400,8 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
 
         const renderReactionRow = ({ item, index }) => {
             const reaction = item;
-            return <ReactionRow key={reaction?.userSub} reaction={reaction} />;
+            const isLastRow = (index === displayReactions?.length - 1)
+            return <ReactionRow key={reaction?.userSub} isLastRow={isLastRow} reaction={reaction} />;
         }
 
         return (

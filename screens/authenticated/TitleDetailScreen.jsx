@@ -36,11 +36,10 @@ const { width } = Dimensions.get('window');
 
 const BackButtonCircleView = styled(View)`
 	align-items: center;
-	background-color: #1a1a1a;
 	border-radius: 24px;
 	justify-content: center;
-	height: 48px;
-	width: 48px;
+	height: 24px;
+	width: 24px;
 `
 const BackButtonPressable = styled(TouchableOpacity)`
 	align-items: center;
@@ -63,14 +62,21 @@ const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
 	color: white;
 	margin-left: 8px;
 `
+const HeaderText = styled(ReelayText.Body1)`
+	color: white;
+	font-size: 18px;
+	margin-top: 8px;
+`
 const HeaderView = styled(View)`
 	align-items: center;
+	background-color: black;
 	flex-direction: row;
 	justify-content: space-between;
 	padding: 16px;
-	position: absolute;
-	top: ${props => props.topOffset}px;
+	padding-top: ${props => props.topOffset + 16}px;
+	padding-bottom: 8px;
 	width: 100%;
+	z-index: 100;
 `
 const ScrollBox = styled(ScrollView)`
 	position: absolute;
@@ -149,11 +155,18 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		return (
 			<HeaderView topOffset={headerTopOffset}>
 				<BackButtonCircleView>
-				<BackButtonPressable onPress={() => goBack()}>
-					<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
-				</BackButtonPressable>
+					<BackButtonPressable onPress={() => goBack()}>
+						<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
+					</BackButtonPressable>
 				</BackButtonCircleView>
-				<AddToWatchlistButton navigation={navigation} shouldGoToWatchlist={true} showLabel={true} titleObj={titleObj} />
+				<HeaderText>{titleObj?.display}</HeaderText>
+				<AddToWatchlistButton 
+					buttonSize={32}
+					iconSize={18}
+					navigation={navigation} 
+					shouldGoToWatchlist={true} 
+					titleObj={titleObj} 
+				/>
 			</HeaderView>
 		);
 	}
@@ -179,9 +192,9 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	}
 
 	return (
-		<ScrollBox showsVerticalScrollIndicator={false}>
-			<TitleDetailHeader navigation={navigation} titleObj={titleObj} />
+		<ScrollBox showsVerticalScrollIndicator={false} stickyHeaderIndices={[0]} >
 			<NavHeader />
+			<TitleDetailHeader navigation={navigation} titleObj={titleObj} />
 			<TitleReactions navigation={navigation} titleObj={titleObj} />
 			<CreateReelayButton />
 			<WatchTrailerButton />
@@ -189,19 +202,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			<Spacer height={20} />
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
 			<WatchNow tmdbTitleID={tmdbTitleID} titleType={titleType} />
-			<BottomBackButton navigation={navigation} />
 			<Spacer height={100} />
 			{ justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
 		</ScrollBox>
 	);
 };
-
-const BottomBackButton = ({ navigation }) => {
-	return (
-		<BackButtonCircleView>
-			<Pressable onPress={() => navigation.goBack()}>
-				<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
-			</Pressable>
-		</BackButtonCircleView>
-	);
-}
