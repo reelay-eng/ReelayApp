@@ -102,9 +102,9 @@ export default Hero = ({
         return game?.reelays?.[0];
     }
 
-    const commentsCount = useRef(reelay.comments.length);
-    const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
     const modalReelay = getModalReelay();
+    const commentsCount = useRef(modalReelay.comments.length);
+    const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
     console.log('Hero is rendering: ', reelay.creator.username, reelay.title.display);
 
     return (
