@@ -10,19 +10,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width } = Dimensions.get('window');
 
 const AddToWatchlistPressable = styled(TouchableOpacity)`
-    align-items: center;
+    align-items: flex-start;
     flex-direction: row;
     justify-content: center;
-    padding: 15px;
-    padding-top: 5px;
+    padding-right: 15px;
     height: 100%;
 `
 const AddText = styled(ReelayText.Caption)`
     color: ${ReelayColors.reelayBlue};
     font-size: 16px;
+    margin-top: 6px;
 `
 const HeaderContainer = styled(View)`
-    align-items: center;
+    align-items: flex-start;
     flex-direction: row;
     justify-content: space-between;
     margin-top: 4px;
