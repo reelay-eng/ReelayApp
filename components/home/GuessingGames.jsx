@@ -6,47 +6,47 @@ import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
 import { useDispatch, useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
-import Carousel from 'react-native-snap-carousel';
-import { GamesIconSmallSVG } from '../global/SVGs';
 import moment from 'moment';
 import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { faCalendarDay, faCheck, faCheckCircle, faChevronRight, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
 import { deleteGuessingGameGuesses, deleteGuessingGamePublished, getGuessingGamesPublished } from '../../api/GuessingGameApi';
+import { FlatList } from 'react-native-gesture-handler';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = 192;
+const CARD_WIDTH = 140;
+const POSTER_WIDTH = CARD_WIDTH - 12;
 
 const AbovePosterSpacer = styled(View)`
     margin-top: 10px;
 `
-const CarouselView = styled(View)`
-    margin-left: 16px;
+const AllGamesButtonPressable = styled(TouchableOpacity)`
+    padding: 6px;
 `
-const GameDescriptionText = styled(ReelayText.H6Emphasized)`
-    color: white;
-    font-size: 14px;
-    line-height: 18px;
+const CardView = styled(View)`
+    background-color: #1E1F21;
+    border-radius: 12px;
+    margin: 16px;
+    padding-top: 24px;
+    padding-bottom: 16px;
 `
-const GameDescriptionView = styled(View)`
-    height: 48px;
-    padding: 8px;
-    padding-top: 0px;
+const ForwardPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: #2C2D2F;
+    border-radius: 44px;
+    height: 44px;
+    justify-content: center;
+    width: 44px;
 `
 const GameElementHeaderView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    padding: 16px;
     width: 100%;
 `
 const GameElementView = styled(Pressable)`
-    align-items: center;
-    background-color: rgba(255,255,255,0.15);
     border-radius: 11px;
     margin-top: 10px;
-    margin-right: 12px;
     width: ${CARD_WIDTH}px;
 `
 const GuessingGamesView = styled.View`
@@ -54,6 +54,7 @@ const GuessingGamesView = styled.View`
     height: auto;
     display: flex;
     flex-direction: column;
+    margin-top: 12px;
     margin-bottom: 24px;
 `
 const GuessMarkerRowView = styled(View)`
@@ -74,36 +75,44 @@ const GuessMarkerView = styled(View)`
     margin-bottom: 0px;
     width: 12px;
 `
-const HeaderSubText = styled(ReelayText.Body2Emphasized)`
+const HeaderText = styled(ReelayText.H4Bold)`
     color: white;
-    line-height: 20px;
-    margin-top: 8px;
-`
-const HeaderText = styled(ReelayText.H5Bold)`
-    color: white;
-    font-size: 18px;
+    font-size: ${props => props?.size ?? 20}px;
+    line-height: 24px;
 `
 const HeaderView = styled(View)`
-    margin-left: 15px;
+    align-items:  center;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-left: 16px;
+    margin-right: 16px;
 `
 const TimestampText = styled(ReelayText.Body1)`
     color: gray;
 `
 const ResetGuessesButtonPressable = styled(TouchableOpacity)`
+    align-self: center;
     align-items: center;
     background-color: ${props => props.color ?? 'white'};
     border-radius: 30px;
-    height: 36px;
+    height: 30px;
     justify-content: center;
     margin-bottom: 12px;
-    width: 90%;
+    shadow-offset: 2px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+    width: 80%;
 `
 const ResetGuessesButtonText = styled(ReelayText.Body1)`
     color: ${props => props.color ?? 'black'};
+    font-size: 14px;
 `
 const RevealedPosterView = styled(View)`
     align-items: center;
     justify-content: center;
+    shadow-offset: 2px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
 `
 const RevealedResultView = styled(View)`
     align-items: center;
@@ -116,6 +125,39 @@ const RevealedResultView = styled(View)`
     shadow-opacity: 0.5;
     z-index: 100;
 `
+const StreakGameMarker = styled(View)`
+    align-items: center;
+    background-color: ${props => props.color};
+    border-radius: 24px;
+    height: 24px;
+    margin-top: 8px;
+    justify-content: center;
+    shadow-offset: 2px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+    width: 24px;
+`
+const StreakTrackerGameText = styled(ReelayText.Overline)`
+    color: white;
+    font-size: 18px;
+    line-height: 24px;
+`
+const StreakTrackerGameView = styled(View)`
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    width: 36px;
+`
+const StreakTrackerView = styled(View)`
+    align-items: center;
+    border-color: rgba(255,255,255,0.25);
+    border-top-width: 0.4px;
+    height: 80px;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 12px;
+    width: 100%;
+`
 const UnrevealedPosterQuestionMark = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 64px;
@@ -125,11 +167,12 @@ const UnrevealedPosterView = styled(Pressable)`
     align-items: center;
     background-color: #080808;
     border-radius: 12px
-    border-color: #3d3d3d;
-    border-width: 2px;
-    height: 252px;
+    height: ${POSTER_WIDTH * 1.5}px;
     justify-content: center;
-    width: 168px;
+    shadow-offset: 2px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+    width: ${POSTER_WIDTH}px;
 `
 
 export default GuessingGames = ({ navigation }) => {
@@ -137,10 +180,8 @@ export default GuessingGames = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
-    const displayGames = guessingGamesObj.content;
-    
-    const headerText = 'Guess the Title';
-    const headerSubtext = 'Play the daily game'
+    const displayGames = guessingGamesObj.content?.slice(0,7);
+    const headerText = 'Play the daily game';
 
     const advanceToGuessingGame = ({ game, index, isPreview = false }) => {
         const navOptions = {
@@ -152,6 +193,15 @@ export default GuessingGames = ({ navigation }) => {
 		navigation.push("GuessingGameFeedScreen", navOptions);
 	};
 
+    const AllGamesButton = () => {
+        const advanceToAllGamesScreen = () => navigation.push('AllGamesScreen');
+        return (
+            <AllGamesButtonPressable onPress={advanceToAllGamesScreen}>
+                <FontAwesomeIcon icon={faCalendarDay} color='white' size={24} />
+            </AllGamesButtonPressable>
+        );
+    }
+
     const GamePreviewElement = ({ index, game }) => {
         const getTimestampText = () => {
             const now = moment();
@@ -159,8 +209,8 @@ export default GuessingGames = ({ navigation }) => {
             const daysAgo = now.diff(publishedAt, 'days');
             if (daysAgo === 0) return 'Today';
             if (daysAgo === 1) return 'Yesterday';
-            if (daysAgo < 7) return publishedAt.format('dddd');
-            return publishedAt.format('MMMM Do');
+            // if (daysAgo < 7) return publishedAt.format('dddd');
+            return publishedAt.format('MMM DD');
         }
 
         const correctTitleObj = game?.correctTitleObj;
@@ -175,6 +225,7 @@ export default GuessingGames = ({ navigation }) => {
             const nextMyGuessingGames = await getGuessingGamesPublished({
                 authSession,
                 reqUserSub: reelayDBUser?.sub,
+                page: 0,
             });
             dispatch({ type: 'setHomeGuessingGames', payload: {
                 content: nextMyGuessingGames,
@@ -300,18 +351,17 @@ export default GuessingGames = ({ navigation }) => {
         }
 
         const RevealedPoster = () => {
-            
             return (
                 <RevealedPosterView>
-                    <TitlePoster onPress={tapOnPoster} title={correctTitleObj} width={168} /> 
+                    <TitlePoster onPress={tapOnPoster} title={correctTitleObj} width={POSTER_WIDTH} /> 
                     { hasWonGame && (
                         <RevealedResultView>
-                            <FontAwesomeIcon icon={faCheckCircle} color={ReelayColors.reelayGreen} size={72} />
+                            <FontAwesomeIcon icon={faCheckCircle} color={ReelayColors.reelayGreen} size={54} />
                         </RevealedResultView>
                     )}
                     { hasLostGame && (
                         <RevealedResultView hasWonGame={hasWonGame}>
-                            <FontAwesomeIcon icon={faXmarkCircle} color={ReelayColors.reelayRed} size={72} />
+                            <FontAwesomeIcon icon={faXmarkCircle} color={ReelayColors.reelayRed} size={54} />
                         </RevealedResultView>
                     )}
                 </RevealedPosterView>
@@ -329,12 +379,8 @@ export default GuessingGames = ({ navigation }) => {
         return (
             <GameElementView onPress={tapOnPoster}>
                 <GameElementHeaderView>
-                    <GamesIconSmallSVG />
                     <TimestampText>{timestamp}</TimestampText>
                 </GameElementHeaderView>
-                <GameDescriptionView>
-                    <GameDescriptionText numberOfLines={2}>{game?.title}</GameDescriptionText>
-                </GameDescriptionView>
                 <AbovePosterSpacer />
                 { isUnlocked && <RevealedPoster /> }
                 { !isUnlocked && <UnrevealedPoster />}
@@ -345,24 +391,74 @@ export default GuessingGames = ({ navigation }) => {
         )
     }
 
-    const GuessingGamesRow = () => {
+    const StreakTracker = () => {
+        const StreakGame = ({ game }) => {
+            const dayLetter = moment(game?.createdAt).format('dddd').charAt(0).toUpperCase();
+            const hasWonGame = game?.hasWonGame;
+            const hasCompletedGame = game?.hasCompletedGame;
+            const hasLostGame = (hasCompletedGame && !hasWonGame);
+
+            const getGameColor = () => {
+                if (hasWonGame) return ReelayColors.reelayGreen;
+                if (hasLostGame) return ReelayColors.reelayRed;
+                return 'gray';
+            }
+
+            const getGameIcon = () => {
+                if (hasWonGame) return <FontAwesomeIcon icon={faCheck} color='white' size={16} />;
+                return <View />;
+            }
+
+            return (
+                <StreakTrackerGameView>
+                    <StreakTrackerGameText>{dayLetter}</StreakTrackerGameText>
+                    <StreakGameMarker color={getGameColor()}>
+                        { getGameIcon() }
+                    </StreakGameMarker>
+                </StreakTrackerGameView>
+            )
+        }
+        return (
+            <StreakTrackerView>
+                { displayGames.map(game => <StreakGame key={game?.id} game={game} /> )}
+            </StreakTrackerView>
+        )
+    }
+
+    const GuessingGamesCard = () => {
+        const firstUnplayedGameIndex = displayGames.findIndex(nextGame => !nextGame?.hasCompletedGame);
+        const firstUnplayedGame = (firstUnplayedGameIndex !== -1) 
+            ? displayGames[firstUnplayedGameIndex]
+            : null;
         const renderGameElement = ({ item, index }) => {
             const game = item;
             return <GamePreviewElement key={index} index={index} game={game} />;
         }
 
+        const advanceToFirstUnplayedGame = () => {
+            advanceToGuessingGame({ game: firstUnplayedGame, index: firstUnplayedGameIndex, isPreview: false });
+        }
+
         return (
-            <CarouselView>
-                <Carousel
-                    activeSlideAlignment={'start'}
+            <CardView>
+                <HeaderView>
+                    <HeaderText size={18}>{'Guess the title'}</HeaderText>
+                    {firstUnplayedGame && (
+                        <ForwardPressable onPress={advanceToFirstUnplayedGame}>
+                            <FontAwesomeIcon icon={faChevronRight} color='white' size={16} />
+                        </ForwardPressable>
+                    )}
+                </HeaderView>
+                <FlatList
+                    ListHeaderComponent={<View style={{ width: 16 }} /> }
+                    ListFooterComponent={<View style={{ width: 16 }} /> }
                     data={displayGames}
-                    inactiveSlideScale={1}
-                    itemWidth={CARD_WIDTH + 12}
                     renderItem={renderGameElement}
-                    sliderHeight={252}
-                    sliderWidth={width}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
                 />
-            </CarouselView>
+                <StreakTracker />
+            </CardView>
         );
     }
 
@@ -373,10 +469,10 @@ export default GuessingGames = ({ navigation }) => {
     return (
         <GuessingGamesView>
             <HeaderView>
-                <HeaderText>{headerText}</HeaderText>
-                <HeaderSubText>{headerSubtext}</HeaderSubText>
+                <HeaderText>{'Play the daily game'}</HeaderText>
+                <AllGamesButton />
             </HeaderView>
-            { displayGames?.length > 0 && <GuessingGamesRow />}
+            { displayGames?.length > 0 && <GuessingGamesCard />}
         </GuessingGamesView>
     )
 };

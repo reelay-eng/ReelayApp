@@ -33,9 +33,10 @@ const HeaderContainerLeft = styled(View)`
     display: flex;
     flex: 1;
 `
-const HeaderText = styled(ReelayText.H5Bold)`
+const HeaderText = styled(ReelayText.H4Bold)`
     color: white;
-    font-size: 18px;
+    font-size: 20px;
+    line-height: 24px;
     margin-bottom: 8px;
 `
 const HeaderSubText = styled(ReelayText.Body2Emphasized)`

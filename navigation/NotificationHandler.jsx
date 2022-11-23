@@ -65,6 +65,7 @@ export const handlePushNotificationResponse = async ({
         const guessingGames = await getGuessingGamesPublished({
             authSession,
             reqUserSub: reelayDBUser?.sub,
+            page: 0,
         });
 
         const matchGuessingGame = (game) => game?.id === topicID;

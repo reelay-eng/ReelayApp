@@ -24,6 +24,7 @@ import RecommendedForYou from './RecommendedForYou';
 import GuessingGames from './GuessingGames';
 import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
 import HomeWatchlistCard from './HomeWatchlistCard';
+import GuessingGameCard from './GuessingGameCard';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
