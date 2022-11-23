@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -6,6 +6,8 @@ import styled from 'styled-components/native';
 import GuessingGameStack from '../../components/feed/GuessingGameStack';
 import ReelayFeedHeader from '../../components/feed/ReelayFeedHeader';
 import { useFocusEffect } from '@react-navigation/native';
+import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
+import { AuthContext } from '../../context/AuthContext';
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
@@ -16,14 +18,18 @@ const ReelayFeedContainer = styled(View)`
 `
 
 export default GuessingGameFeedScreen = ({ navigation, route }) => {
+    const authSession = useSelector(state => state.authSession);
+    const { reelayDBUser } = useContext(AuthContext);
     const initialFeedPos = route?.params?.feedPosition ?? 0;
     const initialStackPos = route?.params?.initialStackPos ?? 0;
 
     const isPreview = route?.params?.isPreview ?? false;
     const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
-    const displayGames = guessingGamesObj.content;
+    const displayGames = guessingGamesObj?.content ?? [];
+    const nextPage = guessingGamesObj?.nextPage ?? 1;
 
     const feedPager = useRef();
+    const [endReached, setEndReached] = useState(false);
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
 
     const dispatch = useDispatch();
@@ -31,6 +37,29 @@ export default GuessingGameFeedScreen = ({ navigation, route }) => {
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
+
+    const extendGuessingGames = async () => {
+        if (endReached) return;
+        console.log('extending: ');
+        const nextGuessingGames = await getGuessingGamesPublished({
+            authSession,
+            reqUserSub: reelayDBUser?.sub,
+            page: nextPage,
+        });
+
+        console.log('fetched additional games: ', nextGuessingGames?.length);
+
+        if (!nextGuessingGames || nextGuessingGames?.length === 0) {
+            setEndReached(true);
+            return;
+        }
+
+        const allGuessingGames = [...displayGames, ...nextGuessingGames];
+        dispatch({ type: 'setHomeGuessingGames', payload: {
+            content: allGuessingGames,
+            nextPage: nextPage + 1,
+        }});
+    }
 
     const getItemLayout = (stack, index) => {
         return {
@@ -41,7 +70,6 @@ export default GuessingGameFeedScreen = ({ navigation, route }) => {
     }
 
     const renderGuessingGame = ({ item, index }) => {
-        console.log('item: ', item?.id);
         return (
             <GuessingGameStack
                 feedPosition={index}
@@ -73,6 +101,8 @@ export default GuessingGameFeedScreen = ({ navigation, route }) => {
                     keyboardShouldPersistTaps={"handled"}
                     keyExtractor={game => String(game.id)}
                     maxToRenderPerBatch={2}
+                    onEndReached={extendGuessingGames}
+                    onEndReachedThreshold={0.9}
                     onScroll={onFeedSwiped}
                     pagingEnabled={true}
                     ref={feedPager}
@@ -82,7 +112,7 @@ export default GuessingGameFeedScreen = ({ navigation, route }) => {
                         backgroundColor: 'transparent',
                         height: height,
                         width: width,
-                    }}
+                    }} 
                     windowSize={3}
                 />
             }

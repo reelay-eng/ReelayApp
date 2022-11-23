@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
-import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -11,7 +10,6 @@ import Carousel from 'react-native-snap-carousel';
 
 const { width } = Dimensions.get('window');
 const POSTER_WIDTH = 180;
-const POSTER_WIDTH_BORDER_RADIUS = Math.min(POSTER_WIDTH / 10, 12);
 
 const CarouselView = styled(View)`
     margin-left: 16px;
@@ -27,9 +25,6 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
     color: white;
     line-height: 20px;
     margin-top: 8px;
-`
-const IconView = styled(View)`
-    margin: 10px;
 `
 const RecommendedTitlesView = styled.View`
     width: 100%;
