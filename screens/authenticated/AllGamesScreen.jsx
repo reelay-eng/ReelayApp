@@ -76,7 +76,12 @@ export default AllGamesScreen = ({ navigation, route }) => {
                 contentContainerStyle={{ paddingBottom: 180 }}
                 data={displayGames}
                 numColumns={3}
-                renderItem={({ item, index }) => <GuessingGamePreview game={item} index={index} showAdmin={showAdmin} /> }
+                renderItem={({ item, index }) => <GuessingGamePreview 
+                    game={item} 
+                    index={index} 
+                    navigation={navigation} 
+                    showAdmin={showAdmin} 
+                /> }
                 showsVerticalScrollIndicator={false}
                 onEndReached={extendGuessingGames}
                 onEndReachedThreshold={0.9}

@@ -23,20 +23,14 @@ const GameElementHeaderView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
+    margin-left: 12px;
     width: 100%;
 `
 const GameElementView = styled(Pressable)`
+    align-items: center;
     border-radius: 11px;
     margin-top: 10px;
     width: ${CARD_WIDTH}px;
-`
-const GuessingGamesView = styled.View`
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    margin-top: 12px;
-    margin-bottom: 24px;
 `
 const GuessMarkerRowView = styled(View)`
     align-items: center;
@@ -102,7 +96,9 @@ const UnrevealedPosterQuestionMark = styled(ReelayText.H5Bold)`
 const UnrevealedPosterView = styled(Pressable)`
     align-items: center;
     background-color: #080808;
+    border-color: rgba(255,255,255,0.3);
     border-radius: 12px
+    border-width: ${props => props?.border ? 1.4 : 0}px;
     height: ${POSTER_WIDTH * 1.5}px;
     justify-content: center;
     shadow-offset: 2px 2px;
@@ -292,7 +288,7 @@ export default GuessingGamePreview = ({ game, index, navigation, showAdmin = fal
 
     const UnrevealedPoster = () => {
         return (
-            <UnrevealedPosterView onPress={tapOnPoster}>
+            <UnrevealedPosterView border={true} onPress={tapOnPoster}>
                 <UnrevealedPosterQuestionMark>?</UnrevealedPosterQuestionMark>
             </UnrevealedPosterView>
         );    
