@@ -73,7 +73,6 @@ const HeroModals = ({ game = null, reelay, navigation }) => {
     }, []);
 
     if (!modalsViewable) return <View />;
-
     return (
         <React.Fragment>
             { likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
@@ -96,25 +95,32 @@ export default Hero = ({
     showSidebar = true, 
     viewable
 }) => {
+
+    const getModalReelay = () => {
+        const gameReelayCount = game?.reelays?.length ?? 0;
+        if (!gameReelayCount) return reelay;
+        return game?.reelays?.[0];
+    }
+
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
-
+    const modalReelay = getModalReelay();
     console.log('Hero is rendering: ', reelay.creator.username, reelay.title.display);
+
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer gameID={game?.id ?? null} navigation={navigation} reelay={reelay} viewable={viewable} />
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
             <ReelayInfo clubStub={clubStub} feedSource={feedSource} navigation={navigation} reelay={reelay} />
-
             { !isWelcomeVideo && showSidebar && (
                 <Sidebar 
                     commentsCount={commentsCount}
                     game={game}
                     navigation={navigation} 
-                    reelay={reelay} 
+                    reelay={modalReelay} 
                 />
             )}
-            { viewable && <HeroModals game={game} reelay={reelay} navigation={navigation} /> }
+            { viewable && <HeroModals game={game} reelay={modalReelay} navigation={navigation} /> }
         </View>
     );
 }

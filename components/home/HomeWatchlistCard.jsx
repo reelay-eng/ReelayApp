@@ -78,7 +78,7 @@ export default HomeWatchlistCard = ({ navigation }) => {
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
 
-    const advanceToAddToWatchlistScreen = () => navigation.push('SearchScreen', { addToWatchlist: true });
+    const advanceToAddToWatchlistScreen = () => navigation.push('SearchScreen', { addToWatchlist: false });
     const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems, myWatchlistRecs });
 
     const AddToWatchlistButton = () => {

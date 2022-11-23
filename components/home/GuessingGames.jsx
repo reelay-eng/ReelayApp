@@ -19,7 +19,7 @@ const POSTER_WIDTH = CARD_WIDTH - 12;
 const AllGamesButtonPressable = styled(TouchableOpacity)`
     padding: 6px;
 `
-const CardView = styled(View)`
+const CardPressable = styled(Pressable)`
     background-color: #1E1F21;
     border-radius: 12px;
     margin: 16px;
@@ -95,6 +95,7 @@ export default GuessingGames = ({ navigation }) => {
     const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
     const displayGames = guessingGamesObj.content?.slice(0,7);
 
+    const advanceToAllGamesScreen = () => navigation.push('AllGamesScreen');
     const advanceToGuessingGame = ({ game, index, isPreview = false }) => {
         const navOptions = {
             feedPosition: index,
@@ -106,7 +107,6 @@ export default GuessingGames = ({ navigation }) => {
 	};
 
     const AllGamesButton = () => {
-        const advanceToAllGamesScreen = () => navigation.push('AllGamesScreen');
         return (
             <AllGamesButtonPressable onPress={advanceToAllGamesScreen}>
                 <FontAwesomeIcon icon={faCalendarDay} color='white' size={24} />
@@ -163,7 +163,7 @@ export default GuessingGames = ({ navigation }) => {
         }
 
         return (
-            <CardView>
+            <CardPressable onPress={advanceToFirstUnplayedGame}>
                 <HeaderView>
                     <HeaderText size={18}>{'Guess the title'}</HeaderText>
                     {firstUnplayedGame && (
@@ -181,7 +181,7 @@ export default GuessingGames = ({ navigation }) => {
                     showsHorizontalScrollIndicator={false}
                 />
                 <StreakTracker />
-            </CardView>
+            </CardPressable>
         );
     }
 
