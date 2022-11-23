@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Dimensions, Modal, Pressable, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, KeyboardAvoidingView, Modal, Pressable, TextInput, TouchableOpacity, View } from 'react-native';
 
 import * as ReelayText from '../global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -35,7 +35,7 @@ const DrawerView = styled(View)`
     border-top-right-radius: 24px;
     height: auto;
     margin-top: auto;
-    max-height: 50%;
+    max-height: 70%;
     padding-top: 8px;
     padding-bottom: ${props => props.bottomOffset + 12}px;
     padding-left: 16px;
@@ -109,6 +109,11 @@ export default AddReactEmojiDrawer = ({ closeDrawer, onEmojiSelected }) => {
         return searchText.replace('_', ' ').toLowerCase();
     }
 
+    const getEmojiFromUnifiedHex = (unified) => {
+        const hex = parseInt(unified, 16)
+        return String.fromCodePoint(hex);
+    }
+
     const updateSearchText = (newSearchText) => {
         if (searchText !== newSearchText) {
             setSearchText(newSearchText);
@@ -124,7 +129,10 @@ export default AddReactEmojiDrawer = ({ closeDrawer, onEmojiSelected }) => {
             const cleanShortName = cleanText(emojiObj?.short_name ?? '');
             const matchIndex = cleanShortName.indexOf(cleanSearchText);
             emojiObj.matchIndex = matchIndex;
-            return (matchIndex !== -1);
+            if (matchIndex !== -1) return true;
+
+            const emoji = getEmojiFromUnifiedHex(emojiObj?.unified);
+            return (newSearchText.indexOf(emoji) !== -1);
         }    
 
         const sortEmojis = (emojiObj0, emojiObj1) => {
@@ -139,8 +147,7 @@ export default AddReactEmojiDrawer = ({ closeDrawer, onEmojiSelected }) => {
 
     const renderEmoji = ({ item, index }) => {
         const emojiObj = item;
-        const hex = parseInt(emojiObj?.unified, 16)
-        const emoji = String.fromCodePoint(hex);
+        const emoji = getEmojiFromUnifiedHex(emojiObj?.unified)
 
         const onSelect = () => {
             closeDrawer();
@@ -168,30 +175,32 @@ export default AddReactEmojiDrawer = ({ closeDrawer, onEmojiSelected }) => {
 
     return (
         <Modal animationType='slide' transparent={true} visible={true}>
-            <Backdrop onPress={closeDrawer} />
-            <DrawerView bottomOffset={bottomOffset}>
-                <DrawerHeader />
-                <TextInput
-                    onChangeText={updateSearchText}
-                    placeholder={'Search emojis...'}
-                    placeholderTextColor={'gray'}
-                    returnKeyType='search'
-                    style={SearchInputStyle} 
-                    value={searchText}
-                />
-                <EmojiGridView
-                    contentContainerStyle={{
-                        alignItems: 'center',
-                        height: gridHeight,
-                        width: width - 32,
-                    }}
-                    data={displayEmojis}
-                    numColumns={NUM_COLUMNS}
-                    key={emoji => emoji?.unified}
-                    renderItem={renderEmoji}
-                    showsVerticalScrollIndicator={false}
-                />
-            </DrawerView>
+            <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+                <Backdrop onPress={closeDrawer} />
+                <DrawerView bottomOffset={bottomOffset}>
+                    <DrawerHeader />
+                    <TextInput
+                        onChangeText={updateSearchText}
+                        placeholder={'Search emojis...'}
+                        placeholderTextColor={'gray'}
+                        returnKeyType='search'
+                        style={SearchInputStyle} 
+                        value={searchText}
+                    />
+                    <EmojiGridView
+                        contentContainerStyle={{
+                            alignItems: 'center',
+                            height: gridHeight,
+                            width: width - 32,
+                        }}
+                        data={displayEmojis}
+                        numColumns={NUM_COLUMNS}
+                        key={emoji => emoji?.unified}
+                        renderItem={renderEmoji}
+                        showsVerticalScrollIndicator={false}
+                    />
+                </DrawerView>
+            </KeyboardAvoidingView>
         </Modal>
     )
 }
