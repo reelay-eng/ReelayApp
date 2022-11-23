@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from "../global/Text";
@@ -12,6 +12,14 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import moment from 'moment';
 import * as Haptics from 'expo-haptics';
 
+const MarkedSeenCircle = styled(View)`
+    background-color: ${props => props.markedSeen ? 'white' : 'transparent'};
+    border-radius: ${props => props.size}px;
+    height: ${props => props.size}px;
+    position: absolute;
+    right: 6px;
+    width: ${props => props.size}px;
+`
 const MarkSeenButtonContainer = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
@@ -99,6 +107,7 @@ export default MarkSeenButton = ({
     return (
         <MarkSeenButtonContainer onPress={(markedSeen) ? markUnseen : markSeen}>
             { showText && <MarkSeenText>{markSeenText}</MarkSeenText> }
+            <MarkedSeenCircle markedSeen={markedSeen} size={size - 8} />
             { markedSeen && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayGreen} size={size} />}
             { !markedSeen && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={size} />}
         </MarkSeenButtonContainer>

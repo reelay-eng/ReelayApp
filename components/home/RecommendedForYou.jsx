@@ -7,6 +7,7 @@ import * as ReelayText from '../../components/global/Text';
 import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
 import Carousel from 'react-native-snap-carousel';
+import { FlatList } from 'react-native-gesture-handler';
 
 const { width } = Dimensions.get('window');
 const POSTER_WIDTH = 180;
@@ -34,7 +35,9 @@ const RecommendedTitlesView = styled.View`
     margin-bottom: 24px;
 `
 const RecElementView = styled(Pressable)`
-    margin-top: 10px;
+    margin-top: 12px;
+    margin-left: 10px;
+    margin-right: 10px;
 `
 const ReelayCount = styled(ReelayText.CaptionEmphasized)`
     margin-top: 8px;
@@ -101,7 +104,13 @@ export default RecommendedForYou = ({ navigation }) => {
 
         return (
             <CarouselView>
-                <Carousel
+                <FlatList
+                    data={displayStacks}
+                    renderItem={renderTitleStackElement}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                />
+                {/* <Carousel
                     activeSlideAlignment={'start'}
                     data={displayStacks}
                     inactiveSlideScale={1}
@@ -109,7 +118,7 @@ export default RecommendedForYou = ({ navigation }) => {
                     renderItem={renderTitleStackElement}
                     sliderHeight={240}
                     sliderWidth={width}
-                />
+                /> */}
             </CarouselView>
         );
     }
