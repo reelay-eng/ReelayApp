@@ -81,6 +81,7 @@ export default AllGamesScreen = ({ navigation, route }) => {
                     index={index} 
                     navigation={navigation} 
                     showAdmin={showAdmin} 
+                    showGuessMarkers={true}
                 /> }
                 showsVerticalScrollIndicator={false}
                 onEndReached={extendGuessingGames}

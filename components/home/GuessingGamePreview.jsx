@@ -16,7 +16,7 @@ const { width } = Dimensions.get('window');
 const CARD_WIDTH = width / 3 - 6;
 const POSTER_WIDTH = CARD_WIDTH - 12;
 
-const AbovePosterSpacer = styled(View)`
+const PosterSpacer = styled(View)`
     margin-top: 10px;
 `
 const GameElementHeaderView = styled(View)`
@@ -107,7 +107,7 @@ const UnrevealedPosterView = styled(Pressable)`
     width: ${POSTER_WIDTH}px;
 `
 
-export default GuessingGamePreview = ({ game, index, navigation, showAdmin = false }) => {
+export default GuessingGamePreview = ({ game, index, navigation, showAdmin = false, showGuessMarkers = false }) => {
     const authSession = useSelector(state => state.authSession);
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
@@ -299,10 +299,11 @@ export default GuessingGamePreview = ({ game, index, navigation, showAdmin = fal
             <GameElementHeaderView>
                 <TimestampText>{timestamp}</TimestampText>
             </GameElementHeaderView>
-            <AbovePosterSpacer />
+            <PosterSpacer />
             { isUnlocked && <RevealedPoster /> }
-            { !isUnlocked && <UnrevealedPoster />}
-            <GuessMarkers />
+            { !isUnlocked && <UnrevealedPoster /> }
+            <PosterSpacer />
+            { showGuessMarkers && <GuessMarkers /> }
             { showAdmin && <ResetButton /> }
             { showAdmin && <DeleteGameButton /> }
         </GameElementView>

@@ -155,7 +155,16 @@ export default GuessingGames = ({ navigation }) => {
             : null;
         const renderGameElement = ({ item, index }) => {
             const game = item;
-            return <GuessingGamePreview key={index} index={index} game={game} navigation={navigation} />;
+            return (
+                <GuessingGamePreview 
+                    key={index} 
+                    index={index} 
+                    game={game} 
+                    navigation={navigation} 
+                    showAdmin={false}
+                    showGuessMarkers={false}
+                />
+            );
         }
 
         const advanceToFirstUnplayedGame = () => {
