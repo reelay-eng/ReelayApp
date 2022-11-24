@@ -35,6 +35,7 @@ const DotMenuPressable = styled(TouchableOpacity)`
     position: absolute;
     right: 0px;
     top: 0px;
+    z-index: 150;
 `
 const EmojiBadgeRowView = styled(View)`
     align-items: center;

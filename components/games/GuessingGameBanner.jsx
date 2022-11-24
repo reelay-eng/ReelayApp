@@ -106,7 +106,7 @@ const SkipText = styled(ReelayText.CaptionEmphasized)`
 const Spacer = styled(View)`
     height: 16px;
 `
-const TitleBannerRow = styled(View)`
+const TitleBannerRow = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
@@ -242,6 +242,7 @@ const GuessingGameBanner = ({
     guessingGame,
     isPreview = false,
     isUnlocked = false,
+    navigation,
     reelay=null, 
     titleObj,
     topic=null,
@@ -273,6 +274,10 @@ const GuessingGameBanner = ({
     }
     
     const GuessResult = () => {
+        const advanceToTitleDetailScreen = () => {
+            navigation.push('TitleDetailScreen', { titleObj });
+        }    
+
         const fillEmptyGuessesCorrect = () => {
             const correctGuess = myGuesses[myGuesses.length - 1];
             const filledGuesses = [...myGuesses];
@@ -296,7 +301,7 @@ const GuessingGameBanner = ({
             : ReelayColors.reelayRed;
 
         return (
-            <TitleBannerRow>
+            <TitleBannerRow onPress={advanceToTitleDetailScreen}>
                 { !hasSkippedGuess && <Poster guessedTitleObj={guessedTitleObj} /> }
                 { hasSkippedGuess && <UnrevealedPoster />}
                 <TitleInfo guessedTitleObj={guessedTitleObj} />

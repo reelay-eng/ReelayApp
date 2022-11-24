@@ -35,6 +35,7 @@ const AddToWatchlistText = styled(ReelayText.Body2Bold)`
 `
 const BackButtonView = styled(View)`
     margin-bottom: -4px;
+    margin-left: 2px;
 `
 const BottomBar = styled(View)`
     background-color: black;

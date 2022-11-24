@@ -19,6 +19,7 @@ import AddToWatchlistButton from '../watchlist/AddToWatchlistButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
 
 const { height, width } = Dimensions.get('window');
 
@@ -336,6 +337,9 @@ export default ShareGuessingGameDrawer = ({ game, navigation }) => {
             dispatch({ type: 'setCommentsVisible', payload: true });
         }
 
+        const mentionFollowType = { trigger: '@' };
+        const commentPlaintext = parseValue(previewComment.content, [mentionFollowType])?.plainText ?? '';
+    
         return (
             <CommentsPreviewPressable onPress={openCommentsDrawer}>
                 <View>
@@ -348,7 +352,7 @@ export default ShareGuessingGameDrawer = ({ game, navigation }) => {
                         <CommentsPreviewBodyRow>
                             <ProfilePicture navigation={navigation} user={user} size={24} />
                             <CommentsPreviewBodyText numberOfLines={2}>
-                                { previewComment?.content }
+                                { commentPlaintext }
                             </CommentsPreviewBodyText>
                         </CommentsPreviewBodyRow>
                     )}

@@ -27,7 +27,7 @@ const DiscoveryBarLeftView = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-top: 6px;
-    margin-left: 1px;
+    margin-left: 12px;
 `
 const DiscoveryBarRightView = styled(View)`
     align-items: center;
@@ -258,7 +258,7 @@ export default ReelayFeedHeader = ({
 
     const BackButton = () => {
         return (
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={10}>
                 <FontAwesomeIcon icon={faArrowLeft} size={20} color='white' />
             </TouchableOpacity>
         );

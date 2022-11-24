@@ -39,12 +39,12 @@ const BackButtonCircleView = styled(View)`
 	border-radius: 24px;
 	justify-content: center;
 	height: 24px;
-	width: 24px;
 `
 const BackButtonPressable = styled(TouchableOpacity)`
 	align-items: center;
 	height: 100%;
 	justify-content: center;
+	margin-bottom: 2px;
 	width: 100%;
 `
 const CreateReelayPressable = styled(TouchableOpacity)`
@@ -72,13 +72,14 @@ const HeaderText = styled(ReelayText.Body1)`
 	margin-top: 4px;
 	padding-left: 8px;
 	padding-right: 8px;
+	text-align: center;
 `
 const HeaderView = styled(View)`
 	align-items: center;
 	background-color: black;
 	flex-direction: row;
 	justify-content: space-between;
-	padding: 16px;
+	padding: 12px;
 	padding-top: ${props => props.topOffset + 16}px;
 	padding-bottom: 8px;
 	width: 100%;
@@ -161,8 +162,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		return (
 			<HeaderView topOffset={headerTopOffset}>
 				<BackButtonCircleView>
-					<BackButtonPressable onPress={() => goBack()}>
-						<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
+					<BackButtonPressable onPress={() => goBack()} hitSlop={10}>
+						<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={24} />
 					</BackButtonPressable>
 				</BackButtonCircleView>
 				<HeaderText numberOfLines={1}>{titleObj?.display}</HeaderText>
