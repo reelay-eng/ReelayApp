@@ -338,7 +338,7 @@ export default ShareGuessingGameDrawer = ({ game, navigation }) => {
         }
 
         const mentionFollowType = { trigger: '@' };
-        const commentPlaintext = parseValue(previewComment.content, [mentionFollowType])?.plainText ?? '';
+        const commentPlaintext = parseValue(previewComment?.content ?? '', [mentionFollowType])?.plainText ?? '';
     
         return (
             <CommentsPreviewPressable onPress={openCommentsDrawer}>
