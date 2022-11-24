@@ -42,7 +42,7 @@ const GuessingGamesView = styled.View`
     margin-top: 12px;
     margin-bottom: 24px;
 `
-const HeaderText = styled(ReelayText.H4Bold)`
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: ${props => props?.size ?? 20}px;
     line-height: 24px;
@@ -195,7 +195,7 @@ export default GuessingGames = ({ navigation }) => {
         return (
             <StreakTrackerView>
                 { gamesThisWeek.map(game => <StreakGamePublished key={game?.id} game={game} /> )}
-                { lockedDayLetters.map(dayLetter => <StreakGameUnpublished key={dayLetter} dayLetter={dayLetter} /> )}
+                { lockedDayLetters.map((dayLetter, index) => <StreakGameUnpublished key={`${dayLetter}-${index}`} dayLetter={dayLetter} /> )}
             </StreakTrackerView>
         )
     }

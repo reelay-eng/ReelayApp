@@ -13,7 +13,6 @@ const { width } = Dimensions.get('window');
 const POSTER_WIDTH = 180;
 
 const CarouselView = styled(View)`
-    margin-left: 16px;
 `
 const HeaderView = styled(View)`
     margin-left: 15px;

@@ -96,8 +96,7 @@ export default HomeWatchlistCard = ({ navigation }) => {
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <HeaderText>{'Watchlist'}</HeaderText>
-                    <HeaderSubText>{'"What are we gonna watch tonight?"'}</HeaderSubText>
-                    <HeaderSubText>{'YOU have the answer'}</HeaderSubText>
+                    <HeaderSubText>{'What are you gonna watch tonight?'}</HeaderSubText>
                 </HeaderContainerLeft>
                 <AddToWatchlistButton />
             </HeaderContainer>

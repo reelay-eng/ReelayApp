@@ -415,7 +415,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
                         showsVerticalScrollIndicator={false}
                     />                
                 )}
-                { !seeAll && (displayReactions.map(reaction => renderReactionRow({ item: reaction })))}
+                { !seeAll && (displayReactions.map((item, index) => renderReactionRow({ item, index })))}
                 { showSeeAll && <SeeAll /> }
             </SeeOtherReactionsView>
         );

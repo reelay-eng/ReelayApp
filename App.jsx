@@ -57,7 +57,7 @@ import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
-import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
+import { fetchAnnotatedTitle, fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
 import { getAllClubsFollowing } from './api/ClubsApi';
