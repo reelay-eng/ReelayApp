@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCalendarDay, faCheck, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDay, faCheck, faChevronRight, faLock } from '@fortawesome/free-solid-svg-icons';
 import { FlatList } from 'react-native-gesture-handler';
 import GuessingGamePreview from './GuessingGamePreview';
 
@@ -66,6 +66,16 @@ const StreakGameMarker = styled(View)`
     shadow-opacity: 0.5;
     width: 24px;
 `
+const StreamGameLockView = styled(View)`
+    align-items: center;
+    height: 24px;
+    margin-top: 8px;
+    justify-content: center;
+    shadow-offset: 2px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+    width: 24px;
+`
 const StreakTrackerGameText = styled(ReelayText.Overline)`
     color: white;
     font-size: 18px;
@@ -115,7 +125,36 @@ export default GuessingGames = ({ navigation }) => {
     }
 
     const StreakTracker = () => {
-        const StreakGame = ({ game }) => {
+        
+        const getGamesThisWeek = () => {
+            try {
+                const startOfMonday = moment().startOf('week');
+                const mondayGameIndex = displayGames.findIndex((nextGame) => {
+                    const nextGameCreatedAt = moment(nextGame?.createdAt);
+                    const mondayDateDiff = nextGameCreatedAt.diff(startOfMonday, 'days');
+                    return Math.abs(mondayDateDiff) < 1;
+                });
+
+                if (mondayGameIndex === -1) return [];
+                return displayGames.slice(0, mondayGameIndex).reverse() 
+            } catch (error) {
+                console.log('Get games this week error: ', error);
+                return [];
+            }
+        }
+
+        const getLockedDayLetters = (gamesThisWeek) => {
+            try {
+                return ['M','T','W','T','F','S','S'].slice(gamesThisWeek?.length);
+            } catch (error) {
+                return [];
+            }
+        }
+
+        const gamesThisWeek = getGamesThisWeek();
+        const lockedDayLetters = getLockedDayLetters(gamesThisWeek);
+
+        const StreakGamePublished = ({ game }) => {
             const dayLetter = moment(game?.createdAt).format('dddd').charAt(0).toUpperCase();
             const hasWonGame = game?.hasWonGame;
             const hasCompletedGame = game?.hasCompletedGame;
@@ -141,9 +180,22 @@ export default GuessingGames = ({ navigation }) => {
                 </StreakTrackerGameView>
             )
         }
+
+        const StreakGameUnpublished = ({ dayLetter }) => {
+            return (
+                <StreakTrackerGameView>
+                    <StreakTrackerGameText>{dayLetter}</StreakTrackerGameText>
+                    <StreamGameLockView>
+                        <FontAwesomeIcon icon={faLock} color='white' size={20} />
+                    </StreamGameLockView>
+                </StreakTrackerGameView>
+            )
+        }
+
         return (
             <StreakTrackerView>
-                { displayGames.map(game => <StreakGame key={game?.id} game={game} /> )}
+                { gamesThisWeek.map(game => <StreakGamePublished key={game?.id} game={game} /> )}
+                { lockedDayLetters.map(dayLetter => <StreakGameUnpublished key={dayLetter} dayLetter={dayLetter} /> )}
             </StreakTrackerView>
         )
     }
