@@ -374,7 +374,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
         Object.keys(emojiLastIndices?.current).map(emoji => {
             if (!emojiKeys.includes(emoji)) emojiKeys.push(emoji);
         });
-        console.log('emoji keys: ', emojiKeys);
+
         emojiKeys.sort(sortEmojisByCount);
         const displayEmojiKeys = emojiKeys.slice(0, MAX_DISPLAY_EMOJIS);
 
