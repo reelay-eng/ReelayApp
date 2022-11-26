@@ -206,7 +206,7 @@ export default InstaStoryGuessingGameScreen = ({ navigation, route }) => {
             }, 1000);
         });
         
-        logAmplitudeEventProd('shareReelayToInstaComplete', {
+        logAmplitudeEventProd('shareGuessingGameToInstaComplete', {
             title: reelay?.display?.title,
             creator: reelay?.creator?.username,
             sharedBy: reelayDBUser?.username

@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 import BackButton from '../utils/BackButton';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faShare } from '@fortawesome/free-solid-svg-icons';
 import { fetchOrCreateProfileLink } from '../../api/ProfilesApi';
 import { useSelector } from 'react-redux';
 import { showErrorToast } from '../../components/utils/toasts';
@@ -95,7 +95,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         const ShareProfileLinkButton = () => {
             return (
                 <IconContainer onPress={shareProfileLink}>
-                    <ShareOutSVG />
+                    <FontAwesomeIcon icon={faShare} color='white' size={24} />
                 </IconContainer>
             );
         }
@@ -110,8 +110,8 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
 
         return (
             <RightCornerContainer>
-                { validCreatorName && <ShareProfileLinkButton />}
                 { atProfileBase && <SettingsButton /> }
+                { validCreatorName && <ShareProfileLinkButton />}
             </RightCornerContainer>
         );
     }
