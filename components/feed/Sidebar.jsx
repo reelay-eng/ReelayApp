@@ -8,65 +8,48 @@ import { AuthContext } from '../../context/AuthContext';
 import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
-import ReelayColors from '../../constants/ReelayColors';
 import ShareOutButton from './ShareOutButton';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
-import { CommentIconSVG } from '../global/SVGs';
+import { CommentIcon30SVG } from '../global/SVGs';
 
 import * as Haptics from 'expo-haptics';
 import ShareGameButton from '../games/ShareGameButton';
 
+const ICON_SIZE = 27;
+const DOT_ICON_SIZE = 21;
+
+const ButtonContainer = styled(View)`
+	align-items: center;
+	margin-right: 10px;
+	margin-top: 8px;
+`
+const SidebarButton = styled(TouchableOpacity)`
+	align-items: center;
+	background-color: radial-gradient(80.41% 88.9% at 50.13% 32.58%, #FFB5B5 17.19%, rgba(130, 153, 153, 0) 100%)
+	border-radius: 50px;
+	height: 44px;
+	justify-content: center;
+	width: 44px;
+	shadow-offset: 2px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+`
+const SidebarView = styled(View)`
+	align-items: center;
+	align-self: flex-end;
+	position: absolute;
+	bottom: 95px;
+`
+
 export default Sidebar = ({ navigation, reelay, game = null }) => {
-	const ICON_SIZE = 24;
-	const DOT_ICON_SIZE = 18;
-
-	const Count = styled(Text)`
-		font-family: Outfit-Regular;
-		font-size: 14px;
-		font-style: normal;
-		line-height: 20px;
-		letter-spacing: 0.25px;
-		text-align: left;
-
-		color: #fff;
-		text-shadow-color: rgba(0, 0, 0, 0.3);
-		text-shadow-offset: 1px 1px;
-		text-shadow-radius: 1px;
-	`
-	const SidebarView = styled(View)`
-		align-items: center;
-		align-self: flex-end;
-		position: absolute;
-		bottom: 95px;
-	`
-	const SidebarButton = styled(TouchableOpacity)`
-		align-items: center;
-		background: ${({ addHighlight }) => (addHighlight) 
-			? 'rgba(41, 119, 239, 0.40)'
-			: 'rgba(255, 255, 255, 0.20)'
-		};
-		border-radius: 50px;
-		height: 44px;
-		justify-content: center;
-		margin-top: 8px;
-		width: 44px;
-		box-shadow: 0px 1px 1px rgba(0,0,0,0.7);
-	`
-	const ButtonContainer = styled(View)`
-		align-items: center;
-		margin-right: 10px;
-	`
-	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
-	const dispatch = useDispatch();
-
 	const commentRefreshListener = useSelector(state => state.commentRefreshListener);
-
+	const dispatch = useDispatch();
+	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 	const { reelayDBUser } = useContext(AuthContext);
 
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);
 	const likedByUser = reelay.likes.find(like => like.username === reelayDBUser?.username);
-	const displayWatchlistAdds = (count) => count > 0 ? `${count}` : ``;
 
 	const onCommentLongPress = async () => {
 		if (showMeSignupIfGuest()) return;
@@ -187,12 +170,11 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 					<Animated.View style={likeAnimationStyle}>
 						<FontAwesomeIcon 
 							icon={faHeart} 
-							color={likedByUser ? ReelayColors.reelayRed : "white"} 
+							color={likedByUser ? '#FF4848' : "white"} 
 							size={ICON_SIZE} 
 						/>
 					</Animated.View>
 				</SidebarButton>
-				<Count>{reelay.likes.length}</Count>
 			</ButtonContainer>
 		)
 
@@ -207,9 +189,8 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 					addHighlight={commentedByUser}
 					onPress={onCommentPress} 
 					onLongPress={onCommentLongPress}>
-					<CommentIconSVG color={'white'} />
+					<CommentIcon30SVG />
 				</SidebarButton>
-				<Count>{reelay.comments.length}</Count>
 			</ButtonContainer>
 
 			<ButtonContainer>
@@ -217,7 +198,6 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 					{ game && <ShareGameButton /> }
 					{ !game && <ShareOutButton navigation={navigation} reelay={reelay} /> }
 				</SidebarButton>
-				<Count>{''}</Count>
 			</ButtonContainer>
 
 			<ButtonContainer>

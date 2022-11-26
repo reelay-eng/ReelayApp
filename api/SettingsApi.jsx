@@ -53,7 +53,7 @@ export const shouldNotifyUser = async(userSub, settingKey) => {
     if (settingsResult.error) return false;
     const userSettingsJSON = settingsResult["settingsJSON"];
     const userSettings = JSON.parse(userSettingsJSON);
-    return !!userSettings[settingKey];
+    return !!userSettings?.[settingKey];
 }
 
 export const updateMySettings = async ({ mySub, oldSettings, settingsToUpdate }) => {

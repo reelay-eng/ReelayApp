@@ -14,7 +14,7 @@ export default ShareOutButton = ({ navigation, reelay }) => {
     return (
         <TouchableOpacity onPress={() => setShareDrawerOpen(true)}>
             {/* <ShareOutSVG /> */}
-            <FontAwesomeIcon icon={faShare} color='white' size={24} />
+            <FontAwesomeIcon icon={faShare} color='white' size={27} />
             { shareDrawerOpen && (
                 <ShareReelayDrawer closeDrawer={closeDrawer} navigation={navigation} reelay={reelay} />
             )}

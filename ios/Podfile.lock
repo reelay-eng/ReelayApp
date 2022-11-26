@@ -148,7 +148,7 @@ PODS:
     - ExpoModulesCore
     - React-Core
   - EXStructuredHeaders (2.2.1)
-  - EXUpdates (0.14.6):
+  - EXUpdates (0.14.7):
     - ASN1Decoder (~> 1.8)
     - EASClient
     - EXManifests
@@ -903,7 +903,7 @@ SPEC CHECKSUMS:
   EXSecureStore: ac4b3c89dd5810528074d9422d5fed5a9e684467
   EXSplashScreen: 799bece80089219b2c989c1082d70f3b00995cda
   EXStructuredHeaders: 5d86829469399370a9fc7cb1e4391b09de87681d
-  EXUpdates: 8afd5cff44d3936e08be0e1688f0ed118134433f
+  EXUpdates: 7a705a119c7551d50fbcdd8e3b5b414c4fefadb8
   EXUpdatesInterface: 2bbc11815dfa2ec3fc02e5534c7592c6b42b5327
   EXVideoThumbnails: 486533e1a66c9859f9b9e3b2e1f9f0b275515b48
   FBLazyVector: 739d2f9719faecb463c7aa191591af31c8c94182

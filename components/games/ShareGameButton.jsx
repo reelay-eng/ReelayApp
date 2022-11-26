@@ -18,7 +18,6 @@ const ShareButtonBackground = styled(LinearGradient)`
 `
 
 export default ShareGameButton = () => {
-    const statsVisible = useSelector(state => state.statsVisible);
     const dispatch = useDispatch();
     const openDrawer = () => {
         dispatch({ type: 'setStatsVisible', payload: true });
