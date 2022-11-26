@@ -218,7 +218,7 @@ const SearchResults = ({ onGuessTitle, searchResults }) => {
                 </ImageContainer>
                 <TitleLineContainer>
                     <TitleText>{title}</TitleText>
-                    {/* <YearText>{`${releaseYear}    ${runtimeString}`}</YearText> */}
+                    <YearText>{`${releaseYear}`}</YearText>
                 </TitleLineContainer>
             </PressableContainer>
         );
@@ -525,10 +525,7 @@ const GuessingGameBanner = ({
                         {displayTitle}
                     </TitleText>
                 </TitleTextContainer>
-                <Underline 
-                    displayYear={displayYear} 
-                    runtime={hasSkippedGuess ? '' : guessedTitleObj?.runtime}
-                />
+                <Underline displayYear={displayYear} />
             </TitleInfoView>
         );
     }
@@ -542,12 +539,10 @@ const GuessingGameBanner = ({
     }
 
     const Underline = ({ displayYear, runtime }) => {
-        const runtimeString = runtime ? getRuntimeString(runtime) : '';
         return (
             <UnderlineContainer>
                 <YearVenueContainer>
                     { displayYear?.length > 0 && <YearText>{displayYear}</YearText> }
-                    { runtimeString?.length > 0 && <RuntimeText>{runtimeString}</RuntimeText> }
                 </YearVenueContainer>
             </UnderlineContainer>
         );

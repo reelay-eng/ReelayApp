@@ -26,7 +26,6 @@ const ButtonContainer = styled(View)`
 `
 const SidebarButton = styled(TouchableOpacity)`
 	align-items: center;
-	background-color: radial-gradient(80.41% 88.9% at 50.13% 32.58%, #FFB5B5 17.19%, rgba(130, 153, 153, 0) 100%)
 	border-radius: 50px;
 	height: 44px;
 	justify-content: center;

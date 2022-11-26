@@ -89,7 +89,12 @@ export default ReelayFeed = ({ navigation,
         for (const index in displayGuessingGames) {
             const guessingGame = displayGuessingGames[index];
             guessingGame.feedIndex = index;
-            if (!guessingGame?.hasCompletedGame) {
+
+            const gamePublishedAt = moment(guessingGame?.updatedAt);
+            const hoursSincePosted = moment().diff(gamePublishedAt, 'hours');
+            const canPinGuessingGame = (hoursSincePosted < 36);
+
+            if (!guessingGame?.hasCompletedGame && canPinGuessingGame) {
                 return guessingGame;
             }
 
@@ -99,13 +104,15 @@ export default ReelayFeed = ({ navigation,
                 // as you've completed it
                 const lastGuess = guessingGame?.myGuesses[numGuesses - 1];
                 const secondsSinceLastGuess = now.diff(moment(lastGuess?.createdAt), 'seconds');                
-                if (secondsSinceLastGuess < 5) {
+                if (secondsSinceLastGuess < 5 && canPinGuessingGame) {
                     return guessingGame;
                 }
             }
         }
         return null;
     }
+
+    const displayGuessingGame = getDisplayGuessingGame();
 
     const getThreadsWithInterstitials = () => {
         // add empty topics
@@ -124,9 +131,8 @@ export default ReelayFeed = ({ navigation,
         }, { curWovenThreads: [] }).curWovenThreads;
 
         // add guessing game
-        const curGuessingGame = getDisplayGuessingGame();
-        if (curGuessingGame) {
-            return [curGuessingGame, ...wovenReelayThreads];
+        if (displayGuessingGame) {
+            return [displayGuessingGame, ...wovenReelayThreads];
         } else {
             return wovenReelayThreads;
         }
