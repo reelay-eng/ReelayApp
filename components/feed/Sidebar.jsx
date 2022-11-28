@@ -15,6 +15,7 @@ import { CommentIcon30DotlessSVG, CommentIcon30SVG } from '../global/SVGs';
 
 import * as Haptics from 'expo-haptics';
 import ShareGameButton from '../games/ShareGameButton';
+import { BlurView } from 'expo-blur';
 
 const ICON_SIZE = 27;
 const DOT_ICON_SIZE = 21;
@@ -24,8 +25,21 @@ const ButtonContainer = styled(View)`
 	margin-right: 10px;
 	margin-top: 8px;
 `
+const SidebarButtonBlurView = styled(BlurView)`
+	align-items: center;
+	border-radius: 100%;
+	height: 100%;
+	overflow: hidden;
+	justify-content: center;
+	position: absolute;
+	width: 100%;
+`
 const SidebarButton = styled(TouchableOpacity)`
 	align-items: center;
+	background-color: ${props => props.addHighlight 
+		? 'rgba(41, 119, 239, 0.25)' 
+		: 'transparent'
+	}
 	border-radius: 50px;
 	height: 44px;
 	justify-content: center;
@@ -47,7 +61,7 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 	const { reelayDBUser } = useContext(AuthContext);
 
-	const hasComments = reelay.comments?.length > 1;
+	const hasComments = reelay.comments?.length > 0;
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);
 	const likedByUser = reelay.likes.find(like => like.username === reelayDBUser?.username);
 
@@ -164,6 +178,9 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 
 		return (
 			<ButtonContainer>
+				{ likedByUser && (
+					<SidebarButtonBlurView intensity={25} tint='dark' />
+				)}
 				<SidebarButton 
 					onPress={onLikePress} 
 					onLongPress={onLikeLongPress}>
@@ -183,13 +200,13 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 	return (
 		<SidebarView>
 			<LikeButton />
-
 			<ButtonContainer>
+				{ commentedByUser && <SidebarButtonBlurView intensity={25} tint='dark' /> }
 				<SidebarButton 
 					addHighlight={commentedByUser}
 					onPress={onCommentPress} 
 					onLongPress={onCommentLongPress}>
-						{hasComments && <CommentIcon30SVG /> }
+						{ hasComments && <CommentIcon30SVG /> }
 						{ !hasComments && <CommentIcon30DotlessSVG /> }
 				</SidebarButton>
 			</ButtonContainer>
