@@ -11,7 +11,7 @@ import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 import ShareOutButton from './ShareOutButton';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
-import { CommentIcon30SVG } from '../global/SVGs';
+import { CommentIcon30DotlessSVG, CommentIcon30SVG } from '../global/SVGs';
 
 import * as Haptics from 'expo-haptics';
 import ShareGameButton from '../games/ShareGameButton';
@@ -47,6 +47,7 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 	const { reelayDBUser } = useContext(AuthContext);
 
+	const hasComments = reelay.comments?.length > 1;
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);
 	const likedByUser = reelay.likes.find(like => like.username === reelayDBUser?.username);
 
@@ -188,7 +189,8 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 					addHighlight={commentedByUser}
 					onPress={onCommentPress} 
 					onLongPress={onCommentLongPress}>
-					<CommentIcon30SVG />
+						{hasComments && <CommentIcon30SVG /> }
+						{ !hasComments && <CommentIcon30DotlessSVG /> }
 				</SidebarButton>
 			</ButtonContainer>
 
