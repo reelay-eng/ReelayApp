@@ -17,7 +17,7 @@ import BackButton from '../../components/utils/BackButton';
 import WatchlistItemCard from '../../components/watchlist/WatchlistItemCard';
 import { getWatchlistItems, getWatchlistRecs } from '../../api/WatchlistApi';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faRefresh, faRepeat, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import TitlePoster from '../../components/global/TitlePoster';
 import AddToWatchlistButton from '../../components/watchlist/AddToWatchlistButton';
 
@@ -51,6 +51,7 @@ const RefreshRecsPressable = styled(TouchableOpacity)`
     justify-content: center;
     margin-right: 12px;
     padding: 6px;
+    width: 44px;
 `
 const FilterPressable = styled(TouchableOpacity)`
     align-items: center;
