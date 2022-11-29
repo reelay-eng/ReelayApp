@@ -109,6 +109,7 @@ const initialState = {
     discoverHasUnseenReelays: true,
     donateLinks: [],
     dotMenuVisible: false,
+    showFeedTutorial: false,
     statsVisible: false,
     reelayWithVisibleTrailer: null,
 
@@ -312,6 +313,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, likesVisible: action.payload }    
         case 'setReelayWithVisibleTrailer':
             return { ...state, reelayWithVisibleTrailer: action.payload }
+        case 'setShowFeedTutorial': 
+            return { ...state, showFeedTutorial: action.payload }
         case 'setStatsVisible':
             return { ...state, statsVisible: action.payload }
 
@@ -437,6 +440,7 @@ export const mapStateToProps = (state) => ({
     donateLinks: state.donateLinks,
     dotMenuVisible: state.dotMenuVisible,
     likesVisible: state.likesVisible,
+    showFeedTutorial: state.showFeedTutorial,
     statsVisible: state.statsVisible,
     reelayWithVisibleTrailer: state.reelayWithVisibleTrailer,
 

@@ -204,7 +204,7 @@ export default ReelayFeedHeader = ({
             case 'title': return 'reelays';
             case 'topics': return 'topics';
             case 'theaters': return 'in theaters';
-            case 'trending': return 'top of the week';
+            case 'trending': return 'trending';
             case 'upload': return 'preview';
             default: 
                 return '';
