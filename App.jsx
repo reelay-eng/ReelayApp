@@ -57,7 +57,7 @@ import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
-import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
+import { fetchAnnotatedTitle, fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
 import { getAllClubsFollowing } from './api/ClubsApi';
@@ -378,6 +378,7 @@ function App() {
         ]);
 
         const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
+        const homeGuessingGames = myHomeContent?.discover?.guessingGames ?? [];
         const mySettingsJSON = reelayDBUserLoaded?.settingsJSON;
         const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
         const versionInfo = myHomeContent?.versionInfo;
@@ -391,10 +392,15 @@ function App() {
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
         dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
         dispatch({ type: 'setMyFollowing', payload: myFollowing });
+        dispatch({ type: 'setHomeGuessingGames', payload: {
+            content: homeGuessingGames,
+            nextPage: 1,
+        }});
+        
         dispatch({ type: 'setAppVersionInfo', payload: versionInfo })
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
         dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
-        dispatch({ type: 'setLatestNotice', payload: null }); 
+        dispatch({ type: 'setLatestNotice', payload: null });
         // triggers the reducer to create the latest notice from already-loaded app data
 
         dispatch({ type: 'setMySettings', payload: mySettings })
@@ -406,13 +412,11 @@ function App() {
 
         const [
             homeFollowingFeed,
-            homeGuessingGames,
             homeInTheatersFeed,
             homeOnStreamingFeed,
             homeTopOfTheWeekFeed,
         ] = await Promise.all([
             getFeed({ authSession, reqUserSub, feedSource: 'following', page: 0 }),
-            getGuessingGamesPublished({ authSession, reqUserSub, page: 0 }),
             getFeed({ authSession, reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ authSession, reqUserSub, feedSource: 'streaming', page: 0 }),
             getFeed({ authSession, reqUserSub, feedSource: 'trending', page: 0 }),
@@ -420,10 +424,6 @@ function App() {
 
         dispatch({ type: 'setHomeFollowingFeed', payload: {
             content: homeFollowingFeed,
-            nextPage: 1,
-        }});
-        dispatch({ type: 'setHomeGuessingGames', payload: {
-            content: homeGuessingGames,
             nextPage: 1,
         }});
         dispatch({ type: 'setHomeInTheatersFeed', payload: {

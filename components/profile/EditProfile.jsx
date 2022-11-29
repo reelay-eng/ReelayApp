@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableOpacity } from "react-native";
+import { Modal, View, Pressable, SafeAreaView, TextInput, Keyboard, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -25,40 +25,90 @@ import { showErrorToast, showMessageToast } from "../utils/toasts";
 import { cacheProfilePic } from "../../api/ReelayLocalImageCache";
 import ProfilePicture from "../global/ProfilePicture";
 
-const Spacer = styled(View)`
-	height: ${(props) => (props.height ? props.height : "0px")};
-`;
-
+const BioInput = styled(TextInput)`
+	color: white;
+	font-family: Outfit-Regular;
+	font-size: 16px;
+	font-style: normal;
+	letter-spacing: 0.15px;
+	margin-left: 8px;
+	padding: 10px;
+	width: 87%;
+`
+const BioInputContainer = styled(View)`
+	align-self: center;
+	background-color: #1a1a1a;
+	border-radius: 16px;
+	flex-direction: row;
+	padding: 5px;
+	width: 80%;
+`
+const EditBioContainer = styled(View)`
+	margin-top: 16px;
+`
+const EditInfoContainer = styled(ScrollView)`
+	background-color: black;
+	width: 100%;
+	height: 650px;
+`
+const EditProfilePicContainer = styled(Pressable)`
+	background-color: black;
+	width: 100%;
+`
+const EditUsernameContainer = styled(View)`
+	padding-top: 40px;
+	flex-direction: row;
+	justify-content: center;
+	background-color: black;
+	justify-content: center;
+`
+const EditWebsiteContainer = styled(View)`
+	margin-top: 16px;
+`
+const ModalContainer = styled(View)`
+	position: absolute;
+	height: 100%;
+`
+const HeaderContainer = styled(SafeAreaView)`
+	background-color: black;
+	width: 100%;
+`
 const SectionTitleText = styled(ReelayText.Body2Bold)`
 	align-self: flex-start;
 	color: grey;
-`;
-
+`
 const SectionTitleContainer = styled(View)`
 	align-self: center;
 	padding: 5px;
 	width: 72%;
-`;
+`
+const Spacer = styled(View)`
+	height: ${(props) => (props.height ? props.height : "0px")};
+`
+const UsernameText = styled(ReelayText.H6Emphasized)`
+	align-self: center;
+	color: #d4d4d4;
+`
+const WebsiteInput = styled(TextInput)`
+	color: white;
+	font-family: Outfit-Regular;
+	font-size: 16px;
+	font-style: normal;
+	letter-spacing: 0.15px;
+	margin-left: 8px;
+	padding: 10px;
+	width: 87%;
+`
+const WebsiteInputContainer = styled(View)`
+	align-self: center;
+	background-color: #1a1a1a;
+	border-radius: 16px;
+	flex-direction: row;
+	padding: 5px;
+	width: 80%;
+`
 
 export default EditProfile = ({ navigation, refreshProfile }) => {
-    const ModalContainer = styled(View)`
-		position: absolute;
-		height: 100%;
-	`;
-	const HeaderContainer = styled(SafeAreaView)`
-		background-color: black;
-		width: 100%;
-	`;
-	const EditProfilePicContainer = styled(Pressable)`
-		background-color: black;
-		width: 100%;
-	`;
-	const EditInfoContainer = styled(SafeAreaView)`
-		background-color: black;
-		width: 100%;
-		height: 100%;
-  `;
-
 	const isEditingProfile = useSelector(state => state.isEditingProfile);
 	const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);
@@ -69,7 +119,6 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
   	const bioInputRef = useRef(null);
   	const websiteRef = useRef(initWebsite);
     const websiteInputRef = useRef(null);
-	const currentFocus = useRef("");
 
 	useFocusEffect(() => {
 		dispatch({ type: 'setTabBarVisible', payload: false });
@@ -77,11 +126,6 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 			dispatch({ type: 'setTabBarVisible', payload: true });
 		}
 	});
-
-	const editUsernameOnPress = () => {
-		navigation.push("AccountInfoScreen");
-		dispatch({ type: 'setIsEditingProfile', payload: false });
-	}
 
     const doneFunc = async () => {
 		// save all information
@@ -111,118 +155,67 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 
 	return (
 		<ModalContainer>
-			<Modal
-				animationType="slide"
-				transparent={true}
-				visible={isEditingProfile}
-			>
-				<HeaderContainer>
-				<HeaderDoneCancel
-					withBar
-					onDone={doneFunc}
-					onCancel={cancelFunc}
-					text="Edit Profile"
-				/>
-				</HeaderContainer>
-				<EditUsername username={reelayDBUser.username} editUsernameOnPress={editUsernameOnPress} />
-				<EditProfilePicContainer onPress={Keyboard.dismiss}>
-					<EditProfileImage />
-				</EditProfilePicContainer>
-				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-					<EditInfoContainer>
-						<EditBio bioRef={bioRef} bioInputRef={bioInputRef} currentFocus={currentFocus} />
-						<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} currentFocus={currentFocus}/>
-					</EditInfoContainer>
-				</TouchableWithoutFeedback>
+			<Modal animationType="slide" transparent={true} visible={isEditingProfile}>
+				<ScrollView>
+					<HeaderContainer>
+						<HeaderDoneCancel
+							withBar
+							onDone={doneFunc}
+							onCancel={cancelFunc}
+							text="Edit Profile"
+						/>
+					</HeaderContainer>
+					<EditUsername username={reelayDBUser.username} />
+					<EditProfilePicContainer onPress={Keyboard.dismiss}>
+						<EditProfileImage />
+					</EditProfilePicContainer>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<EditInfoContainer>
+							<EditBio bioRef={bioRef} bioInputRef={bioInputRef} />
+							<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} />
+						</EditInfoContainer>
+					</TouchableWithoutFeedback>
+				</ScrollView>
 			</Modal>
 		</ModalContainer>
   );
 };
 
 const EditUsername = ({ username, editUsernameOnPress }) => {
-	const EditUsernameContainer = styled(View)`
-		padding-top: 40px;
-		flex-direction: row;
-		justify-content: center;
-		background-color: black;
-		justify-content: center;
-	`
-	const UsernameText = styled(ReelayText.H6Emphasized)`
-		align-self: center;
-		color: #d4d4d4;
-	`;
-	const RightIconContainer = styled(View)`
-		height: 18px;
-		width: 18px;
-		align-self: center;
-	`
 	return (
 		<EditUsernameContainer>
 			<UsernameText> {`@${username} `} </UsernameText>
-			{/* <RightIconContainer>
-				<Icon type='ionicon' name='create-outline' size={20} color={'#b5b5b5'} />
-			</RightIconContainer> */}
 		</EditUsernameContainer>
  	)
 }
 
-const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
-	const BioInput = styled(TextInput)`
-		color: white;
-		font-family: Outfit-Regular;
-		font-size: 16px;
-		font-style: normal;
-		letter-spacing: 0.15px;
-		margin-left: 8px;
-		padding: 10px;
-		width: 87%;
-  	`;
-	const BioInputContainer = styled(View)`
-		align-self: center;
-		background-color: #1a1a1a;
-		border-radius: 16px;
-		flex-direction: row;
-		padding: 5px;
-		width: 80%;
-  	`;
-	const EditBioContainer = styled(View)`
-		margin-top: 16px;
-	`
-
+const EditBio = ({ bioRef, bioInputRef }) => {
 	const changeInputText = (text) => {
 		bioRef.current=text;
 	};
-
-	const bioOnPress = () => {
-		bioInputRef.current.focus(); 
-		currentFocus.current='bio'
-	}
 
 	return (
 		<EditBioContainer>
 			<SectionTitleContainer>
 				<SectionTitleText>{"Bio"}</SectionTitleText>
 			</SectionTitleContainer>
-			<TouchableWithoutFeedback onPress={bioOnPress}>
 				<BioInputContainer>
-				<BioInput
-					autoComplete='none'
-					autoCapitalize="none"
-					ref={bioInputRef}
-					maxLength={250}
-					multiline
-					numberOfLines={4}
-					defaultValue={bioRef.current}
-					placeholder={"Who are you?"}
-					placeholderTextColor={"gray"}
-					onChangeText={changeInputText}
-					onPressOut={Keyboard.dismiss()}
-					returnKeyLabel="return"
-					returnKeyType="default"
-				/>
-				
+					<BioInput
+						autoComplete='none'
+						autoCapitalize="none"
+						ref={bioInputRef}
+						maxLength={250}
+						multiline
+						numberOfLines={4}
+						defaultValue={bioRef.current}
+						placeholder={"Who are you?"}
+						placeholderTextColor={"gray"}
+						onChangeText={changeInputText}
+						onPressOut={Keyboard.dismiss()}
+						returnKeyLabel="return"
+						returnKeyType="default"
+					/>
 				</BioInputContainer>
-			</TouchableWithoutFeedback>
 		</EditBioContainer>
   );
 };
@@ -475,45 +468,14 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 	);
 }
 
-const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
-	const WebsiteInput = styled(TextInput)`
-		color: white;
-		font-family: Outfit-Regular;
-		font-size: 16px;
-		font-style: normal;
-		letter-spacing: 0.15px;
-		margin-left: 8px;
-		padding: 10px;
-		width: 87%;
-	`;
-	const WebsiteInputContainer = styled(View)`
-		align-self: center;
-		background-color: #1a1a1a;
-		border-radius: 16px;
-		flex-direction: row;
-		padding: 5px;
-		width: 80%;
-	`;
-	const EditWebsiteContainer = styled(View)`
-		margin-top: 16px;
-	`
-
-	const changeInputText = (text) => {
-		websiteRef.current = text;
-	};
-
-	const websiteOnPress = () => {
-		websiteInputRef.current.focus(); 
-		currentFocus.current = "website";
-	}
-
+const EditWebsite = ({ websiteRef, websiteInputRef }) => {
+	const changeInputText = (text) => websiteRef.current = text;
 	return (
 		<EditWebsiteContainer>
 			<SectionTitleContainer>
 				<SectionTitleText>{"Website"}</SectionTitleText>
 			</SectionTitleContainer>
-			<TouchableWithoutFeedback onPress={websiteOnPress}>
-				<WebsiteInputContainer>
+			<WebsiteInputContainer>
 				<WebsiteInput
 					autoComplete='none'
 					autoCapitalize="none"
@@ -526,8 +488,7 @@ const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
 					returnKeyLabel="return"
 					returnKeyType="default"
 				/>
-				</WebsiteInputContainer>
-			</TouchableWithoutFeedback>
+			</WebsiteInputContainer>
 		</EditWebsiteContainer>
 	);
 };

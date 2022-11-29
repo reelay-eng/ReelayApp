@@ -185,6 +185,7 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
                 navigation.goBack();        
             }, 1000);
         });
+
         
         logAmplitudeEventProd('shareReelayToInstaComplete', {
             title: reelay?.display?.title,

@@ -149,13 +149,13 @@ const ReelayInfo = ({ clubStub, feedSource, navigation, reelay }) => {
 			<CreatorLine />
 			{ (starRating > 0) && <StarRatingLine /> }
 			{ (description.length > 0) && 
-				<Description partsWithMentions={descriptionPartsWithMentions} />
+				<Description navigation={navigation} partsWithMentions={descriptionPartsWithMentions} />
 			}
 		</InfoView>
 	);
 };
 
-const Description = ({ partsWithMentions }) => {
+const Description = ({ navigation, partsWithMentions }) => {
 	const [expanded, setExpanded] = useState(false);
 	const [componentDimensions, setComponentDimensions] = useState({});
 	const expandDescription = () => {

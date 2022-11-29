@@ -19,7 +19,7 @@ import {
 	ClubsTabNavigator
 } from './BottomTabs';
 
-import { ChatsTabIconSVG } from '../components/global/SVGs';
+import { CameraPlusIconSVG, ChatsTabIconSVG } from '../components/global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCircleUser, faCompass, faHouse, faUsers, faVideo } from '@fortawesome/free-solid-svg-icons';
 import CreateTabDrawer from '../screens/authenticated/CreateTabDrawer';
@@ -145,7 +145,8 @@ export default AuthenticatedNavigator = () => {
 								<CreateTabDrawer navigation={navigationRef?.current} closeDrawer={() => setCreateDrawerOpen(false)} />
 							)}
 							<IconFocusView focused={focused}>
-								<FontAwesomeIcon icon={faVideo} size={28} color={focused ? 'white' : '#D4D4D4'} />
+								<CameraPlusIconSVG />
+								{/* <FontAwesomeIcon icon={faVideo} size={28} color={focused ? 'white' : '#D4D4D4'} /> */}
 								{ focused && <IconFocusIndicator /> }
 							</IconFocusView>
 						</Fragment>

@@ -29,6 +29,8 @@ import { addTitleToClub, getClubTitles } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
 import ReelayFeedHeader from '../../components/feed/ReelayFeedHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faGlobeAmericas } from '@fortawesome/free-solid-svg-icons';
 
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
@@ -46,6 +48,7 @@ const UploadButtonPressable = styled(TouchableOpacity)`
 const UploadButtonText = styled(ReelayText.H6Emphasized)`
     color: ${props => props.buttonTextColor};
     font-size: 16px;
+    margin-right: 6px;
     text-align: center;
 `
 const UploadBottomArea = styled(Pressable)`
@@ -104,7 +107,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     // createUploadRequest can either be called from this screen or the
     // select destination drawer, so we need a variable clubID
-    const createUploadRequest = async (clubID) => {
+    const createUploadRequest = async () => {
         try {
             const posterSource = titleObj?.posterSource;
             const starRating = starCountRef.current * 2;
@@ -179,7 +182,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
     }
 
-    const getOrCreateClubTitle = async (clubID) => {
+    const getOrCreateClubTitle = async () => {
         try {
             const clubTitles = await getClubTitles({
                 authSession,
@@ -212,7 +215,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
     }    
 
-    const publishReelay = async (clubID) => {
+    const publishReelay = async () => {
         try {
             setPreviewIsMuted(true);
             dispatch({ type: 'setUploadStage', payload: 'check-club-title' });
@@ -279,20 +282,23 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             if (draftGame) return 'Upload Clue';
             if (topicID) return 'Post to Topic';
             if (clubID) return 'Post to Club';
-            if (myClubs.length === 0) return 'Post to Profile';
-            return 'Next';
+            return 'Post';
+            // if (myClubs.length === 0) return 'Post to Profile';
+            // return 'Next';
         }
 
         const postDestinationText = getPostDestinationText();
         const buttonText = (uploadStarted) ? 'Preparing...   ' : postDestinationText;
         const buttonTextColor = (uploadStarted) ? 'black' : 'white';
         const buttonColor = (uploadStarted) ? 'white' : ReelayColors.reelayBlue;
+        const showGlobeIcon = (!uploadStarted && !draftGame && !topicID && !clubID);
 
         return (
-            <UploadButtonPressable color={buttonColor} onPress={confirmPostDestination}>
+            <UploadButtonPressable color={buttonColor} onPress={publishReelay}>
                 <UploadButtonText buttonTextColor={buttonTextColor}>
                     {buttonText}
                 </UploadButtonText>
+                { showGlobeIcon && (<FontAwesomeIcon icon={faGlobeAmericas} color='white' size={20} />) }
                 { uploadStarted && <ActivityIndicator /> }
             </UploadButtonPressable>
         );

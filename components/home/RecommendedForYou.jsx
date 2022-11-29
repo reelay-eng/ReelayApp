@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
-import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -8,13 +7,12 @@ import * as ReelayText from '../../components/global/Text';
 import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
 import Carousel from 'react-native-snap-carousel';
+import { FlatList } from 'react-native-gesture-handler';
 
 const { width } = Dimensions.get('window');
 const POSTER_WIDTH = 180;
-const POSTER_WIDTH_BORDER_RADIUS = Math.min(POSTER_WIDTH / 10, 12);
 
 const CarouselView = styled(View)`
-    margin-left: 16px;
 `
 const HeaderView = styled(View)`
     margin-left: 15px;
@@ -28,9 +26,6 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
     line-height: 20px;
     margin-top: 8px;
 `
-const IconView = styled(View)`
-    margin: 10px;
-`
 const RecommendedTitlesView = styled.View`
     width: 100%;
     height: auto;
@@ -39,7 +34,9 @@ const RecommendedTitlesView = styled.View`
     margin-bottom: 24px;
 `
 const RecElementView = styled(Pressable)`
-    margin-top: 10px;
+    margin-top: 12px;
+    margin-left: 10px;
+    margin-right: 10px;
 `
 const ReelayCount = styled(ReelayText.CaptionEmphasized)`
     margin-top: 8px;
@@ -106,7 +103,13 @@ export default RecommendedForYou = ({ navigation }) => {
 
         return (
             <CarouselView>
-                <Carousel
+                <FlatList
+                    data={displayStacks}
+                    renderItem={renderTitleStackElement}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                />
+                {/* <Carousel
                     activeSlideAlignment={'start'}
                     data={displayStacks}
                     inactiveSlideScale={1}
@@ -114,7 +117,7 @@ export default RecommendedForYou = ({ navigation }) => {
                     renderItem={renderTitleStackElement}
                     sliderHeight={240}
                     sliderWidth={width}
-                />
+                /> */}
             </CarouselView>
         );
     }

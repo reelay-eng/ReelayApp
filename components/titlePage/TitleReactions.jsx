@@ -118,6 +118,14 @@ const DEFAULT_REACTIONS_BY_EMOJI = {
     '🐐': 0,
 }
 
+const DEFAULT_EMOJI_INDICES = {
+    '🤣': 0,
+    '😍': 0,
+    '🤯': 0,
+    '😴': 0,
+    '🐐': 0,
+}
+
 export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
 
     // authoritative state:
@@ -347,19 +355,27 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
             if (isSelected0 && !isSelected1) return -1;
             if (!isSelected0 && isSelected1) return 1;
 
+            const reactionCount0 = reactionsByEmoji[emoji0] ?? 0;
+            const reactionCount1 = reactionsByEmoji[emoji1] ?? 0;
+
+            if (reactionCount1 - reactionCount0 !== 0) {
+                return reactionCount1 - reactionCount0;
+            }
+
             let lastIndex0 = emojiLastIndices?.current[emoji0] ?? 11
             let lastIndex1 = emojiLastIndices?.current[emoji1] ?? 11;
 
             if (lastIndex0 !== -1 || lastIndex1 !== -1) {
                 return lastIndex0 - lastIndex1;
             }
-
-            const reactionCount0 = reactionsByEmoji[emoji0];
-            const reactionCount1 = reactionsByEmoji[emoji1];
-            return reactionCount1 - reactionCount0;
         }
 
-        const emojiKeys = Object.keys(reactionsByEmoji).sort(sortEmojisByCount);
+        const emojiKeys = Object.keys(reactionsByEmoji);
+        Object.keys(emojiLastIndices?.current).map(emoji => {
+            if (!emojiKeys.includes(emoji)) emojiKeys.push(emoji);
+        });
+
+        emojiKeys.sort(sortEmojisByCount);
         const displayEmojiKeys = emojiKeys.slice(0, MAX_DISPLAY_EMOJIS);
 
         const sortEmojisInDisplay = (emoji0, emoji1) => {
@@ -369,7 +385,9 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
         }
 
         displayEmojiKeys.sort(sortEmojisInDisplay);
-        emojiKeys.slice(MAX_DISPLAY_EMOJIS).map(emoji => emojiLastIndices.current[emoji] = 11);
+        displayEmojiKeys.map((emoji, index) => emojiLastIndices.current[emoji] = index);
+        const nonDisplayEmojiKeys = emojiKeys.slice(MAX_DISPLAY_EMOJIS);
+        nonDisplayEmojiKeys.map((emoji, index) => emojiLastIndices.current[emoji] = index + MAX_DISPLAY_EMOJIS);
 
         return (
             <ReactEmojisRowView>
@@ -415,7 +433,7 @@ export default TitleReactions = ({ navigation, titleObj, seeAll = false }) => {
                         showsVerticalScrollIndicator={false}
                     />                
                 )}
-                { !seeAll && (displayReactions.map(reaction => renderReactionRow({ item: reaction })))}
+                { !seeAll && (displayReactions.map((item, index) => renderReactionRow({ item, index })))}
                 { showSeeAll && <SeeAll /> }
             </SeeOtherReactionsView>
         );

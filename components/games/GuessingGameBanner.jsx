@@ -106,7 +106,7 @@ const SkipText = styled(ReelayText.CaptionEmphasized)`
 const Spacer = styled(View)`
     height: 16px;
 `
-const TitleBannerRow = styled(View)`
+const TitleBannerRow = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
@@ -218,7 +218,7 @@ const SearchResults = ({ onGuessTitle, searchResults }) => {
                 </ImageContainer>
                 <TitleLineContainer>
                     <TitleText>{title}</TitleText>
-                    {/* <YearText>{`${releaseYear}    ${runtimeString}`}</YearText> */}
+                    <YearText>{`${releaseYear}`}</YearText>
                 </TitleLineContainer>
             </PressableContainer>
         );
@@ -242,6 +242,7 @@ const GuessingGameBanner = ({
     guessingGame,
     isPreview = false,
     isUnlocked = false,
+    navigation,
     reelay=null, 
     titleObj,
     topic=null,
@@ -273,6 +274,10 @@ const GuessingGameBanner = ({
     }
     
     const GuessResult = () => {
+        const advanceToTitleDetailScreen = () => {
+            navigation.push('TitleDetailScreen', { titleObj });
+        }    
+
         const fillEmptyGuessesCorrect = () => {
             const correctGuess = myGuesses[myGuesses.length - 1];
             const filledGuesses = [...myGuesses];
@@ -296,7 +301,7 @@ const GuessingGameBanner = ({
             : ReelayColors.reelayRed;
 
         return (
-            <TitleBannerRow>
+            <TitleBannerRow onPress={advanceToTitleDetailScreen}>
                 { !hasSkippedGuess && <Poster guessedTitleObj={guessedTitleObj} /> }
                 { hasSkippedGuess && <UnrevealedPoster />}
                 <TitleInfo guessedTitleObj={guessedTitleObj} />
@@ -417,12 +422,16 @@ const GuessingGameBanner = ({
         }
 
         useEffect(() => {
-            updateCounter.current += 1;
-            const nextUpdateCounter = updateCounter.current;
+            try {
+                updateCounter.current += 1;
+                const nextUpdateCounter = updateCounter.current;    
 
-            setTimeout(() => {
-                updateSearch(searchText, nextUpdateCounter);
-            }, 200);    
+                setTimeout(() => {
+                    updateSearch(searchText, nextUpdateCounter);
+                }, 200);        
+            } catch (error) {
+                console.log(error);
+            }
         }, [searchText]);
 
         return (
@@ -516,10 +525,7 @@ const GuessingGameBanner = ({
                         {displayTitle}
                     </TitleText>
                 </TitleTextContainer>
-                <Underline 
-                    displayYear={displayYear} 
-                    runtime={hasSkippedGuess ? '' : guessedTitleObj?.runtime}
-                />
+                <Underline displayYear={displayYear} />
             </TitleInfoView>
         );
     }
@@ -533,12 +539,10 @@ const GuessingGameBanner = ({
     }
 
     const Underline = ({ displayYear, runtime }) => {
-        const runtimeString = runtime ? getRuntimeString(runtime) : '';
         return (
             <UnderlineContainer>
                 <YearVenueContainer>
                     { displayYear?.length > 0 && <YearText>{displayYear}</YearText> }
-                    { runtimeString?.length > 0 && <RuntimeText>{runtimeString}</RuntimeText> }
                 </YearVenueContainer>
             </UnderlineContainer>
         );

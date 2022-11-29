@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
 import { Dimensions, Modal, Pressable, Share, TouchableOpacity, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 import { GamesIconSVG, ShareOutSVG } from '../global/SVGs';
@@ -12,22 +11,63 @@ import ProfilePicture from '../global/ProfilePicture';
 import { AuthContext } from '../../context/AuthContext';
 import { showMessageToast } from '../utils/toasts';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCheck, faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faChevronRight, faLink, faUnlock, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';
-import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-regular-svg-icons';
+import AddToWatchlistButton from '../watchlist/AddToWatchlistButton';
+import { useDispatch, useSelector } from 'react-redux';
+import { ScrollView } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
 
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
 const BUTTON_WIDTH = ((width - 32) - (BUTTON_MARGIN_WIDTH * 5)) / 3;
-const REELAY_WEB_BASE_URL = Constants.manifest.extra.reelayWebBaseUrl;
 
 const CloseButtonPressable = styled(TouchableOpacity)`
     position: absolute;
     top: 16px;
     right: 16px;
+`
+const CommentsPreviewHeaderCount = styled(ReelayText.Overline)`
+    color: rgba(255,255,255,0.8);
+    font-size: 15px;
+    margin-top: 5px;
+    margin-left: 12px;
+`
+const CommentsPreviewHeaderText = styled(ReelayText.H6Emphasized)`
+    color: white;
+    font-size: 18px;
+    line-height: 30px;
+    margin-left: 8px;
+`
+const CommentsPreviewBodyText = styled(ReelayText.Body2)`
+    color: white;
+    width: ${width - 120}px;
+    margin-left: 8px;
+`
+const CommentsPreviewBodyRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-top: 8px;
+    width: 100%;
+`
+const CommentsPreviewHeaderRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+`
+const CommentsPreviewPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: #292929;
+    border-radius: 12px;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 16px;
+    margin-bottom: 24px;
+    width: ${width - 32}px;
 `
 const GuessMarkerView = styled(View)`
     align-items: center;
@@ -55,27 +95,22 @@ const OverlayBox = styled(Pressable)`
     position: absolute;
     width: ${width}px;
 `
-const ShareCardGradient = styled(LinearGradient)`
-    border-radius: 24px;
-    height: 100%;
-    opacity: 0.6;
-    position: absolute;
-    width: 100%;
-`
 const ShareCardWhiteLayer = styled(View)`
-    background-color: rgba(255,255,255,0.3);
+    background-color: #191919;
     border-radius: 24px;
     height: 100%;
-    opacity: 0.6;
+    opacity: 0.9;
     position: absolute;
     width: 100%;
 `
 const ShareCardView = styled(View)`
-    align-items: center;
+    bottom: 0px;
     border-radius: 24px;
     height: ${props => props?.height}px;
     opacity: 0.95;
-    width: ${width - 32}px;
+    position: absolute;
+    z-index: 100;
+    width: ${width}px;
 `
 const ClueIndexView = styled(View)`
     margin-left: 8px;
@@ -115,7 +150,6 @@ const GuessIconView = styled(View)`
     align-items: center;
     border-radius: 100px;
     justify-content: center;
-    margin: 10px;
 `
 const GuesserPicsRow = styled(View)`
     align-items: center;
@@ -140,7 +174,7 @@ const ShareSectionView = styled(View)`
 `
 const ShareOptionPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: #3D3552;
+    background-color: #3C3C3C;
     border-radius: 12px;
     height: ${BUTTON_WIDTH}px;
     justify-content: center;
@@ -193,7 +227,7 @@ const TitleBannerRow = styled(View)`
     padding-left: 10px;
     padding-right: 10px;
 `
-const TitleInfoView = styled(View)`
+const TitleInfoPressable = styled(TouchableOpacity)`
     align-items: flex-start;
     justify-content: center;
     font-size: 18px;
@@ -242,7 +276,13 @@ const YearView = styled(View)`
     flex-direction: row;
 `
 
-export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
+export default ShareGuessingGameDrawer = ({ game, navigation }) => {
+    const bottomOffset = useSafeAreaInsets().bottom;
+    const dispatch = useDispatch();
+    const closeDrawer = () => {
+        dispatch({ type: 'setStatsVisible', payload: false });
+    }
+
     const { reelayDBUser } = useContext(AuthContext);
     const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const myGuesses = game?.myGuesses ?? [];
@@ -250,7 +290,6 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const hasCompletedGame = game?.hasCompletedGame;
     const hasWonGame = game?.hasWonGame;
     const hasLostGame = (hasCompletedGame && !hasWonGame);
-    const isGameCreator = (reelayDBUser?.sub === game?.creatorSub);
 
     const gameHasGuesses = game?.myGuesses?.length > 0;
     const inviteCode = game?.myGuesses?.[0]?.inviteCode;
@@ -264,7 +303,6 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     ];
     
     const shareMessage = shareMessageParts.join('\n');
-
     const statCount = game?.stats?.length ?? 0;
     const statRowCount = statCount + 1; // leave room for losing stats row
     const rowHeight = 32; // sorry magic numbers
@@ -273,9 +311,54 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
 
     const CloseButton = () => {
         return (
-            <CloseButtonPressable onPress={closeModal}>
+            <CloseButtonPressable onPress={closeDrawer}>
                 <FontAwesomeIcon icon={faXmark} color='white' size={20} />
             </CloseButtonPressable>
+        )
+    }
+
+    const CommentsPreview = () => {
+        const gameComments = game?.reelays?.[0]?.comments ?? null;
+        const lastCommentIndex = gameComments ? (gameComments?.length - 1) : 0;
+        const previewComment = gameComments ? gameComments[lastCommentIndex] : null;
+
+        const user = (previewComment) ? {
+            sub: previewComment?.authorSub,
+            username: previewComment?.authorName,
+        } : null;
+
+        const commentHeaderText = (gameComments?.length > 0) 
+            ? `Comments` 
+            : 'Add a comment';
+
+        const commentHeaderCount = gameComments?.length > 0 ? gameComments?.length : '';
+        const openCommentsDrawer = () => {
+            dispatch({ type: 'setStatsVisible', payload: false });
+            dispatch({ type: 'setCommentsVisible', payload: true });
+        }
+
+        const mentionFollowType = { trigger: '@' };
+        const commentPlaintext = parseValue(previewComment?.content ?? '', [mentionFollowType])?.plainText ?? '';
+    
+        return (
+            <CommentsPreviewPressable onPress={openCommentsDrawer}>
+                <View>
+                    <CommentsPreviewHeaderRow>
+                        <FontAwesomeIcon icon={faUnlock} color='white' size={24} />
+                        <CommentsPreviewHeaderText>{commentHeaderText}</CommentsPreviewHeaderText>
+                        <CommentsPreviewHeaderCount>{commentHeaderCount}</CommentsPreviewHeaderCount>
+                    </CommentsPreviewHeaderRow>
+                    { previewComment && (
+                        <CommentsPreviewBodyRow>
+                            <ProfilePicture navigation={navigation} user={user} size={24} />
+                            <CommentsPreviewBodyText numberOfLines={2}>
+                                { commentPlaintext }
+                            </CommentsPreviewBodyText>
+                        </CommentsPreviewBodyRow>
+                    )}
+                </View>
+                <FontAwesomeIcon icon={faChevronRight} color='white' size={16} />
+            </CommentsPreviewPressable>
         )
     }
 
@@ -313,7 +396,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
                     <ShareOutSVG />
                     <ShareOptionIconPad />
                     <ShareOptionTextView>
-                        <ShareOptionText>{'Share'}</ShareOptionText>
+                        <ShareOptionText>{'Share text'}</ShareOptionText>
                     </ShareOptionTextView>
                 </ShareOptionPressable>
             </ShareOptionView>
@@ -322,7 +405,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
 
     const ShareToInstaStoryButton = () => {
         const openShareInstaStoryScreen = () => {
-            closeModal();
+            closeDrawer();
             navigation.push('InstaStoryGuessingGameScreen', { game, url });
         }
 
@@ -438,21 +521,23 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
 
     const TitleRow = () => {
         const titleObj = game?.correctTitleObj;
-        const guessIcon = (hasWonGame || isGameCreator)
-            ? faCheckCircle 
-            : faXmarkCircle;
-        const guessIconColor = (hasWonGame || isGameCreator) 
-            ? ReelayColors.reelayGreen 
-            : ReelayColors.reelayRed;
+        const watchlistReelay = game?.reelays?.[0] ?? null;
+
+        const onPressPoster = () => {
+            closeDrawer();
+            navigation.push('TitleDetailScreen', {
+                titleObj: titleObj,
+            });
+        }
 
         return (
             <TitleBannerRow>
                 <TitlePosterView>
-                    <TitlePoster title={titleObj} width={36} />
+                    <TitlePoster onPress={onPressPoster} title={titleObj} width={36} />
                 </TitlePosterView>
                 <TitleInfo titleObj={titleObj} />
                 <GuessIconView>
-                    <FontAwesomeIcon icon={guessIcon} color={guessIconColor} size={27} />
+                    <AddToWatchlistButton titleObj={titleObj} reelay={watchlistReelay} />
                 </GuessIconView>
             </TitleBannerRow>
         )
@@ -463,8 +548,15 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
         const displayYear = (titleObj?.releaseDate && titleObj?.releaseDate.length >= 4) 
             ? titleObj.releaseDate.slice(0,4) : '';
 
+        const onPressTitle = () => {
+            closeDrawer();
+            navigation.push('TitleDetailScreen', {
+                titleObj: titleObj,
+            });
+        }
+
         return (
-            <TitleInfoView>
+            <TitleInfoPressable onPress={onPressTitle}>
                 <TitleTextView>
                     <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
                         {displayTitle}
@@ -474,7 +566,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
                     displayYear={displayYear} 
                     runtime={titleObj?.runtime}
                 />
-            </TitleInfoView>
+            </TitleInfoPressable>
         );
     }    
 
@@ -505,20 +597,21 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     }
 
     return (
-        <Modal style={ModalStyle} animationType='none' transparent={true}>
-            <OverlayBox onPress={closeModal}>
-                <BlurView intensity={50} tint='default' style={{ borderRadius: 24, height: modalViewHeight, overflow: 'hidden', width: width - 32, position: 'absolute' }} />
-                <ShareCardView height={modalViewHeight}>
-                    <ShareCardWhiteLayer />
-                    <ShareCardGradient colors={[ReelayColors.reelayBlue, '#4C268B']} />
+        <Modal style={ModalStyle} animationType='slide' transparent={true}>
+            <OverlayBox onPress={closeDrawer} />
+            <BlurView intensity={50} tint='default' style={{ borderRadius: 24, bottom: 0, height: modalViewHeight, overflow: 'hidden', width: width, position: 'absolute' }} />
+            <ShareCardView height={modalViewHeight}>
+                <ShareCardWhiteLayer />
+                <ScrollView contentContainerStyle={{ alignItems: 'center', paddingBottom: bottomOffset }}>
                     <YouGotIt />
                     <CloseButton />
                     <GuessMarkers />
                     <TitleRow />
                     <GuessStats />
+                    <CommentsPreview />
                     { !isGuestUser && <ShareSection /> }
-                </ShareCardView>
-            </OverlayBox>
+                </ScrollView>
+            </ShareCardView>
         </Modal>
     );
 }

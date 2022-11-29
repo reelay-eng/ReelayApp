@@ -21,6 +21,15 @@ const LabelText = styled(ReelayText.H6Emphasized)`
     font-size: 16px;
     margin-right: 10px;
 `
+const SeenCheckmarkView = styled(View)`
+    align-items: flex-end;
+    height: 100%;
+    justify-content: flex-end;
+    right: 5px;
+    bottom: 5px;
+    position: absolute;
+    width: 100%;
+`
 const ShareButtonBackground = styled(LinearGradient)`
     border-radius: 50px;
     height: ${props => props.buttonSize}px;
@@ -50,7 +59,6 @@ const WatchlistButtonOuterView = styled(TouchableOpacity)`
 export default AddToWatchlistButton = ({ 
     buttonSize = 45,
     iconSize = 22,
-    navigation, 
     shouldGoToWatchlist = false, 
     showLabel = false,
     titleObj, 
@@ -59,6 +67,7 @@ export default AddToWatchlistButton = ({
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const seenCheckmarkSize = iconSize;
 
     const matchWatchlistItem = (nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
@@ -71,7 +80,7 @@ export default AddToWatchlistButton = ({
     const watchlistItem = useSelector(state => state.myWatchlistItems.find(matchWatchlistItem));    
     const inWatchlist = !!watchlistItem;
     const hasSeenTitle = watchlistItem?.hasSeenTitle;
-    const markedSeen = (inWatchlist && inWatchlist?.hasSeenTitle);
+    const markedSeen = (inWatchlist && watchlistItem?.hasSeenTitle);
 
     const getGradientColors = () => {
         if (hasSeenTitle) return [ReelayColors.reelayGreen, ReelayColors.reelayGreen];

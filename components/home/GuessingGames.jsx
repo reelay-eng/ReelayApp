@@ -5,131 +5,97 @@ import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
 import { useDispatch, useSelector } from 'react-redux';
-import TitlePoster from '../global/TitlePoster';
-import Carousel from 'react-native-snap-carousel';
-import { GamesIconSmallSVG } from '../global/SVGs';
 import moment from 'moment';
 import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
-import { useFocusEffect } from '@react-navigation/native';
-import { deleteGuessingGameGuesses, deleteGuessingGamePublished, getGuessingGamesPublished } from '../../api/GuessingGameApi';
+import { faCalendarDay, faCheck, faChevronRight, faLock } from '@fortawesome/free-solid-svg-icons';
+import { FlatList } from 'react-native-gesture-handler';
+import GuessingGamePreview from './GuessingGamePreview';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = 192;
+const CARD_WIDTH = 140;
+const POSTER_WIDTH = CARD_WIDTH - 12;
 
-const AbovePosterSpacer = styled(View)`
-    margin-top: 10px;
+const AllGamesButtonPressable = styled(TouchableOpacity)`
+    padding: 6px;
 `
-const CarouselView = styled(View)`
-    margin-left: 16px;
+const CardPressable = styled(Pressable)`
+    background-color: #1E1F21;
+    border-radius: 12px;
+    margin: 16px;
+    padding-top: 24px;
+    padding-bottom: 16px;
 `
-const GameDescriptionText = styled(ReelayText.H6Emphasized)`
-    color: white;
-    font-size: 14px;
-    line-height: 18px;
-`
-const GameDescriptionView = styled(View)`
-    height: 48px;
-    padding: 8px;
-    padding-top: 0px;
-`
-const GameElementHeaderView = styled(View)`
+const ForwardPressable = styled(TouchableOpacity)`
     align-items: center;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 16px;
-    width: 100%;
-`
-const GameElementView = styled(Pressable)`
-    align-items: center;
-    background-color: rgba(255,255,255,0.15);
-    border-radius: 11px;
-    margin-top: 10px;
-    margin-right: 12px;
-    width: ${CARD_WIDTH}px;
+    background-color: #2C2D2F;
+    border-radius: 44px;
+    height: 44px;
+    justify-content: center;
+    width: 44px;
 `
 const GuessingGamesView = styled.View`
     width: 100%;
     height: auto;
     display: flex;
     flex-direction: column;
+    margin-top: 12px;
     margin-bottom: 24px;
-`
-const GuessMarkerRowView = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: center;
-    height: 30px;
-    width: 100%;
-`
-const GuessMarkerView = styled(View)`
-    background-color: ${props => props.color};
-    border-color: rgba(255,255,255,0.5);
-    border-radius: 12px;
-    border-width: ${props => props.viewable ? 1 : 0}px;
-    height: 12px;
-    margin: 4px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    width: 12px;
-`
-const HeaderSubText = styled(ReelayText.Body2Emphasized)`
-    color: white;
-    line-height: 20px;
-    margin-top: 8px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
-    font-size: 18px;
+    font-size: ${props => props?.size ?? 20}px;
+    line-height: 24px;
 `
 const HeaderView = styled(View)`
-    margin-left: 15px;
+    align-items:  center;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-left: 16px;
+    margin-right: 16px;
 `
-const TimestampText = styled(ReelayText.Body1)`
-    color: gray;
-`
-const ResetGuessesButtonPressable = styled(TouchableOpacity)`
+const StreakGameMarker = styled(View)`
     align-items: center;
-    background-color: ${props => props.color ?? 'white'};
-    border-radius: 30px;
-    height: 36px;
+    background-color: ${props => props.color};
+    border-radius: 24px;
+    height: 24px;
+    margin-top: 8px;
     justify-content: center;
-    margin-bottom: 12px;
-    width: 90%;
-`
-const ResetGuessesButtonText = styled(ReelayText.Body1)`
-    color: ${props => props.color ?? 'black'};
-`
-const RevealedPosterView = styled(View)`
-    align-items: center;
-    justify-content: center;
-`
-const RevealedResultView = styled(View)`
-    align-items: center;
-    background-color: rgba(255,255,255,0.9);
-    border-radius: 36px;
-    justify-content: center;
-    position: absolute;
     shadow-offset: 2px 2px;
     shadow-color: black;
     shadow-opacity: 0.5;
-    z-index: 100;
+    width: 24px;
 `
-const UnrevealedPosterQuestionMark = styled(ReelayText.H5Bold)`
-    color: white;
-    font-size: 64px;
-    line-height: 64px;
-`
-const UnrevealedPosterView = styled(Pressable)`
+const StreamGameLockView = styled(View)`
     align-items: center;
-    background-color: #080808;
-    border-radius: 12px
-    border-color: #3d3d3d;
-    border-width: 2px;
-    height: 252px;
+    height: 24px;
+    margin-top: 8px;
     justify-content: center;
-    width: 168px;
+    shadow-offset: 2px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+    width: 24px;
+`
+const StreakTrackerGameText = styled(ReelayText.Overline)`
+    color: white;
+    font-size: 18px;
+    line-height: 24px;
+`
+const StreakTrackerGameView = styled(View)`
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    width: 36px;
+`
+const StreakTrackerView = styled(View)`
+    align-items: center;
+    border-color: rgba(255,255,255,0.25);
+    border-top-width: 0.4px;
+    height: 80px;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 12px;
+    width: 100%;
 `
 
 export default GuessingGames = ({ navigation }) => {
@@ -137,11 +103,9 @@ export default GuessingGames = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
-    const displayGames = guessingGamesObj.content;
-    
-    const headerText = 'Guess the Title';
-    const headerSubtext = 'Play the daily game'
+    const displayGames = guessingGamesObj.content?.slice(0,7);
 
+    const advanceToAllGamesScreen = () => navigation.push('AllGamesScreen');
     const advanceToGuessingGame = ({ game, index, isPreview = false }) => {
         const navOptions = {
             feedPosition: index,
@@ -152,217 +116,133 @@ export default GuessingGames = ({ navigation }) => {
 		navigation.push("GuessingGameFeedScreen", navOptions);
 	};
 
-    const GamePreviewElement = ({ index, game }) => {
-        const getTimestampText = () => {
-            const now = moment();
-            const publishedAt = moment(game?.updatedAt);
-            const daysAgo = now.diff(publishedAt, 'days');
-            if (daysAgo === 0) return 'Today';
-            if (daysAgo === 1) return 'Yesterday';
-            if (daysAgo < 7) return publishedAt.format('dddd');
-            return publishedAt.format('MMMM Do');
-        }
+    const AllGamesButton = () => {
+        return (
+            <AllGamesButtonPressable onPress={advanceToAllGamesScreen}>
+                <FontAwesomeIcon icon={faCalendarDay} color='white' size={24} />
+            </AllGamesButtonPressable>
+        );
+    }
 
-        const correctTitleObj = game?.correctTitleObj;
-        const hasCompletedGame = game?.hasCompletedGame;
-        const hasWonGame = game?.hasWonGame;
-        const hasLostGame = (hasCompletedGame && !hasWonGame);
-        const isGameCreator = (game?.creatorSub === reelayDBUser?.sub);
-        const isUnlocked = (correctTitleObj && (hasCompletedGame || isGameCreator));
-        const timestamp = getTimestampText();
-
-        const refreshGuessingGames = async () => {
-            const nextMyGuessingGames = await getGuessingGamesPublished({
-                authSession,
-                reqUserSub: reelayDBUser?.sub,
-            });
-            dispatch({ type: 'setHomeGuessingGames', payload: {
-                content: nextMyGuessingGames,
-                nextPage: 1,
-            }});
-        }
-
-        const tapOnPoster = () => {
-            advanceToGuessingGame({ game, index, isPreview: false });
-        }
-
-        const DeleteGameButton = () => {
-            const [deleting, setDeleting] = useState(false); 
-            const [confirming, setConfirming] = useState(false);
-            const canDeleteGame = (isGameCreator || reelayDBUser?.role === 'admin');
-    
-            const deleteGame = async () => {
-                const deleteResult = await deleteGuessingGamePublished({
-                    authSession,
-                    reqUserSub: reelayDBUser?.sub,
-                    topicID: game?.id,
+    const StreakTracker = () => {
+        
+        const getGamesThisWeek = () => {
+            try {
+                const startOfMonday = moment().startOf('week');
+                const mondayGameIndex = displayGames.findIndex((nextGame) => {
+                    const nextGameCreatedAt = moment(nextGame?.createdAt);
+                    const mondayDateDiff = nextGameCreatedAt.diff(startOfMonday, 'days');
+                    return Math.abs(mondayDateDiff) < 1;
                 });
-                console.log(deleteResult);
-                return deleteResult;
-            }
-        
-            const onPressDelete = async () => {
-                if (!confirming) {
-                    setConfirming(true);
-                    return;
-                }
-                if (deleting) return;
-                setConfirming(false);
-                setDeleting(true);
-                await deleteGame();
-                await refreshGuessingGames();
-                setDeleting(false);
-            }
-    
-            if (!canDeleteGame) return <View />
-    
-            return (
-                <ResetGuessesButtonPressable color={ReelayColors.reelayRed} onPress={onPressDelete}>
-                    { deleting && <ActivityIndicator /> }
-                    { confirming && <ResetGuessesButtonText color={'white'}>{'Confirm delete'}</ResetGuessesButtonText> }
-                    { (!confirming && !deleting) && <ResetGuessesButtonText color={'white'}>{'Delete game'}</ResetGuessesButtonText> }
-                </ResetGuessesButtonPressable>
-            );
-        }
-    
 
-        const GuessMarkers = () => {
-            const myGuesses = game?.myGuesses ?? [];
-            const clueOrder = game?.details?.clueOrder ?? [];
-            const guessesLeft = (clueOrder?.length - myGuesses?.length);
-        
-            const getMarkerColor = (guess) => {
-                if (guess?.isCorrect) return ReelayColors?.reelayGreen;
-                return ReelayColors.reelayRed;
-            } 
-    
-            const renderGuessMarker = (guess, index) => {
-                const isCorrect = guess?.isCorrect;
-                const color = getMarkerColor(guess);
-                return (
-                    <GuessMarkerView key={index} 
-                        color={color}
-                        isCorrect={isCorrect} 
-                        isGuessed={true} 
-                        viewable={false} 
-                    />
-                );
-            };
-    
+                if (mondayGameIndex === -1) return [];
+                return displayGames.slice(0, mondayGameIndex).reverse() 
+            } catch (error) {
+                console.log('Get games this week error: ', error);
+                return [];
+            }
+        }
+
+        const getLockedDayLetters = (gamesThisWeek) => {
+            try {
+                return ['M','T','W','T','F','S','S'].slice(gamesThisWeek?.length);
+            } catch (error) {
+                return [];
+            }
+        }
+
+        const gamesThisWeek = getGamesThisWeek();
+        const lockedDayLetters = getLockedDayLetters(gamesThisWeek);
+
+        const StreakGamePublished = ({ game }) => {
+            const dayLetter = moment(game?.createdAt).format('dddd').charAt(0).toUpperCase();
+            const hasWonGame = game?.hasWonGame;
+            const hasCompletedGame = game?.hasCompletedGame;
+            const hasLostGame = (hasCompletedGame && !hasWonGame);
+
+            const getGameColor = () => {
+                if (hasWonGame) return ReelayColors.reelayGreen;
+                if (hasLostGame) return ReelayColors.reelayRed;
+                return 'gray';
+            }
+
+            const getGameIcon = () => {
+                if (hasWonGame) return <FontAwesomeIcon icon={faCheck} color='white' size={16} />;
+                return <View />;
+            }
+
             return (
-                <GuessMarkerRowView>
-                    { myGuesses.map(renderGuessMarker) }
-                    { (guessesLeft > 0 && !hasCompletedGame) && (
-                        <GuessMarkerView 
-                            key={'unanswered'} 
-                            color={'gray'} 
-                            isCorrect={false} 
-                            isGuessed={false} 
-                            viewable={false} 
-                        />
-                    )}
-                </GuessMarkerRowView>
+                <StreakTrackerGameView>
+                    <StreakTrackerGameText>{dayLetter}</StreakTrackerGameText>
+                    <StreakGameMarker color={getGameColor()}>
+                        { getGameIcon() }
+                    </StreakGameMarker>
+                </StreakTrackerGameView>
             )
         }
 
-        const ResetButton = () => {
-            const [resetting, setResetting] = useState(false); 
-            const myGuesses = game?.myGuesses ?? [];
-            const canResetGuesses = (reelayDBUser?.role === 'admin' && myGuesses.length > 0);
-
-            const resetGuesses = async () => {
-                if (myGuesses?.length === 0) return;
-                const inviteCode = myGuesses[0].inviteCode;
-                const deleteResult = await deleteGuessingGameGuesses({
-                    authSession,
-                    reqUserSub: reelayDBUser?.sub,
-                    inviteCode: inviteCode,
-                    topicID: game?.id,
-                });
-            }
-
-            const onPressReset = async () => {
-                if (resetting) return;
-                setResetting(true);
-                await resetGuesses();
-                await refreshGuessingGames();
-                setResetting(false);
-            }
-
-            if (!canResetGuesses) return <View />
-
+        const StreakGameUnpublished = ({ dayLetter }) => {
             return (
-                <ResetGuessesButtonPressable onPress={onPressReset}>
-                    { resetting && <ActivityIndicator /> }
-                    { !resetting && <ResetGuessesButtonText>{'Reset guesses'}</ResetGuessesButtonText> }
-                </ResetGuessesButtonPressable>
-            );
+                <StreakTrackerGameView>
+                    <StreakTrackerGameText>{dayLetter}</StreakTrackerGameText>
+                    <StreamGameLockView>
+                        <FontAwesomeIcon icon={faLock} color='white' size={20} />
+                    </StreamGameLockView>
+                </StreakTrackerGameView>
+            )
         }
-
-        const RevealedPoster = () => {
-            
-            return (
-                <RevealedPosterView>
-                    <TitlePoster onPress={tapOnPoster} title={correctTitleObj} width={168} /> 
-                    { hasWonGame && (
-                        <RevealedResultView>
-                            <FontAwesomeIcon icon={faCheckCircle} color={ReelayColors.reelayGreen} size={72} />
-                        </RevealedResultView>
-                    )}
-                    { hasLostGame && (
-                        <RevealedResultView hasWonGame={hasWonGame}>
-                            <FontAwesomeIcon icon={faXmarkCircle} color={ReelayColors.reelayRed} size={72} />
-                        </RevealedResultView>
-                    )}
-                </RevealedPosterView>
-            );
-        }
-    
-        const UnrevealedPoster = () => {
-            return (
-                <UnrevealedPosterView onPress={tapOnPoster}>
-                    <UnrevealedPosterQuestionMark>?</UnrevealedPosterQuestionMark>
-                </UnrevealedPosterView>
-            );    
-        }    
 
         return (
-            <GameElementView onPress={tapOnPoster}>
-                <GameElementHeaderView>
-                    <GamesIconSmallSVG />
-                    <TimestampText>{timestamp}</TimestampText>
-                </GameElementHeaderView>
-                <GameDescriptionView>
-                    <GameDescriptionText numberOfLines={2}>{game?.title}</GameDescriptionText>
-                </GameDescriptionView>
-                <AbovePosterSpacer />
-                { isUnlocked && <RevealedPoster /> }
-                { !isUnlocked && <UnrevealedPoster />}
-                <GuessMarkers />
-                <ResetButton />
-                <DeleteGameButton />
-            </GameElementView>
+            <StreakTrackerView>
+                { gamesThisWeek.map(game => <StreakGamePublished key={game?.id} game={game} /> )}
+                { lockedDayLetters.map((dayLetter, index) => <StreakGameUnpublished key={`${dayLetter}-${index}`} dayLetter={dayLetter} /> )}
+            </StreakTrackerView>
         )
     }
 
-    const GuessingGamesRow = () => {
+    const GuessingGamesCard = () => {
+        const firstUnplayedGameIndex = displayGames.findIndex(nextGame => !nextGame?.hasCompletedGame);
+        const firstUnplayedGame = (firstUnplayedGameIndex !== -1) 
+            ? displayGames[firstUnplayedGameIndex]
+            : null;
         const renderGameElement = ({ item, index }) => {
             const game = item;
-            return <GamePreviewElement key={index} index={index} game={game} />;
+            return (
+                <GuessingGamePreview 
+                    key={index} 
+                    index={index} 
+                    game={game} 
+                    navigation={navigation} 
+                    showAdmin={false}
+                    showGuessMarkers={false}
+                />
+            );
+        }
+
+        const advanceToFirstUnplayedGame = () => {
+            advanceToGuessingGame({ game: firstUnplayedGame, index: firstUnplayedGameIndex, isPreview: false });
         }
 
         return (
-            <CarouselView>
-                <Carousel
-                    activeSlideAlignment={'start'}
+            <CardPressable onPress={advanceToFirstUnplayedGame}>
+                <HeaderView>
+                    <HeaderText size={18}>{'Guess the title'}</HeaderText>
+                    {firstUnplayedGame && (
+                        <ForwardPressable onPress={advanceToFirstUnplayedGame}>
+                            <FontAwesomeIcon icon={faChevronRight} color='white' size={16} />
+                        </ForwardPressable>
+                    )}
+                </HeaderView>
+                <FlatList
+                    ListHeaderComponent={<View style={{ width: 16 }} /> }
+                    ListFooterComponent={<View style={{ width: 16 }} /> }
                     data={displayGames}
-                    inactiveSlideScale={1}
-                    itemWidth={CARD_WIDTH + 12}
                     renderItem={renderGameElement}
-                    sliderHeight={252}
-                    sliderWidth={width}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
                 />
-            </CarouselView>
+                <StreakTracker />
+            </CardPressable>
         );
     }
 
@@ -373,10 +253,10 @@ export default GuessingGames = ({ navigation }) => {
     return (
         <GuessingGamesView>
             <HeaderView>
-                <HeaderText>{headerText}</HeaderText>
-                <HeaderSubText>{headerSubtext}</HeaderSubText>
+                <HeaderText>{'Play the daily game'}</HeaderText>
+                <AllGamesButton />
             </HeaderView>
-            { displayGames?.length > 0 && <GuessingGamesRow />}
+            { displayGames?.length > 0 && <GuessingGamesCard />}
         </GuessingGamesView>
     )
 };

@@ -9,12 +9,6 @@ const LATEST_VERSION_GUIDE_IMAGES = [
 ]
 const REELAY_APP_VERSION = Constants.manifest.version;
 
-const byDateUpdated = (watchlistItem0, watchlistItem1) => {
-    const dateAdded0 = moment(watchlistItem0.updatedAt);
-    const dateAdded1 = moment(watchlistItem1.updatedAt);
-    return dateAdded1.diff(dateAdded0, 'seconds');
-}
-
 const isSameTitle = (title0, title1) => {
     return (title0.id === title1.id) && (title0.isSeries === title1.isSeries);
 }
@@ -218,7 +212,7 @@ export const updateWatchlistReducer = (myWatchlistItems, updatedItem) => {
 }
 
 export const watchlistRecsReducer = (watchlistItems) => {
-    const sortedWatchlistItems = watchlistItems.sort(byDateUpdated);
+    const sortedWatchlistItems = watchlistItems.sort(sortWatchlistItems);
     const uniqueWatchlistItems = sortedWatchlistItems.filter((nextItem, index, allItems) => {
         const { recommendedBySub, recommendedByUsername, recommendedReelaySub, title } = nextItem;
         let isFirstItemWithTitle = true;

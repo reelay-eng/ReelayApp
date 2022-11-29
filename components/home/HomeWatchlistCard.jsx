@@ -10,19 +10,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width } = Dimensions.get('window');
 
 const AddToWatchlistPressable = styled(TouchableOpacity)`
-    align-items: center;
+    align-items: flex-start;
     flex-direction: row;
     justify-content: center;
-    padding: 15px;
-    padding-top: 5px;
+    padding-right: 15px;
     height: 100%;
 `
 const AddText = styled(ReelayText.Caption)`
     color: ${ReelayColors.reelayBlue};
     font-size: 16px;
+    margin-top: 6px;
 `
 const HeaderContainer = styled(View)`
-    align-items: center;
+    align-items: flex-start;
     flex-direction: row;
     justify-content: space-between;
     margin-top: 4px;
@@ -33,9 +33,10 @@ const HeaderContainerLeft = styled(View)`
     display: flex;
     flex: 1;
 `
-const HeaderText = styled(ReelayText.H5Bold)`
+const HeaderText = styled(ReelayText.H4Bold)`
     color: white;
-    font-size: 18px;
+    font-size: 20px;
+    line-height: 24px;
     margin-bottom: 8px;
 `
 const HeaderSubText = styled(ReelayText.Body2Emphasized)`
@@ -77,7 +78,7 @@ export default HomeWatchlistCard = ({ navigation }) => {
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
 
-    const advanceToAddToWatchlistScreen = () => navigation.push('SearchScreen', { addToWatchlist: true });
+    const advanceToAddToWatchlistScreen = () => navigation.push('SearchScreen', { addToWatchlist: false });
     const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems, myWatchlistRecs });
 
     const AddToWatchlistButton = () => {
@@ -95,8 +96,7 @@ export default HomeWatchlistCard = ({ navigation }) => {
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <HeaderText>{'Watchlist'}</HeaderText>
-                    <HeaderSubText>{'"What are we gonna watch tonight?"'}</HeaderSubText>
-                    <HeaderSubText>{'YOU have the answer'}</HeaderSubText>
+                    <HeaderSubText>{'What are you gonna watch tonight?'}</HeaderSubText>
                 </HeaderContainerLeft>
                 <AddToWatchlistButton />
             </HeaderContainer>

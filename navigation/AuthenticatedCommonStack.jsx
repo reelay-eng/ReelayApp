@@ -1,6 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
 
+import AllGamesScreen from '../screens/authenticated/AllGamesScreen';
 import ClubAcceptInviteScreen from '../screens/authenticated/ClubAcceptInviteScreen';
 import ClubActivityScreen from '../screens/authenticated/ClubActivityScreen';
 import ClubAddTitleScreen from '../screens/authenticated/ClubAddTitleScreen';
@@ -55,6 +56,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
     return (
         <CommonStack.Navigator initialRouteName={initialRouteName} detachInactiveScreens={false}>
             { children }
+            <CommonStack.Screen name='AllGamesScreen' component={AllGamesScreen} options={commonOptions} />
             <CommonStack.Screen name='ClubJoinFromLinkScreen' component={ClubJoinFromLinkScreen} options={commonOptions} />
             <CommonStack.Screen name='ClubActivityScreen' component={ClubActivityScreen} options={commonOptions} />
             <CommonStack.Screen name='ClubAcceptInviteScreen' component={ClubAcceptInviteScreen} options={commonOptions} />

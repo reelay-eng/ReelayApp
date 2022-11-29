@@ -17,6 +17,7 @@ import { getDiscoverFeed } from '../../api/FeedApi';
 import { coalesceFiltersForAPI } from '../utils/FilterMappings';
 import GuessingGameStack from './GuessingGameStack';
 import moment, { min } from 'moment';
+import FeedTutorial from './FeedTutorial';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -65,6 +66,7 @@ export default ReelayFeed = ({ navigation,
 
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
     const [refreshing, setRefreshing] = useState(false);
+    const showFeedTutorial = useSelector(state => state.showFeedTutorial);
 
     const [sortMethod, setSortMethod] = useState('mostRecent');
     const [selectedFilters, setSelectedFilters] = useState(initialFeedFilters);
@@ -79,6 +81,29 @@ export default ReelayFeed = ({ navigation,
 
     const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
 
+    const checkShouldShowFeedTutorial = async () => {
+        try {
+            if (showFeedTutorial) return;
+            const hasSeenTutorial = await AsyncStorage.getItem('lastFeedTutorialAt');
+            if (!hasSeenTutorial) {
+                dispatch({ type: 'setShowFeedTutorial', payload: true });
+            }
+        } catch (error) {
+            console.log(error);
+            return true;
+        }
+    }
+
+    const markFeedTutorialSeen = async () => {
+        try {
+            dispatch({ type: 'setShowFeedTutorial', payload: false });
+            await AsyncStorage.setItem('lastFeedTutorialAt', moment().toISOString());
+        } catch (error) {
+            console.log(error);
+            return true;
+        }
+    }
+
     const getDisplayGuessingGame = () => {
         // only show a guessing game on default discover 
         if (selectedFilters?.length > 0 || sortMethod !== 'mostRecent') {
@@ -89,7 +114,12 @@ export default ReelayFeed = ({ navigation,
         for (const index in displayGuessingGames) {
             const guessingGame = displayGuessingGames[index];
             guessingGame.feedIndex = index;
-            if (!guessingGame?.hasCompletedGame) {
+
+            const gamePublishedAt = moment(guessingGame?.updatedAt);
+            const hoursSincePosted = moment().diff(gamePublishedAt, 'hours');
+            const canPinGuessingGame = (hoursSincePosted < 36);
+
+            if (!guessingGame?.hasCompletedGame && canPinGuessingGame) {
                 return guessingGame;
             }
 
@@ -99,13 +129,15 @@ export default ReelayFeed = ({ navigation,
                 // as you've completed it
                 const lastGuess = guessingGame?.myGuesses[numGuesses - 1];
                 const secondsSinceLastGuess = now.diff(moment(lastGuess?.createdAt), 'seconds');                
-                if (secondsSinceLastGuess < 5) {
+                if (secondsSinceLastGuess < 5 && canPinGuessingGame) {
                     return guessingGame;
                 }
             }
         }
         return null;
     }
+
+    const displayGuessingGame = getDisplayGuessingGame();
 
     const getThreadsWithInterstitials = () => {
         // add empty topics
@@ -124,9 +156,8 @@ export default ReelayFeed = ({ navigation,
         }, { curWovenThreads: [] }).curWovenThreads;
 
         // add guessing game
-        const curGuessingGame = getDisplayGuessingGame();
-        if (curGuessingGame) {
-            return [curGuessingGame, ...wovenReelayThreads];
+        if (displayGuessingGame) {
+            return [displayGuessingGame, ...wovenReelayThreads];
         } else {
             return wovenReelayThreads;
         }
@@ -145,6 +176,7 @@ export default ReelayFeed = ({ navigation,
                 refreshFeed(false);
             }
             isFirstRender.current = false;
+            checkShouldShowFeedTutorial();
         } else {
             setFeedPosition(0);
             if (feedPager?.current) {
@@ -335,15 +367,24 @@ export default ReelayFeed = ({ navigation,
             />;
         }
 
+        const showFeedTutorialOnStack = (
+            showFeedTutorial && 
+            stack?.topicType !== 'guessingGame' &&
+            stackViewable
+        );
+
         return (
-            <ReelayStack 
-                feedSource={feedSource}
-                initialStackPos={initialStackPos}
-                navigation={navigation}
-                onRefresh={refreshFeed}
-                stack={stack} 
-                stackViewable={stackViewable}
-            />
+            <Fragment>
+                <ReelayStack 
+                    feedSource={feedSource}
+                    initialStackPos={initialStackPos}
+                    navigation={navigation}
+                    onRefresh={refreshFeed}
+                    stack={stack} 
+                    stackViewable={stackViewable}
+                />
+                { showFeedTutorialOnStack && <FeedTutorial onClose={markFeedTutorialSeen} /> }
+            </Fragment>
         );
     }
 

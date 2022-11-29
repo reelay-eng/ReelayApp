@@ -184,7 +184,6 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
             if (!keyword) return <View />;
     
             const renderSuggestionItem = (suggestedUser) => {
-                console.log('suggested user: ', suggestedUser);
                 const onPressUser = {
                     id: suggestedUser?.userSub,
                     name: suggestedUser?.username,
@@ -198,9 +197,13 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
                 );
             }    
     
-            const matchClubMember = (clubMember) => (clubMember?.username?.startsWith(keyword));
-            const suggestedUsers = club?.members?.filter(matchClubMember);
+            const cleanedKeyword = keyword.toLowerCase();
+            const matchClubMember = (clubMember) => {
+                const cleanedMemberName = clubMember?.username?.toLowerCase();
+                return cleanedMemberName.startsWith(cleanedKeyword);
+            }
 
+            const suggestedUsers = club?.members?.filter(matchClubMember);
             if (suggestedUsers?.length === 0) {
                 return (
                     <SuggestionView>

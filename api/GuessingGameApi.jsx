@@ -48,6 +48,7 @@ export const getGuessingGamesPublished = async ({
     reqUserSub, 
     clubID = null,
     creatorSub = null, 
+    page = 0,
 }) => {
     const headers = {
         ...getReelayAuthHeaders(authSession),
@@ -56,7 +57,7 @@ export const getGuessingGamesPublished = async ({
     if (creatorSub) headers.creatorsub = creatorSub;
     if (clubID) headers.clubid = clubID;
 
-    const routeGet = `${REELAY_API_BASE_URL}/guessingGame/published?visibility=${FEED_VISIBILITY}`;
+    const routeGet = `${REELAY_API_BASE_URL}/guessingGame/published?page=${page}&visibility=${FEED_VISIBILITY}`;
     const fetchedGames = await fetchResults(routeGet, {
         method: 'GET',
         headers,
