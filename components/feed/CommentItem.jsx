@@ -159,11 +159,6 @@ const CommentLikes = ({ comment, likedComments }) => {
         padding: 10px;
         padding-bottom: 0px;
     `;
-    const CommentIconText = styled(ReelayText.Caption)`
-        color: #86878b;
-        font-size: 12px;
-    `;
-
     const { reelayDBUser } = useContext(AuthContext);
     const [commentLiked, setCommentLiked] = useState(comment?.likes?.userLiked); // alter to make default state the database value for whether you've liked that comment yet or not.
     const [numCommentLikes, setNumCommentLikes] = useState(comment?.likes?.numberOfLikes ?? 0); // similarly alter to make default state the database value for the number of comment likes currently
@@ -204,7 +199,6 @@ const CommentLikes = ({ comment, likedComments }) => {
                 color={commentLiked ? "#FF4848" : "#FFFFFF"}
                 size={15}
             />
-            <CommentIconText>{(numCommentLikes>0) ? numCommentLikes : " "}</CommentIconText>
         </RightCommentIconContainer>
     );
 }
