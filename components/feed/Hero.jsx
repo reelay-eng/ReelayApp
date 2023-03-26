@@ -106,6 +106,7 @@ export default Hero = ({
     const commentsCount = useRef(modalReelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
     console.log('Hero is rendering: ', reelay.creator.username, reelay.title.display);
+    // console.log('Hero is rendering: ', reelay);
 
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>

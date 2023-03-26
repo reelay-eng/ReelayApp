@@ -42,6 +42,7 @@ import {
     getLatestAnnouncement,
     getHomeContent,
     getFeed,
+    getReelsByCreator,
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
 import { getWatchlistItems, getWatchlistRecs } from './api/WatchlistApi';
@@ -444,6 +445,7 @@ function App() {
         const [
             emptyGlobalTopics,
             myCreatorStacksLoaded,
+            myReelayStacksLoaded,
             myFollowersLoaded,
             myNotificationsLoaded,
             myWatchlistItemsLoaded,
@@ -453,6 +455,7 @@ function App() {
         ] = await Promise.all([
             getEmptyGlobalTopics({ authSession, page: 0, reqUserSub: userSub }),
             getStacksByCreator(userSub),
+            getReelsByCreator(userSub),
             getFollowers(userSub),
             getAllMyNotifications(userSub),
             getWatchlistItems(userSub),
@@ -464,6 +467,7 @@ function App() {
         console.log('loaded second set of profile data');
 
         dispatch({ type: 'setEmptyGlobalTopics', payload: emptyGlobalTopics });
+        dispatch({ type: 'setMyReelayStacks', payload: myReelayStacksLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });

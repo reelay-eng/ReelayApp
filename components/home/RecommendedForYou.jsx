@@ -20,6 +20,7 @@ const HeaderView = styled(View)`
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
+    margin-top: 4px;
 `
 const HeaderSubText = styled(ReelayText.Body2Emphasized)`
     color: white;
@@ -130,7 +131,7 @@ export default RecommendedForYou = ({ navigation }) => {
         <RecommendedTitlesView>
             <HeaderView>
                 <HeaderText>{headerText}</HeaderText>
-                <HeaderSubText>{headerSubtext}</HeaderSubText>
+                {/* <HeaderSubText>{headerSubtext}</HeaderSubText> */}
             </HeaderView>
             { displayStacks?.length > 0 && <TitlesRow />}
         </RecommendedTitlesView>

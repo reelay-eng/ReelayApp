@@ -117,6 +117,7 @@ const initialState = {
     isEditingProfile: false,
     followRequests: [],
     myCreatorStacks: [],
+    myReelayStacks:[],
     myFollowing: [],
     myFollowers: [],
     myNotifications: [],
@@ -322,7 +323,9 @@ const appReducer = ( state = initialState, action) => {
         case 'setIsEditingProfile':
             return { ...state, isEditingProfile: action.payload }    
         case 'setMyCreatorStacks':
-            return { ...state, myCreatorStacks: action.payload }
+            return { ...state, myCreatorStacks: action.payload }   
+        case 'setMyReelayStacks':
+            return { ...state, myReelayStacks: action.payload }
         case 'setMyFollowing':
             return { ...state, myFollowing: action.payload }
         case 'setMyFollowers':
@@ -447,6 +450,7 @@ export const mapStateToProps = (state) => ({
     // PROFILE
     isEditingProfile: state.isEditingProfile,
     myCreatorStacks: state.myCreatorStacks,
+    myReelayStacks: state.myReelayStacks,
     myFollowing: state.myFollowing,
     myFollowers: state.myFollowers,
     followRequests: state.followRequests,

@@ -16,12 +16,13 @@ import {
 	FeedTabNavigator, 
 	CreateReelayTabNavigator, 
 	ProfileTabNavigator, 
-	ClubsTabNavigator
+	ClubsTabNavigator,
+	DecisionTabNavigator
 } from './BottomTabs';
 
 import { CameraPlusIconSVG, ChatsTabIconSVG } from '../components/global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircleUser, faCompass, faHouse, faUsers, faVideo } from '@fortawesome/free-solid-svg-icons';
+import { faCircleUser, faCompass, faHouse, faUsers, faVideo,faUserCheck } from '@fortawesome/free-solid-svg-icons';
 import CreateTabDrawer from '../screens/authenticated/CreateTabDrawer';
  
 const BottomTab = createBottomTabNavigator();
@@ -154,12 +155,13 @@ export default AuthenticatedNavigator = () => {
 				}}
 			/>
 			<BottomTab.Screen
-				name="Chats"
-				component={ClubsTabNavigator}
+				// name="Chats"
+				name="Decide"
+				component={DecisionTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
-							<FontAwesomeIcon icon={faUsers} color={focused ? 'white' : '#D4D4D4'} size={30} />
+							<FontAwesomeIcon icon={faUserCheck} color={focused ? 'white' : '#D4D4D4'} size={30} />
 							{ focused && <IconFocusIndicator /> }
 						</IconFocusView>
 					),

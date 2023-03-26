@@ -142,7 +142,7 @@ export default SignUpScreen = ({ navigation, route }) => {
                 return;
             }
 
-            navigation.push('ChooseUsernameScreen', { 
+            navigation.push('ChooseUsernameScreenEmail', { 
                 method: 'cognito', email, password,
             });
         }

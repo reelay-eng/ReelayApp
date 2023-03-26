@@ -171,7 +171,7 @@ export default OnStreaming = ({ navigation, source = 'discover' }) => {
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <HeaderText>{'On streaming'}</HeaderText>
-                    <HeaderSubText>{'The latest from your streaming platforms'}</HeaderSubText>
+                    {/* <HeaderSubText>{'The latest from your streaming platforms'}</HeaderSubText> */}
                 </HeaderContainerLeft>
                 <EditButton />
             </HeaderContainer>

@@ -29,7 +29,8 @@ import { markNotificationReceived } from '../api/NotificationsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { uploadReelay } from '../api/UploadAPI';
-import { getTopics } from '../api/TopicsApi';
+import { getSingleTopic, getTopics } from '../api/TopicsApi';
+import { getReelay } from '../api/ReelayDBApi';
 
 const UUID_LENGTH = 36;
 
@@ -138,7 +139,7 @@ export default Navigation = () => {
         if (deeplinkURL) {
             const navigation = navigationRef?.current;
             const { path } = deeplinkURL;
-
+            console.log(deeplinkURL)
             logAmplitudeEventProd('openedAppFromDeeplink', {
                 username: reelayDBUser?.username,
                 deeplink: JSON.stringify(deeplinkURL),
@@ -147,6 +148,7 @@ export default Navigation = () => {
 
             if (path?.startsWith('reelay/')) {
                 const reelaySub = path.substr('reelay/'.length);
+                console.log(reelaySub)
                 if (reelaySub) {
                     navigation.navigate('SingleReelayScreen', { reelaySub });
                 }
@@ -168,6 +170,16 @@ export default Navigation = () => {
                 if (inviteCode) {
                     navigation.navigate('UserProfileFromLinkScreen', { inviteCode });
                 }
+            }else if (path?.startsWith('topic/')) {
+                console.log('topic deeplink found');
+                console.log(deeplinkURL);
+                
+                const inviteCode = path.substr('topic/'.length);
+                console.log("inviteCode",inviteCode)
+                if (inviteCode) {
+                    openTopicAtReelay(inviteCode)
+                    // navigation.navigate('UserProfileFromLinkScreen', { inviteCode });
+                }
             } else if (path?.length === UUID_LENGTH) {
                 // assume it's a reelay sub -- not entirely sure why it's cutting
                 // off 'reelay/' from the front of path, but that's what we're seeing
@@ -176,6 +188,25 @@ export default Navigation = () => {
             }
         }
     }, [deeplinkURL]);
+
+    const openTopicAtReelay = async (reelaySub) => {
+        const navigation = navigationRef?.current;
+
+        const singleReelay = await getReelay(reelaySub);
+        const findReelayInTopic = (nextReelay) => nextReelay?.sub === reelaySub;
+        const fetchedTopicWithReelays = await getSingleTopic({ 
+            authSession, 
+            reqUserSub: reelayDBUser?.sub,
+            topicID: reelaySub//singleReelay.topicID//reelaySub, 
+        });
+        
+        // if (!fetchedTopicWithReelays?.reelays?.length) return;
+        // let reelayIndex = fetchedTopicWithReelays.reelays.findIndex(findReelayInTopic);
+        navigation.navigate('SingleTopicScreen', {
+            // initReelayIndex: reelayIndex,
+            topic: fetchedTopicWithReelays,
+        });  
+    }
 
     // handling reelay uploads here, rather than on the upload screen or
     // entirely in the UploadAPI file, because we need access to redux state

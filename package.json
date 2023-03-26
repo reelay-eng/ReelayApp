@@ -42,7 +42,7 @@
     "amplify-cli": "^1.0.0",
     "aws-amplify": "^4.3.20",
     "aws-sdk": "^2.1200.0",
-    "eas-cli": "0.60.0",
+    "eas-cli": "^3.8.1",
     "expo": "^46.0.0",
     "expo-apple-authentication": "~4.3.0",
     "expo-application": "~4.2.2",
@@ -120,6 +120,7 @@
     "redux": "^4.1.0",
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.3.0",
+    "remove": "^0.1.5",
     "rn-bottom-drawer": "^1.4.3",
     "socket.io-client": "^4.5.2",
     "styled-components": "^5.3.0",
@@ -142,5 +143,5 @@
   "private": true,
   "name": "ReelayApp",
   "license": "LicenseRef-LICENSE",
-  "version": "1.08.04"
+  "version": "1.08.05"
 }

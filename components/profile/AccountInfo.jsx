@@ -124,20 +124,20 @@ const Logout = () => {
             dispatch({ type: 'setSignedIn', payload: false });
             if (authSession?.method === 'cognito') {
                 const signOutResult = await Auth.signOut();
-                console.log(signOutResult);
+                console.log("1",signOutResult);
             } else {
                 const signOutResult = await deregisterSocialAuthSession({
                     authSession,
                     reelayDBUserID,
                 });
-                console.log(signOutResult);
+                console.log("2",signOutResult);
             }
 
             await registerPushTokenForUser(reelayDBUserID, null); 
             dispatch({ type: 'clearAuthSession', payload: {} });
             setReelayDBUserID(null);
             // todo: deregister cognito user
-            console.log(signOutResult);
+            console.log("3",signOutResult);
         } catch (error) {
             console.log(error);
         }

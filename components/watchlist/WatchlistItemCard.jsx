@@ -76,7 +76,7 @@ const WatchlistCardView = styled(Pressable)`
     width: ${WATCHLIST_CARD_WIDTH}px;
 `
 
-const WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistItem }) => {
+const WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistItem,Redirect }) => {
     const matchWatchlistItem = item => item?.id === watchlistItem?.id;
     const getWatchlistItem = state => state.myWatchlistItems.find(matchWatchlistItem);
     const nextWatchlistItem = useSelector(getWatchlistItem);
@@ -84,6 +84,7 @@ const WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistI
     const advanceToTitleDetailScreen = () => navigation.push('TitleDetailScreen', { 
         titleObj: watchlistItem.title,
         fromWatchlist: true,
+        Redirect:Redirect
     });
 
     const [drawerVisible, setDrawerVisible] = useState(false);

@@ -144,7 +144,7 @@ const HomeComponent = ({ navigation }) => {
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
                 { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> }
-                <GuessingGames navigation={navigation} />
+                {/* <GuessingGames navigation={navigation} /> */}
                 <RecommendedForYou navigation={navigation} />
                 <PopularTitles navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />

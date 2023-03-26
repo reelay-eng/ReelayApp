@@ -104,7 +104,28 @@ export const getTopicsByCreator = async ({ creatorSub, reqUserSub, page = 0 }) =
     }
 
     topicWithReelays.reelays = await Promise.all(topicWithReelays.map(prepareTopicReelays));
+    // console.log("topicWithReelays",topicWithReelays)
+
     return await topicWithReelays;
+}
+
+export const editReelstoTopic = async ({
+    reqUserSub, 
+    reelays, 
+    topicID,
+}) => {
+    const routePatch = `${REELAY_API_BASE_URL}/topicreelay/addreelays`;
+    const patchBody = { topicId:topicID, reelays };
+
+    const resultPatch = await fetchResults(routePatch, {
+        method: 'PATCH',
+        headers: {
+            ...ReelayAPIHeaders,
+            requsersub: reqUserSub,
+        },
+        body: JSON.stringify(patchBody),
+    });
+    return resultPatch;
 }
 
 export const removeTopic = async ({ reqUserSub, topicID }) => {

@@ -116,6 +116,7 @@ export default SocialLoginBar = ({ navigation, setSigningIn }) => {
                     ]
                 });
                 const { email, fullName, user, identityToken, authorizationCode } = credentials;
+                console.log("credentials",credentials)
                 appleOrGoogleCascadingSignIn({ 
                     authSession: { 
                         accessToken: authorizationCode,

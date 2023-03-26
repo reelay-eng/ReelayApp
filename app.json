@@ -1,5 +1,11 @@
 {
     "expo": {
+        "extra": {
+            "eas": {
+              "projectId": "94fc6085-476f-49d9-85a8-4f0416bf9c59"
+            }
+          }
+        ,
         "name": "Reelay",
         "slug": "ReelayApp",
         "version": "1.08.04",

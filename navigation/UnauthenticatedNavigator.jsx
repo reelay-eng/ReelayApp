@@ -11,6 +11,7 @@ import SignedOutScreen from '../screens/unauthenticated/SignedOutScreen';
 import SignInScreen from '../screens/unauthenticated/SignInScreen';
 import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
 import SplashScreen from '../screens/unauthenticated/SplashScreen';
+import ChooseUsernameScreenEmail from '../screens/unauthenticated/ChooseUsernameScreenEmail';
 // import TutorialScreen from '../screens/unauthenticated/TutorialScreen';
 import { useSelector } from 'react-redux';
 
@@ -19,6 +20,7 @@ const AuthenticationStack = createStackNavigator();
 export default UnauthenticatedNavigator = () => {
     const isReturningUser = useSelector(state => state.isReturningUser)
     const initialRoute = 'SignedOutScreen';
+    // const initialRoute = 'SignUpScreen';
     return (
         <AuthenticationStack.Navigator
             initialRouteName={initialRoute}
@@ -27,6 +29,13 @@ export default UnauthenticatedNavigator = () => {
             <AuthenticationStack.Screen
                 name="ChooseUsernameScreen"
                 component={ChooseUsernameScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <AuthenticationStack.Screen
+                name="ChooseUsernameScreenEmail"
+                component={ChooseUsernameScreenEmail}
                 options={{
                     headerShown: false,
                 }}

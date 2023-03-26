@@ -296,9 +296,9 @@ export default GuessingGamePreview = ({ game, index, navigation, showAdmin = fal
 
     return (
         <GameElementView onPress={tapOnPoster}>
-            <GameElementHeaderView>
+            {/* <GameElementHeaderView>
                 <TimestampText>{timestamp}</TimestampText>
-            </GameElementHeaderView>
+            </GameElementHeaderView> */}
             <PosterSpacer />
             { isUnlocked && <RevealedPoster /> }
             { !isUnlocked && <UnrevealedPoster /> }

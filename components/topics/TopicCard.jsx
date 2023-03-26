@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Dimensions, Pressable, View } from 'react-native';
+import { Alert, Dimensions, Pressable, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 
@@ -12,7 +12,8 @@ import ReelayColors from '../../constants/ReelayColors';
 import TitlePoster from '../global/TitlePoster';
 import { TopicsCardIconSmallSVG, TopicsGiantIconSVG } from '../global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faVideo } from '@fortawesome/free-solid-svg-icons';
+import { faVideo,faShare } from '@fortawesome/free-solid-svg-icons';
+import ShareOutTopicButton from '../feed/ShareOutTopicButton';
 
 const { height, width } = Dimensions.get('window');
 const CARD_WIDTH_CAROUSEL = width - 48;
@@ -24,7 +25,7 @@ const getThumbnailWidth = (props) => (getTopicCardWidth(props) - 32) / 2;
 const getThumbnailHeight = (props) => (getThumbnailWidth(props) * 1.5) + (props?.horizontal ? 10 : 0);
 const getPosterWidth = (props) => (getThumbnailWidth(props) - 8) / 2;
 
-const BottomRowContainer = styled(TouchableOpacity)`
+const BottomRowContainer = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
@@ -130,7 +131,18 @@ const StartConvoButton = styled(TouchableOpacity)`
     justify-content: center;
     height: 52px;
     margin-bottom: 4px;
-    width: ${props => getContentRowWidth(props) - 32}px;
+    width: ${props => getContentRowWidth(props) - 82}px;
+`
+const ShareConvoButton = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 26px;
+    flex-direction: row;
+    justify-content: center;
+    height: 52px;
+    margin-bottom: 4px;
+    margin-left:10px;
+    width: ${props => getContentRowWidth(props) - 272}px;
 `
 const StartConvoText = styled(ReelayText.Overline)`
     color: white;
@@ -190,6 +202,7 @@ export default TopicCard = ({
     topic,
 }) => {
     const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubID, topic });
+    const shareTopic = () => Alert.alert("Sharing the link.");
     const creator = {
         sub: topic.creatorSub,
         username: topic.creatorName,
@@ -203,6 +216,10 @@ export default TopicCard = ({
                     <FontAwesomeIcon icon={faVideo} color='white' size={20} />
                     <StartConvoText>{'Start the conversation'}</StartConvoText>
                 </StartConvoButton>
+                {/* <ShareConvoButton horizontal={horizontal} onPress={shareTopic}>
+                    <FontAwesomeIcon icon={faShare} color='white' size={20} />
+                </ShareConvoButton> */}
+                <ShareOutTopicButton navigation={navigation} topic={topic} type={1} />
             </BottomRowContainerNoReelays>
         );
     }  
@@ -241,9 +258,12 @@ export default TopicCard = ({
                     displayCreators={getDisplayCreators()} 
                     reelayCount={topic.reelays.length} 
                 />
+                <View style={{flexDirection:"row",alignItems:"center"}}>
                 <PlayReelaysIconView>
                     <Icon type='ionicon' name='play-circle' color='white' size={30} />
                 </PlayReelaysIconView>
+                <ShareOutTopicButton navigation={navigation} topic={topic} size={20} type={3} />
+                </View>
             </BottomRowContainer>
         );
     }

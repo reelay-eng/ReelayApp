@@ -40,8 +40,8 @@ const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
     text-align: center;
 `
 const DogWithGlassesImage = styled(Image)`
-    height: 100px;
-    width: 100px;
+    height: 80px;
+    width: 80px;
 `
 const DogWithGlassesContainer = styled(View)`
     align-items: center;
@@ -142,6 +142,18 @@ const TopicAddFirstReelay = ({ navigation, setDrawerVisible, refreshTopics, topi
 		});
 	}
 
+    const advanceToUpdateReelaytoTopics = () => {
+		if (showMeSignupIfGuest()) return;
+        if (refreshTopics) refreshTopics();
+        setDrawerVisible(false);
+        navigation.navigate('ReelayListScreen', { topic, clubID: topic?.clubID });
+        
+		logAmplitudeEventProd('UpdateReelaytoTopic', {
+			username: reelayDBUser?.username,
+			source: 'updateTopic',
+		});
+	}
+
     return (
         <Fragment>
             <AddFirstReelayContainer>
@@ -161,6 +173,10 @@ const TopicAddFirstReelay = ({ navigation, setDrawerVisible, refreshTopics, topi
                     <CreateReelayButton onPress={advanceToCreateReelay}>
                         <Icon type='ionicon' name='add-circle-outline' color='white' size={20} />
                         <CreateReelayText>{'Create a Reelay'}</CreateReelayText>
+                    </CreateReelayButton>
+                    <CreateReelayButton onPress={advanceToUpdateReelaytoTopics}>
+                        <Icon type='ionicon' name='add-outline' color='white' size={20} />
+                        <CreateReelayText>{'Add Your Reelay'}</CreateReelayText>
                     </CreateReelayButton>
                     <KeepBrowsingButton onPress={goBack}>
                         <KeepBrowsingText>{'Not now'}</KeepBrowsingText>

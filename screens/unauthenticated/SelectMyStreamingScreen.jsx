@@ -135,6 +135,8 @@ export default SelectMyStreamingScreen = ({ navigation, route }) => {
         method, 
         password, 
         username,
+        firstName,
+        lastName
     } = route?.params;
 
     const bottomOffset = useSafeAreaInsets().bottom;
@@ -156,6 +158,8 @@ export default SelectMyStreamingScreen = ({ navigation, route }) => {
             password,
             selectedVenues: selectedVenues.current,
             username,
+            firstName,
+            lastName
         });
     }
 

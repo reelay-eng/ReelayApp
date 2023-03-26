@@ -194,7 +194,7 @@ export default GuessingGames = ({ navigation }) => {
 
         return (
             <StreakTrackerView>
-                { gamesThisWeek.map(game => <StreakGamePublished key={game?.id} game={game} /> )}
+                {/* { gamesThisWeek.map(game => <StreakGamePublished key={game?.id} game={game} /> )} */}
                 { lockedDayLetters.map((dayLetter, index) => <StreakGameUnpublished key={`${dayLetter}-${index}`} dayLetter={dayLetter} /> )}
             </StreakTrackerView>
         )
@@ -241,7 +241,7 @@ export default GuessingGames = ({ navigation }) => {
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}
                 />
-                <StreakTracker />
+                {/* <StreakTracker /> */}
             </CardPressable>
         );
     }

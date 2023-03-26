@@ -157,11 +157,16 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             console.log(status);
 
             if (status === 'granted') {
-                const selectedVideo = await ImagePicker.launchImageLibraryAsync({
+                let selectedVideo = await ImagePicker.launchImageLibraryAsync({
                     mediaTypes: ImagePicker.MediaTypeOptions.Videos,
                     allowsEditing: true,
+                    // allowsMultipleSelection:true,
+                    // selectionLimit: 10,
                     quality: 1,
                 });
+
+                // console.log("source",JSON.stringify(selectedVideo.selected))  
+
 
                 if (!selectedVideo || !selectedVideo.uri || selectedVideo.cancelled) return;
                 if (selectedVideo.duration > MAX_MEDIA_VIDEO_DURATION_MILLIS) {
@@ -170,7 +175,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     return;
                 }
 
-                const source = selectedVideo.uri; // note: on android, this uri is read-only        
+                const source = selectedVideo.uri; // note: on android, this uri is read-only   
+                // return   
                 pushToUploadScreen(source);
             } else {
                 showErrorToast('Sorry, we need camera roll permissions to make this work');

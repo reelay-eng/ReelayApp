@@ -83,6 +83,8 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
         password, 
         selectedVenues, 
         username,
+        firstName,
+        lastName
     } = route?.params;
 
     console.log('selected venues: ', selectedVenues);
@@ -125,6 +127,8 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
             email: email.toLowerCase(),
             username: username,
             sub: signUpResult?.userSub,
+            firstName:firstName,
+            lastName:lastName
         });
 
         navigation.push('ConfirmEmailScreen', { 

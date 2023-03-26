@@ -24,6 +24,7 @@ import PinAnnouncementScreen from '../screens/authenticated/PinAnnouncementScree
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ReelayCameraScreen from '../screens/authenticated/ReelayCameraScreen';
 import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
+import ReelayListScreen from '../screens/authenticated/ReelayListScreen';
 import ReportedChatMessagesScreen from '../screens/authenticated/ReportedChatMessagesScreen';
 import ReportedReelaysFeedScreen from '../screens/authenticated/ReportedReelaysFeedScreen';
 import ReportedTopicsFeedScreen from '../screens/authenticated/ReportedTopicsFeedScreen';
@@ -48,6 +49,8 @@ import UserFollowScreen from '../screens/authenticated/UserFollowScreen';
 import UserProfileFromLinkScreen from '../screens/authenticated/UserProfileFromLinkScreen';
 import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
 import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
+import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
+import ReferShareScreen from '../screens/authenticated/ReferShareScreen';
 
 export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
     const CommonStack = createStackNavigator();
@@ -84,6 +87,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
 			<CommonStack.Screen name='ReportedReelaysFeedScreen' component={ReportedReelaysFeedScreen} options={commonOptions} />
             <CommonStack.Screen name='ReportedTopicsFeedScreen' component={ReportedTopicsFeedScreen} options={commonOptions} />
             <CommonStack.Screen name='ReportIssueScreen' component={ReportIssueScreen} options={commonOptions} />
+            <CommonStack.Screen name='ReelayListScreen' component={ReelayListScreen} options={commonOptions} />
             <CommonStack.Screen name='SearchScreen' component={SearchScreen} options={commonOptions} />
             <CommonStack.Screen name='SeeAllTitleReactionsScreen' component={SeeAllTitleReactionsScreen} options={commonOptions} />
             <CommonStack.Screen name='SelectCorrectGuessScreen' component={SelectCorrectGuessScreen} options={commonOptions} />
@@ -103,6 +107,8 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen} options={commonOptions} />
             <CommonStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen} options={commonOptions} />
             <CommonStack.Screen name='WatchlistScreen' component={WatchlistScreen} options={commonOptions} />
+            <CommonStack.Screen name='MyClubsScreen' component={MyClubsScreen} options={commonOptions} />
+            <CommonStack.Screen name='ReferShareScreen' component={ReferShareScreen} options={commonOptions} />
         </CommonStack.Navigator>
     );
 }

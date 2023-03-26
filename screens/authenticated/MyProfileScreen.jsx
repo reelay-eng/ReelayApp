@@ -9,6 +9,7 @@ import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 import { 
     getFollowers,
     getFollowing,
+    getReelsByCreator,
     getStacksByCreator,
     getStreamingSubscriptions,
 } from '../../api/ReelayDBApi';
@@ -136,6 +137,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
             try {
                 const [
                     nextMyCreatorStacks,
+                    nextMyReelayStacks,
                     nextMyFollowers,
                     nextMyFollowing,
                     nextMyNotifications,
@@ -144,6 +146,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     nextMyStreamingSubscriptions
                 ] = await Promise.all([
                     getStacksByCreator(userSub),
+                    getReelsByCreator(userSub),
                     getFollowers(userSub),
                     getFollowing(userSub),
                     getAllMyNotifications(userSub),
@@ -151,11 +154,11 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     getWatchlistRecs({ authSession, reqUserSub: userSub, category: 'all' }),
                     getStreamingSubscriptions(userSub),
                 ]);
-                
                 nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
                 nextMyCreatorStacks.sort(sortStacks);
     
                 dispatch({ type: 'setMyCreatorStacks', payload: nextMyCreatorStacks });  
+                dispatch({ type: 'setMyReelayStacks', payload: nextMyReelayStacks });  
                 dispatch({ type: 'setMyFollowers', payload: nextMyFollowers });  
 
                 dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
@@ -192,7 +195,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const SeeMyWatchlistButton = () => {
         const myWatchlistItems = useSelector(state => state.myWatchlistItems);
         const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
-        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems, myWatchlistRecs });
+        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems, myWatchlistRecs, Redirect:1});
         return (
             <MyWatchlistPressable onPress={advanceToWatchlistScreen}>
                 <MyWatchlistText>{'See my watchlist'}</MyWatchlistText>
