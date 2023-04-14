@@ -244,7 +244,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			<TitleDetailHeader navigation={navigation} titleObj={titleObj} />
 			<TitleReactions navigation={navigation} titleObj={titleObj} />
 			<CreateReelayButton />
-			<ShareMovieButton />
+			{/* <ShareMovieButton /> */}
 			{/* <WatchTrailerButton /> */}
 			<MovieInformation titleObj={titleObj} />
 			<Spacer height={20} />

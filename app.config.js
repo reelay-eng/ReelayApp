@@ -12,9 +12,9 @@ export default ({ config }) => {
         //     process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
 
         // should be unreachable but just in case
-        return 'http://54.188.65.34';
+        // return 'http://54.188.65.34';
         // return 'http://localhost:3001';
-        // return 'https://api-prod.reelay.app';
+        return 'https://api-prod.reelay.app';
     }
 
     const getReelayChatBaseURL = () => {
@@ -26,8 +26,8 @@ export default ({ config }) => {
         //     process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
 
         // should be unreachable but just in case
-        return 'https://api-dev.reelay.app';
-        // return 'https://api-chat.reelay.app';
+        // return 'https://api-dev.reelay.app';
+        return 'https://api-chat.reelay.app';
     }
 
     const getVisibility = () => {
@@ -60,8 +60,8 @@ export default ({ config }) => {
 
         reelayApiBaseUrl: getReelayAPIBaseURL(),
         reelayChatBaseUrl: getReelayChatBaseURL(),
-        // reelayWebBaseUrl: 'https://on.reelay.app',
-        reelayWebBaseUrl: 'http://35.93.27.255',
+        reelayWebBaseUrl: 'https://on.reelay.app',
+        // reelayWebBaseUrl: 'http://35.93.27.255',
         reelayWebInviteUrl: 'https://invite.reelay.app/club/',
         reelayApiKey: 'ac739ac2-5877-47de-a861-59bc776bdd27',
         reelayS3UploadBucket: 'reelay-content211002-dev',

@@ -208,6 +208,7 @@ export default TopicsFeed = ({
                     ref={feedPager}
                     renderItem={renderStack}
                     refreshControl={<RefreshControl 
+                        tintColor={"#fff"} 
                         refreshing={refreshing}
                         onRefresh={onRefresh}
                     />}

@@ -11,7 +11,7 @@ import SignedOutScreen from '../screens/unauthenticated/SignedOutScreen';
 import SignInScreen from '../screens/unauthenticated/SignInScreen';
 import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
 import SplashScreen from '../screens/unauthenticated/SplashScreen';
-import ChooseUsernameScreenEmail from '../screens/unauthenticated/ChooseUsernameScreenEmail';
+import ChooseUsernameScreenEmail from '../screens/unauthenticated/ChooseUsernameScreenold';
 // import TutorialScreen from '../screens/unauthenticated/TutorialScreen';
 import { useSelector } from 'react-redux';
 

@@ -25,6 +25,7 @@ const StartConvoPressable = styled(TouchableOpacity)`
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 26px;
     height: 52px;
+    margin-top:10px;
     flex-direction: row;
     justify-content: center;
     width: 80%;
@@ -88,7 +89,7 @@ export default EmptyTopic = ({ navigation, topic }) => {
         return (
             <StartConvoPressable onPress={advanceToCreateReelay}>
                 <FontAwesomeIcon icon={faVideo} color='white' size={20} />
-                <StartConvoText>{'Start the conversation'}</StartConvoText>
+                <StartConvoText>{'Create a Reelay'}</StartConvoText>
             </StartConvoPressable>
         );
     }
@@ -135,9 +136,9 @@ export default EmptyTopic = ({ navigation, topic }) => {
             <TopicCenterView>
                 <TopicIcon />
                 <TopicTitle />
-                <StartConvoButton />
-                <AddReelayButton />
                 <ShareTopicButton />
+                <AddReelayButton />
+                <StartConvoButton />
             </TopicCenterView>
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
             <ReelayInfo navigation={navigation} reelay={topic} />

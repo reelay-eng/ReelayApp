@@ -38,7 +38,7 @@ export const addToMyWatchlist = async ({ reqUserSub, reelaySub, creatorName, tmd
         tmdbTitleID, 
         titleType, 
     };
-
+    console.log("addToMyWatchlist",routePost,postBody)
     try {
         const dbResult = await fetchResults(routePost, {
             method: 'POST',

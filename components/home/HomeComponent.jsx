@@ -129,7 +129,7 @@ const HomeComponent = ({ navigation }) => {
     }
 
     const [refreshing, setRefreshing] = useState(false);
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const refreshControl = <RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />;
 
     return (
         <HomeContainer selectedTab={selectedTab}>
@@ -148,7 +148,7 @@ const HomeComponent = ({ navigation }) => {
                 <RecommendedForYou navigation={navigation} />
                 <PopularTitles navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
-                <TopicsCarousel navigation={navigation} source='discover' /> 
+                {/* <TopicsCarousel navigation={navigation} source='discover' />  */}
                 <OnStreaming navigation={navigation} source='discover' />
                 <DiscoverSearch navigation={navigation} />
                 <Spacer />

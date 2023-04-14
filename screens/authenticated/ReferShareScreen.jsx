@@ -11,7 +11,7 @@ import UserSearchResults from "../../components/search/UserSearchResults";
 import { ToggleSelector } from '../../components/global/Buttons';
 import ClubSearchResults from "../../components/search/ClubSearchResults";
 import SuggestedTitlesGrid from "../../components/search/SuggestedTitlesGrid";
-import InstaStoryBackground from '../../assets/images/shareOut/insta-stories-game-background.png';
+import InstaStoryBackground from '../../assets/icons/reelay-icon-with-dog-black.png';
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -82,7 +82,7 @@ const MyWatchlistPressable = styled(TouchableOpacity)`
 `
 const ReferText = styled(Text)`
 	color: white;
-	font-size: 64px;
+	font-size: 48px;
     font-family:Outfit-Bold;
 	font-style: normal;
 	text-align: center;
@@ -94,6 +94,7 @@ font-size: 24px;
 font-family:Outfit-Bold;
 font-style: normal;
 text-align: center;
+align-self:center;
 margin-right:2px
 `
 
@@ -101,6 +102,7 @@ const RefeNameView = styled(TouchableOpacity)`
 flex-direction:row;
 align-items:center;
 margin-bottom:10px;
+justify-content:center;
 
 `
 
@@ -148,15 +150,15 @@ const SearchBarWithResults = ({ navigation }) => {
 
     const TopBar = () => {
         const copyLink = () => {
-            Clipboard.setStringAsync("amansuri").then(onfulfilled => {
-                showMessageToast('refer name copied to clipboard');
+            Clipboard.setStringAsync(reelayDBUser.referralcode).then(onfulfilled => {
+                showMessageToast('referral code copied to clipboard');
             });
         }
 
         const shareGame = async () => {
             const title = `Reelay referral`;
             const message = 
-            `Use referral code CBX1WJW & to signup.`;
+            `Hey there! I'm using Reelay to discover movies and decide which one is right for tonight. Join me by clicking here; https://apps.apple.com/us/app/reelay-saving-movie-night/id1578117492 and don't forget to enter the referral code "${reelayDBUser.referralcode}"`
             const content = { title, message };
             const options = {};
             const sharedAction = await Share.share(content, options);
@@ -164,12 +166,17 @@ const SearchBarWithResults = ({ navigation }) => {
 
         return (
             <MiddleView>
-                <ReferText>Get Your Friends on Reelay</ReferText>
+
+                    <Image
+                    style={{height:150,width:150,marginTop:-100}}
+                    source={require('../../assets/icons/reelay-icon-with-dog-black.png')}
+                    />
+                <ReferText>Reelay is better with Friends</ReferText>
                 <MyReferShareView>
                     {/* <ReferName>Referral Code</ReferName> */}
                     <RefeNameView onPress={copyLink}>
-                    <ReferName>amansuri</ReferName>
-                        <Icon type='ionicon' name='copy' size={20} color={'white'} />
+                    <ReferName>{reelayDBUser.referralcode}</ReferName>
+                        <Icon type='ionicon' name='copy' size={20} style={{alignSelf:"center",}} color={'white'} />
                     </RefeNameView>
                 <MyWatchlistPressable onPress={shareGame}>
                     <MyWatchlistText>{'Share My Code'}</MyWatchlistText>
@@ -182,15 +189,15 @@ const SearchBarWithResults = ({ navigation }) => {
 
     return (
         <React.Fragment>
-            <StoryBackplateImage 
+            {/* <StoryBackplateImage 
                     // onLoad={onImageLoad}
                     height={'100%'} 
                     source={InstaStoryBackground} 
                     width={'100%'}
-                >
+                > */}
             <TopBar/>
 
-                </StoryBackplateImage>
+                {/* </StoryBackplateImage> */}
 
             { loading && <ActivityIndicator /> }
         </React.Fragment>

@@ -12,7 +12,7 @@ import { KeyboardHidingBlackContainer } from "./SignInScreen";
 import constraints from '../../components/utils/EmailValidationConstraints';
 import { Button } from '../../components/global/Buttons';
 import SocialLoginBar from '../../components/auth/SocialLoginBar';
-import { registerUser } from '../../api/ReelayDBApi';
+import { getUserByEmail, registerUser } from '../../api/ReelayDBApi';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const AuthInput = styled(Input)`
@@ -113,6 +113,7 @@ export default SignUpScreen = ({ navigation, route }) => {
 
     const SignUpInputs = () => {
         const [email, setEmail] = useState("");
+        const [Checkemail, setCheckEmail] = useState(false);
         const emailInvalid = validate({ emailAddress: email }, constraints);
         const showEmailError = email.length > 0 && !!emailInvalid;
         const [emailFieldActive, setEmailFieldActive] = useState(false);
@@ -135,16 +136,27 @@ export default SignUpScreen = ({ navigation, route }) => {
 
         const createAccountDisabled = !(passwordsMatch && passwordLongEnough && !emailInvalid);
 
-        const advanceToCreateUsername = () => {
+        const advanceToCreateUsername = async() => {
             if (createAccountDisabled) {
                 console.log('create account disabled');
                 handleFailedAccountCreation();
                 return;
             }
-
-            navigation.push('ChooseUsernameScreenEmail', { 
-                method: 'cognito', email, password,
-            });
+            setCheckEmail(true)
+            const partialMatchingEmail = await getUserByEmail(email);
+            if (partialMatchingEmail?.error) {
+                if(partialMatchingEmail?.error == "User not found"){
+                    navigation.push('ChooseUsernameScreen', { 
+                        method: 'cognito', email, password,
+                    });
+                    setCheckEmail(false)
+                }
+            }else{
+                setCheckEmail(false)
+                showErrorToast('Email Address is already taken. Please try with different email address!');
+                return false;
+            
+            }
         }
 
         const handleFailedAccountCreation = async () => {
@@ -155,6 +167,8 @@ export default SignUpScreen = ({ navigation, route }) => {
 			} else if (!passwordsMatch) {
 				showErrorToast("Passwords do not match");
 			}  
+
+          
         }
 
         const hideShowPassword = async () => {
@@ -243,7 +257,7 @@ export default SignUpScreen = ({ navigation, route }) => {
                     /> */}
 					<SignUpButtonContainer>
 						<Button
-							text="Continue (1/3)"
+							text={Checkemail ? <ActivityIndicator color={"#fff"}/>:"Continue (1/3)"}
 							onPress={advanceToCreateUsername}
 							backgroundColor={ReelayColors.reelayBlue}
 							fontColor="white"

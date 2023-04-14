@@ -5,15 +5,17 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import { HeaderWithBackButton } from '../../components/global/Headers';
+import { Icon, Input } from 'react-native-elements';
 
 import { Auth } from 'aws-amplify';
 import { checkUsername } from '../../components/utils/ValidUsernameCheck';
-import { registerUser, searchUsers } from '../../api/ReelayDBApi';
+import { getUserByReferral, registerUser, searchUsers } from '../../api/ReelayDBApi';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { registerSocialAuthAccount, saveAndRegisterSocialAuthSession } from '../../api/ReelayUserApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { showErrorToast } from '../../components/utils/toasts';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { KeyboardHidingBlackContainer } from './SignInScreen';
 
 const { height, width } = Dimensions.get('window');
 
@@ -22,6 +24,7 @@ const ContinuePressable = styled(TouchableOpacity)`
     background-color: white;
     border-radius: 24px;
     height: 48px;
+    margin;bottom:10px;
     justify-content: center;
     width: ${width - 16}px;
 `
@@ -56,37 +59,67 @@ const UsernameTextInput = styled(TextInput)`
     line-height: 36px;
     padding: 24px;
 `
-const ProgressDot = styled(View)`
-    background-color: ${props => props.completed ? ReelayColors.reelayBlue : 'gray'};
-    border-radius: 4px;
-    height: 8px;
-    margin: 4px;
-    width: 8px;
-`
-const ProgressDotsView = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: center;
-    width: 100%;
-`
-const ScreenView = styled(View)`
-    background-color: black;
-    height: 100%;
-    width: 100%;
-`
-const Spacer = styled(View)`
-    height: ${props => props.height}px;
+const AuthInput = styled(Input)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-left: 8px;
 `
 
-const ProgressDots = () => {
-    return (
-        <ProgressDotsView>
-            <ProgressDot completed={true} />
-            <ProgressDot completed={false} />
-            <ProgressDot completed={false} />
-        </ProgressDotsView>
-    );
+const AuthInputContainerStyle = (active) => {
+    return {
+        marginBottom: -5,
+        width: "100%",
+        opacity: active ? 1 : 0.7,
+    }
+};
+const AuthInputWarningIconStyle = {
+    color: ReelayColors.reelayRed,
+    name: "warning",
+    type: "ionicon",
+};
+const AuthInputFirstNameIconStyle = {
+    color: "white",
+    name: "person-outline",
+    type: "ionicon",
+};
+const AuthInputUserIconStyle = {
+    color: "white",
+    name: "person-circle-outline",
+    type: "ionicon",
+};
+const AuthInputReferIconStyle = {
+    color: "white",
+    name: "person-add-outline",
+    type: "ionicon",
+};
+const ErrorMessageStyle = {
+    fontFamily: 'Outfit',
+    fontSize: 16,
+    fontWeight: 400,
+    color: ReelayColors.reelayBlue,
+    paddingLeft: 32,
+    paddingRight: 32,
+    paddingBottom: 10,
 }
+
+const InputContainer = styled(View)`
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+`
+const AlignmentContainer = styled(View)`
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+`
+const Spacer = styled(View)`
+    height:20%;
+`
 
 export default ChooseUsernameScreen = ({ navigation, route }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
@@ -95,6 +128,19 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
     const { authSession, method, email, fullName, googleUserID, appleUserID, password } = route?.params;
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const { setReelayDBUserID } = useContext(AuthContext);
+    const [firstName, setFirstName] = useState(fullName ? fullName.givenName : '');
+    const [firstnameFieldActive, setFirstNameFieldActive] = useState(false);
+    const showFirstNameError = firstName.length < 0;
+
+    const [lastName, setLastName] = useState(fullName ? fullName.familyName : '');
+    const [lastnameFieldActive, setLastNameFieldActive] = useState(false);
+    const showLasttNameError = lastName.length < 0;
+
+    const [userName, setUserName] = useState('');
+    const [referralCode, setReferralCode] = useState('');
+    const [usernameFieldActive, setUserNameFieldActive] = useState(false);
+    const [referralFieldActive, setReferralFieldActive] = useState(false);
+    const showUserNameError = userName.length < 0;
 
     const inputUsernameRef = useRef('');
 
@@ -105,35 +151,56 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
             setIsCheckingUsername(false);
             return;
         }
-        setIsCheckingUsername(false);
-
-        navigation.push('SelectMyStreamingScreen', {
-            appleUserID,
-            authSession,
-            email,
-            fullName,
-            googleUserID,
-            method,
-            password,
-            username: inputUsernameRef.current,
-        });
+        if(referralCode !== ""){
+            const matchingReferral = await getUserByReferral(referralCode);
+            if (matchingReferral?.error) {
+                if(matchingReferral?.error == "Referralcode not found"){
+                    setIsCheckingUsername(false);
+                    showErrorToast('Ruh roh! Referral code you entered is incorrect');
+                    return false;
+                }
+            }
+        }
+                setIsCheckingUsername(false);
+                navigation.push('SelectMyStreamingScreen', {
+                    appleUserID,
+                    authSession,
+                    email,
+                    fullName,
+                    googleUserID,
+                    method,
+                    password,
+                    // username: inputUsernameRef.current,
+                    username: userName,
+                    firstName,
+                    lastName,
+                    referralCode
+                });
     }
 
     const isUsernameValid = async () => {
-        const usernameToCheck = inputUsernameRef.current;
-        const usernameHasValidForm = checkUsername(usernameToCheck);
+        // const usernameToCheck = inputUsernameRef.current;
+        if (firstName == "") {
+            showErrorToast('Ruh roh! FirstName has an invalid format. It should not be blank');
+            return false;
+        }
+        if (lastName == "") {
+            showErrorToast('Ruh roh! LastName has an invalid format. It should not be blank');
+            return false;
+        }
+        const usernameHasValidForm = checkUsername(userName);
         if (!usernameHasValidForm) {
             showErrorToast('Ruh roh! Username has an invalid format. See instructions below');
             return false;
         }
-        const partialMatchingUsers = await searchUsers(usernameToCheck);
+        const partialMatchingUsers = await searchUsers(userName);
         if (partialMatchingUsers?.error) {
             return false;
         }
 
         const usernamesMatch = (userObj) => {
             const matchUsernameUpper = userObj.username.toUpperCase();
-            const checkUsernameUpper = usernameToCheck.toUpperCase();
+            const checkUsernameUpper = userName.toUpperCase();
             return (checkUsernameUpper === matchUsernameUpper);
         }
         const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
@@ -145,55 +212,83 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
         }
     }
 
-    const UsernameInput = () => {
-        const [inputUsername, setInputUsername] = useState(inputUsernameRef.current);
-        const inputFieldRef = useRef(null);
-
-        const changeInputUsername = async (nextInputUsername) => {
-            inputUsernameRef.current = nextInputUsername;
-            setInputUsername(nextInputUsername);
-        }
-
-        useEffect(() => {
-            if (inputFieldRef?.current && inputUsername === '') {
-                inputFieldRef.current.focus();
-            }
-        }, []);
-
-        return (
-            <InputView>
-                <UsernameTextInput
-                    autoComplete='none'
-                    autoCapitalize="none"
-                    onChangeText={changeInputUsername}
-                    placeholder={"Enter username"}
-                    placeholderTextColor={'#9D9D9D'}
-                    ref={inputFieldRef}
-                    textContentType='username'
-                    value={inputUsername}
-                />
-            </InputView>
-        );
-    }
 
     return (
-        <KeyboardDismisser onPress={Keyboard.dismiss}>
-            <ScreenView>
-                <Spacer height={topOffset} />
+        <KeyboardHidingBlackContainer onPress={Keyboard.dismiss}>
                 <HeaderWithBackButton navigation={navigation} text={'sign up'} />
-                <Spacer height={24} />
-                <ProgressDots />
-                <Spacer height={144} />
-                <UsernameInput />
-                
-                <ContinueWrapper behavior='padding' bottomOffset={bottomOffset}>
+                <Spacer />
+                <KeyboardAvoidingView behavior='padding' style={{flex: 1 }} bottomOffset={bottomOffset}>
+                <AlignmentContainer>
+				<InputContainer>
+                <AuthInput
+						autoComplete="firstname"
+						containerStyle={AuthInputContainerStyle(firstnameFieldActive || showFirstNameError)}
+						onFocus={() => setFirstNameFieldActive(true)}
+						onBlur={() => setFirstNameFieldActive(false)}
+						placeholder={"First name"}
+						onChangeText={setFirstName}
+						leftIcon={AuthInputFirstNameIconStyle}
+						rightIcon={showFirstNameError ? AuthInputWarningIconStyle : null}
+                        textContentType='firstname'
+						value={firstName}
+					/>
+                    <AuthInput
+						autoComplete="lastname"
+						containerStyle={AuthInputContainerStyle(lastnameFieldActive || showLasttNameError)}
+						onFocus={() => setLastNameFieldActive(true)}
+						onBlur={() => setLastNameFieldActive(false)}
+						placeholder={"Last name"}
+						onChangeText={setLastName}
+						leftIcon={AuthInputFirstNameIconStyle}
+						rightIcon={showLasttNameError ? AuthInputWarningIconStyle : null}
+                        textContentType='lastname'
+						value={lastName}
+					/>
+                    <AuthInput
+						autoComplete="username"
+						containerStyle={AuthInputContainerStyle(usernameFieldActive || showUserNameError)}
+						onFocus={() => setUserNameFieldActive(true)}
+						onBlur={() => setUserNameFieldActive(false)}
+						placeholder={"User name"}
+						onChangeText={setUserName}
+						leftIcon={AuthInputUserIconStyle}
+						rightIcon={showUserNameError ? AuthInputWarningIconStyle : null}
+                        textContentType='username'
+						value={userName}
+					/>
+                    <AuthInput
+						autoComplete="referralcode"
+						containerStyle={AuthInputContainerStyle(referralFieldActive)}
+						onFocus={() => setReferralFieldActive(true)}
+						onBlur={() => setReferralFieldActive(false)}
+						placeholder={"Referral Code"}
+						onChangeText={setReferralCode}
+						leftIcon={AuthInputReferIconStyle}
+						rightIcon={showUserNameError ? AuthInputWarningIconStyle : null}
+                        textContentType='referralcode'
+						value={referralCode}
+					/>
+                     {/* <AuthInput
+						autoComplete="username"
+						containerStyle={AuthInputContainerStyle(usernameFieldActive || showUserNameError)}
+						onFocus={() => setUserNameFieldActive(true)}
+						onBlur={() => setUserNameFieldActive(false)}
+						placeholder={"Referral Code"}
+						onChangeText={setUserName}
+						leftIcon={AuthInputUserIconStyle}
+						rightIcon={showUserNameError ? AuthInputWarningIconStyle : null}
+                        textContentType='username'
+						value={userName}
+					/> */}
+                    </InputContainer>
+
                     <ContinuePressable onPress={continueSignUp} disabled={isCheckingUsername}>
                         { !isCheckingUsername && <ContinueText>{'Continue'}</ContinueText> }
                         { isCheckingUsername && <ActivityIndicator /> }
                     </ContinuePressable>
-                    <View style={{ height: 24 }} />
-                </ContinueWrapper>
-            </ScreenView>
-        </KeyboardDismisser>
+                    </AlignmentContainer>
+                </KeyboardAvoidingView>
+
+        </KeyboardHidingBlackContainer>
     );
 }

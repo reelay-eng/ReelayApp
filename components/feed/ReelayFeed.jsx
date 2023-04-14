@@ -355,17 +355,17 @@ export default ReelayFeed = ({ navigation,
             return <EmptyTopic navigation={navigation} topic={stack} />
         }
 
-        if (stack?.topicType === 'guessingGame') {
-            const game = stack;
-            return <GuessingGameStack
-                initialStackPos={0}
-                feedPosition={game?.feedIndex}
-                isPreview={false}
-                navigation={navigation}
-                onRefresh={() => {}}
-                stackViewable={stackViewable}
-            />;
-        }
+        // if (stack?.topicType === 'guessingGame') {
+        //     const game = stack;
+        //     return <GuessingGameStack
+        //         initialStackPos={0}
+        //         feedPosition={game?.feedIndex}
+        //         isPreview={false}
+        //         navigation={navigation}
+        //         onRefresh={() => {}}
+        //         stackViewable={stackViewable}
+        //     />;
+        // }
 
         const showFeedTutorialOnStack = (
             showFeedTutorial && 

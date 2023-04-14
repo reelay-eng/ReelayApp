@@ -43,6 +43,7 @@ import {
     getHomeContent,
     getFeed,
     getReelsByCreator,
+    updateLoginUser,
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
 import { getWatchlistItems, getWatchlistRecs } from './api/WatchlistApi';
@@ -370,12 +371,14 @@ function App() {
             latestAnnouncement,
             myDismissalHistory,
             myHomeContent,
-            reelayDBUserLoaded
+            reelayDBUserLoaded,
+            updateLogin,
         ] = await Promise.all([
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getDismissalHistory(),
             getHomeContent({ authSession, reqUserSub }),
             getRegisteredUser(userSub),
+            updateLoginUser(userSub),
         ]);
 
         const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];

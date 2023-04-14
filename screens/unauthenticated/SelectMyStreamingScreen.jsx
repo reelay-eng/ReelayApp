@@ -1,4 +1,4 @@
-import React, { memo, Fragment, useRef, useState } from 'react';
+import React, { memo, Fragment, useRef, useState, useEffect } from 'react';
 import { Dimensions, Image, KeyboardAvoidingView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
@@ -136,7 +136,8 @@ export default SelectMyStreamingScreen = ({ navigation, route }) => {
         password, 
         username,
         firstName,
-        lastName
+        lastName,
+        referralCode
     } = route?.params;
 
     const bottomOffset = useSafeAreaInsets().bottom;
@@ -146,7 +147,7 @@ export default SelectMyStreamingScreen = ({ navigation, route }) => {
     const streamingVenues = getStreamingVenues(true);
     const streamingSorter = (option0, option1) => (option1.venue > option0.venue) ? -1 : 1
     streamingVenues.sort(streamingSorter);
-
+    
     const continueSignUp = async () => {
         navigation.push('OnboardHouseRulesScreen', {
             appleUserID,
@@ -159,7 +160,8 @@ export default SelectMyStreamingScreen = ({ navigation, route }) => {
             selectedVenues: selectedVenues.current,
             username,
             firstName,
-            lastName
+            lastName,
+            referralCode
         });
     }
 

@@ -212,7 +212,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     return (
 		<ReelaylistScreenContainer topOffset={topOffset}>
 			<TopBar/>
-                {myReelayStacks ? 
+                {myReelayStacks && myReelayStacks.length !== 0 ? 
                 <View style={{marginTop:topOffset+60}}>
                     <FlatList
                         data={myReelayStacks}
@@ -230,6 +230,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
                 <View style={{marginTop:topOffset+60,width:"100%",flex:1,justifyContent:"center",alignItems:"center"}}>
                     <AddReelayButton/>
                 </View>}
+                {/* <Text style={{color:"#fff"}}>{myReelayStacks.length}</Text> */}
             </ReelaylistScreenContainer>
 	);
 };

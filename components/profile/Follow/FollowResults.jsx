@@ -19,7 +19,7 @@ const FollowResults = ({
     refreshing, 
     searchResults
 }) => {
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const refreshControl = <RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />;
     return (
         <View>
             {searchResults.length >= 1 && (

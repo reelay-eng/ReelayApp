@@ -84,7 +84,8 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
         selectedVenues, 
         username,
         firstName,
-        lastName
+        lastName,
+        referralCode
     } = route?.params;
 
     console.log('selected venues: ', selectedVenues);
@@ -117,6 +118,7 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
     }
 
     const completeSignUpCognito = async () => {
+        
         const signUpResult = await Auth.signUp({
             username: username,
             password: password,
@@ -128,7 +130,8 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
             username: username,
             sub: signUpResult?.userSub,
             firstName:firstName,
-            lastName:lastName
+            lastName:lastName,
+            referredby:referralCode
         });
 
         navigation.push('ConfirmEmailScreen', { 
@@ -148,7 +151,8 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
             method, 
         });    
         const { reelayDBUserID } = authAccountObj;
-        const completeSignUpResult = await registerUser({ email, username, sub: reelayDBUserID });
+        const completeSignUpResult = await registerUser({ email, username, sub: reelayDBUserID,
+            firstName:firstName, lastName:lastName, referredby:referralCode });
         console.log('complete signup result: ', completeSignUpResult);
 
         await registerStreamingServices(reelayDBUserID);

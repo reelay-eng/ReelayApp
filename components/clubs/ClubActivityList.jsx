@@ -195,7 +195,7 @@ export default ClubActivityList = ({
         return (titleOrTopic.activityType === 'topic' || titleOrTopic?.reelays?.length > 0);
     }
     const feedTitlesAndTopics = clubActivities.filter(activityCanRenderOnFeed);
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const refreshControl = <RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />;
 
     const onEndReached = () => {
         const nextMaxDisplayIndex = (maxDisplayPage + 2) * ACTIVITY_PAGE_SIZE;

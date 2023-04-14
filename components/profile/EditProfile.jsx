@@ -12,7 +12,7 @@ import { manipulateAsync } from "expo-image-manipulator";
 import { Buffer } from "buffer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
-import { updateProfilePic, updateUserBio, updateUserFirstName, updateUserLastName, updateUserWebsite } from "../../api/ReelayDBApi";
+import { getRegisteredUser, updateProfilePic, updateUserBio, updateUserFirstName, updateUserLastName, updateUserWebsite } from "../../api/ReelayDBApi";
 import { AuthContext } from "../../context/AuthContext";
 
 import styled from "styled-components/native";
@@ -138,6 +138,7 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 		const successfulySaved = await saveInfo();
 		if (successfulySaved) {
 			dispatch({ type: 'setIsEditingProfile', payload: false });
+
 		} else{
 			showErrorToast("Info did not save successfully! Try again.")
 		}
@@ -290,8 +291,9 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ON_UPLOAD_MESSAGE = 'Uploaded! It can take up to 24hrs for others to see the new pic';
 
 const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
-	const { reelayDBUser } = useContext(AuthContext);
+	const { reelayDBUser, setReelayDBUser } = useContext(AuthContext);
 	const s3Client = useSelector(state => state.s3Client);
+	const dispatch = useDispatch();
 
 	const takePhoto = async () => {
 		const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
@@ -342,6 +344,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 				await cacheProfilePic(reelayDBUser?.sub);
 				setIsUploading(false);
 				showMessageToast(ON_UPLOAD_MESSAGE);
+				await Next();
 			}
 		} catch (e) {
 			console.log("Upload Profile Picture Error: ", e);
@@ -354,6 +357,16 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 			alert("Profile photo upload failed. \nPlease try again.");
 		}
 	};
+
+	const Next = async() =>{
+		dispatch({ type: 'setIsEditingProfile', payload: false });
+
+		dispatch({ type: 'setCurrentAppLoadStage', payload: 2 });
+		const data = await getRegisteredUser(reelayDBUser?.sub);
+		setReelayDBUser(data)
+		console.log(reelayDBUser?.profilePictureURI)
+		dispatch({ type: 'setCurrentAppLoadStage', payload: 8 });
+	}
 
 	const resizeImage = async (photoURI) => {
 		const photoHeight = 256;

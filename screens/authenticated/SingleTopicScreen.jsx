@@ -40,6 +40,7 @@ export default SingleTopicScreen = ({ navigation, route }) => {
 
     const refreshControl = (
         <RefreshControl 
+        tintColor={"#fff"} 
             refreshing={refreshing} 
             onRefresh={onRefresh} 
         />
