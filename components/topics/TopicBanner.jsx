@@ -18,6 +18,7 @@ import { animate } from "../../hooks/animations";
 import { TopicsBannerIconSVG, TopicsIconSVG } from "../global/SVGs";
 
 import { BlurView } from 'expo-blur'
+import ShareOutTopicButton from "../feed/ShareOutTopicButton";
 
 const { width } = Dimensions.get('window');
 
@@ -262,6 +263,12 @@ const TopicBanner = ({
             </VenueContainer>
         )
     }
+
+    const ShareTopicButton = () => {
+        return (
+            <ShareOutTopicButton navigation={navigation} topic={topic} type={5}/>
+        );
+    }
         
 
     return (
@@ -272,6 +279,7 @@ const TopicBanner = ({
                     <TopicIcon />
                     <TopicTitle />
                     { !onCameraScreen && <AddToStack /> }
+                    <ShareTopicButton /> 
                 </TopicBannerRow>    
                 { expanded && <ExpandedInfo /> }
                 <ExpandArrow />

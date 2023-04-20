@@ -1,4 +1,4 @@
-import { Dimensions, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, TouchableOpacity, View } from 'react-native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { TopicsGiantIconSVG } from '../global/SVGs';
 
@@ -9,7 +9,8 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import ReelayInfo from './ReelayInfo';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faVideo } from '@fortawesome/free-solid-svg-icons';
+import { faVideo,faAdd, faShare } from '@fortawesome/free-solid-svg-icons';
+import ShareOutTopicButton from './ShareOutTopicButton';
 const { height, width } = Dimensions.get('window');
 
 const BottomGradient = styled(LinearGradient)`
@@ -24,6 +25,27 @@ const StartConvoPressable = styled(TouchableOpacity)`
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 26px;
     height: 52px;
+    margin-top:10px;
+    flex-direction: row;
+    justify-content: center;
+    width: 80%;
+`
+const AddReelayPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 26px;
+    height: 52px;
+    margin-top:10px;
+    flex-direction: row;
+    justify-content: center;
+    width: 80%;
+`
+const ShareTopicPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 26px;
+    height: 52px;
+    margin-top:10px;
     flex-direction: row;
     justify-content: center;
     width: 80%;
@@ -67,8 +89,28 @@ export default EmptyTopic = ({ navigation, topic }) => {
         return (
             <StartConvoPressable onPress={advanceToCreateReelay}>
                 <FontAwesomeIcon icon={faVideo} color='white' size={20} />
-                <StartConvoText>{'Start the conversation'}</StartConvoText>
+                <StartConvoText>{'Create a Reelay'}</StartConvoText>
             </StartConvoPressable>
+        );
+    }
+    const AddReelayButton = () => {
+        const advanceToADDReelay = () => navigation.push('ReelayListScreen', { clubID: topic?.clubID, topic });
+        return (
+            <AddReelayPressable onPress={advanceToADDReelay}>
+                <FontAwesomeIcon icon={faAdd} color='white' size={20} />
+                <StartConvoText>{'Add Reelay to topic'}</StartConvoText>
+            </AddReelayPressable>
+        );
+    }
+
+    const ShareTopicButton = () => {
+        const shareTheTopic = () => Alert.alert("","Linking to share");
+        return (
+            // <ShareTopicPressable onPress={shareTheTopic}>
+            //     <FontAwesomeIcon icon={faShare} color='white' size={20} />
+            //     <StartConvoText>{'Share the Topic'}</StartConvoText>
+            // </ShareTopicPressable>
+            <ShareOutTopicButton navigation={navigation} topic={topic} type={2}/>
         );
     }
 
@@ -94,6 +136,8 @@ export default EmptyTopic = ({ navigation, topic }) => {
             <TopicCenterView>
                 <TopicIcon />
                 <TopicTitle />
+                <ShareTopicButton />
+                <AddReelayButton />
                 <StartConvoButton />
             </TopicCenterView>
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />

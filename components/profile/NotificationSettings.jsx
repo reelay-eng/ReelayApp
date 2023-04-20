@@ -658,7 +658,7 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         )
     }
     
-    const settingsRefreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const settingsRefreshControl = <RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />;
     return (
         <NotificationSettingsScrollView refreshControl={settingsRefreshControl} scrollEnabled={true} contentContainerStyle={{ alignItems: "center", display: 'flex', flexDirection: 'column' }} scr>
             <AllNotificationsCategory />

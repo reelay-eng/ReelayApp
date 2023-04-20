@@ -116,6 +116,7 @@ const RecTitleRowView = styled(View)`
 const RecTitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
+    padding: ${props => props.Redirect == 1 ? 0:10}px;
     text-shadow-color: rgba(0, 0, 0, 0.4);
     text-shadow-offset: 1px 1px;
     text-shadow-radius: 1px;
@@ -184,6 +185,9 @@ const WatchlistScreenContainer = styled(View)`
 export default WatchlistScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
+
+    const myWatchlistItemsRedux = useSelector(state => state.myWatchlistItems);
+    const myWatchlistRecsRedux = useSelector(state => state.myWatchlistRecs);
     const dispatch = useDispatch();
     const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom;
@@ -201,8 +205,9 @@ export default WatchlistScreen = ({ navigation, route }) => {
     }
 
     // we don't want to use selector here, else it will rerender the whole list whenever we update
-    const myWatchlistItems = route?.params?.myWatchlistItems ?? [];
-    const myWatchlistRecs = route?.params?.myWatchlistRecs ?? [];
+    const myWatchlistItems = route?.params?.myWatchlistItems ?? myWatchlistItemsRedux;
+    const myWatchlistRecs = route?.params?.myWatchlistRecs ?? myWatchlistRecsRedux;
+    const Redirect = route?.params?.Redirect ?? 0;
 
     const [displayItems, setDisplayItems] = useState(myWatchlistItems.filter(hasAcceptedRec));
     const [refreshing, setRefreshing] = useState(false);
@@ -266,6 +271,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
                 onRemoveItem={onRemoveItem}
                 navigation={navigation}
                 watchlistItem={item}
+                Redirect={Redirect}
             />
         );
     }
@@ -275,6 +281,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
             username: reelayDBUser?.username,
             userSub: reelayDBUser?.sub,
         });
+        // console.log("Redirect",Redirect)
     }, [navigation]);
 
     useEffect(() => {
@@ -299,7 +306,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
     }
 
     const AddToWatchlistFromSearchButton = () => {
-        const onPress = () => navigation.push('SearchScreen', { addToWatchlist: true });
+        const onPress = () => navigation.push('SearchScreen', { addToWatchlist: true, Redirect });
         const topOffset = useSafeAreaInsets().top + 8;
         return (
             <AddToWatchlistPressable onPress={onPress} topOffset={topOffset}>
@@ -402,7 +409,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
 
         const renderRecTitleRow = (titleObj) => {
             const advanceToTitleDetailScreen = () => navigation.push('TitleDetailScreen', {
-                titleObj
+                titleObj, Redirect
             });
 
             const titleKey = `${titleObj?.titleType}-${titleObj?.id}`;
@@ -433,7 +440,9 @@ export default WatchlistScreen = ({ navigation, route }) => {
         return (
             <TopBarView topOffset={topOffset}>
                 <BackButtonView>
-                    <BackButton navigation={navigation} />
+                    {Redirect == 1 ?
+                    <BackButton navigation={navigation} />:null
+                    }
                 </BackButtonView>
                 <RecTitleText>{'My watchlist'}</RecTitleText>
                 <AddToWatchlistFromSearchButton />

@@ -5,6 +5,7 @@
     "build": {
         "development": {
             "cache": {
+                "disabled": true,
                 "key": "invalidate"
             },
             "distribution": "internal",
@@ -14,20 +15,22 @@
             "ios": {
                 "buildConfiguration": "Debug"
             },
-            "releaseChannel": "1.08.04-dev"
+            "releaseChannel": "1.08.0-dev"
         },
         "preview": {
             "cache": {
+                "disabled": true,
                 "key": "invalidate"
             },
             "distribution": "internal",
-            "releaseChannel": "1.08.04-internal"
+            "releaseChannel": "1.08.05-internal"
         },
         "production": {
             "cache": {
+                "disabled": true,
                 "key": "invalidate"
             },
-            "releaseChannel": "1.08.04"
+            "releaseChannel": "1.08.05"
         }
     },
     "submit": {

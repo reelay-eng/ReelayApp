@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Dimensions, Modal, Pressable, Share, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Modal, Pressable, Share, TouchableOpacity, View } from 'react-native';
 
 import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // import Share from 'react-native-share';
 import styled from 'styled-components/native';
-import { createDeeplinkPathToReelay } from '../../api/ReelayDBApi';
+import { createDeeplinkPathToReelay, createDeeplinkPathToTopics } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -16,11 +16,12 @@ import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { ShareOutSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import * as Linking from 'expo-linking';
 
 const { height, width } = Dimensions.get('window');
 
-const BUTTON_MARGIN_WIDTH = 10;
-const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 5)) / 3;
+const BUTTON_MARGIN_WIDTH = 28;
+const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 5)) / 2;
 const REELAY_WEB_BASE_URL = Constants.manifest.extra.reelayWebBaseUrl;
 
 const Backdrop = styled(Pressable)`
@@ -95,27 +96,30 @@ const ShareOptionIconPad = styled(View)`
 `
 
 
-export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
+export default ShareReelayDrawer = ({ closeDrawer, navigation, topic }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
     const [deeplinkObj, setDeeplinkObj] = useState(null);
     const { reelayDBUser } = useContext(AuthContext);
 
     const url = (deeplinkObj) ? REELAY_WEB_BASE_URL + deeplinkObj?.publicPath : '';
+    // const url = REELAY_WEB_BASE_URL +"/topic/"+topic.id; //deeplinkObj?.publicPath : '';
 
     const createOrLoadDeeplinkObj = async () => {
-        const deeplinkObj = await createDeeplinkPathToReelay(reelayDBUser?.sub, reelayDBUser?.username, reelay?.sub);
+        const deeplinkObj = await createDeeplinkPathToTopics(reelayDBUser?.sub, topic?.creatorName, topic?.id);
         setDeeplinkObj(deeplinkObj);
     }
 
     useEffect(() => {
         createOrLoadDeeplinkObj();
+        // let deeplinkPath = Linking.createURL(`/topic/${topic.id}`);
+        console.log("deeplinkPath",topic)
     }, []);
 
     const DrawerHeader = () => {
         return (
             <DrawerHeaderView>
                 <LeftSpacer />
-                <HeaderText>{'Share reelay'}</HeaderText>
+                <HeaderText>{'Share topic'}</HeaderText>
                 <CloseDrawerButton onPress={closeDrawer}>
                     <FontAwesomeIcon icon={faXmark} size={20} color='white' />
                 </CloseDrawerButton>
@@ -145,14 +149,15 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
 
     const ShareOutButton = () => {
         const shareReelay = async () => {
-            const title = `${reelay?.creator?.username} on ${reelay?.title?.display}`;
+            const title = `${topic?.title} with ${topic?.creatorName}`;
+            let deeplinkPath = Linking.createURL(`/topic/${topic.id}`);
             const content = { title, url };
             const options = {};
             console.log("shareReelay",content,options)
             const sharedAction = await Share.share(content, options);
             logAmplitudeEventProd('openedShareDrawer', {
                 username: reelayDBUser?.username,
-                title: reelay.title.display,
+                title: topic.title.display,
                 source: 'shareOutButton',
             });    
         }
@@ -173,7 +178,7 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
     const ShareToInstaStoryButton = () => {
         const openShareInstaStoryScreen = () => {
             closeDrawer();
-            navigation.push('InstaStoryReelayScreen', { reelay, url });
+            navigation.push('InstaStoryReelayScreen', { topic, url });
         }
 
         return (
@@ -196,13 +201,15 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
             <DrawerView bottomOffset={bottomOffset}>
                 <DrawerHeader />
                 <ShareOptionsRowView>
-                    { deeplinkObj && (
+                    { deeplinkObj ? (
                         <Fragment>
                             <CopyLinkButton />
                             <ShareOutButton />
-                            <ShareToInstaStoryButton />
+                            {/* <ShareToInstaStoryButton /> */}
                         </Fragment>
-                    )}
+                    ):
+                        <ActivityIndicator style={{margin:40}}/>
+                    }
                 </ShareOptionsRowView>
             </DrawerView>
         </Modal>

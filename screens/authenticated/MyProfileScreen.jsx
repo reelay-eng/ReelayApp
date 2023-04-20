@@ -9,6 +9,7 @@ import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 import { 
     getFollowers,
     getFollowing,
+    getReelsByCreator,
     getStacksByCreator,
     getStreamingSubscriptions,
 } from '../../api/ReelayDBApi';
@@ -41,13 +42,28 @@ const EditProfileButtonPressable = styled(TouchableOpacity)`
     border-width: 1px;
     height: 40px;
     justify-content: center;
-    margin: 16px;
+    margin: 6px;
     margin-top: 8px;
     margin-bottom: 8px;
-    width: ${width - 32}px;
+    width: ${width/2.3}px;
+`
+const EditProfileButtonPressable1 = styled(TouchableOpacity)`
+    align-items: center;
+    border-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    border-width: 1px;
+    height: 40px;
+    justify-content: center;
+    margin: 6px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: ${width/2.3}px;
 `
 const EditProfileText = styled(ReelayText.Overline)`
     color: white;
+`
+const EditProfileText1 = styled(ReelayText.Overline)`
+color: ${ReelayColors.reelayBlue};
 `
 const MyWatchlistPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -136,6 +152,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
             try {
                 const [
                     nextMyCreatorStacks,
+                    nextMyReelayStacks,
                     nextMyFollowers,
                     nextMyFollowing,
                     nextMyNotifications,
@@ -144,6 +161,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     nextMyStreamingSubscriptions
                 ] = await Promise.all([
                     getStacksByCreator(userSub),
+                    getReelsByCreator(userSub),
                     getFollowers(userSub),
                     getFollowing(userSub),
                     getAllMyNotifications(userSub),
@@ -151,11 +169,11 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     getWatchlistRecs({ authSession, reqUserSub: userSub, category: 'all' }),
                     getStreamingSubscriptions(userSub),
                 ]);
-                
                 nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
                 nextMyCreatorStacks.sort(sortStacks);
     
                 dispatch({ type: 'setMyCreatorStacks', payload: nextMyCreatorStacks });  
+                dispatch({ type: 'setMyReelayStacks', payload: nextMyReelayStacks });  
                 dispatch({ type: 'setMyFollowers', payload: nextMyFollowers });  
 
                 dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
@@ -177,22 +195,30 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = myCreatorStacks.reduce(reelayCounter, 0);
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const refreshControl = <RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />;
 
     const EditProfileButton = () => {
         return (
+            <View style={{flexDirection:"row",justifyContent:"center"}}>
             <EditProfileButtonPressable onPress={() => {
                 dispatch({ type: 'setIsEditingProfile', payload: true });
             }}>
                 <EditProfileText>{'Edit profile'}</EditProfileText>
             </EditProfileButtonPressable>
+
+            <EditProfileButtonPressable1 onPress={() => {
+                navigation.navigate("ReferShareScreen");
+            }}>
+                <EditProfileText1>{'Refer a friend'}</EditProfileText1>
+            </EditProfileButtonPressable1>
+            </View>
 		);
     }
 
     const SeeMyWatchlistButton = () => {
         const myWatchlistItems = useSelector(state => state.myWatchlistItems);
         const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
-        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems, myWatchlistRecs });
+        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems, myWatchlistRecs, Redirect:1});
         return (
             <MyWatchlistPressable onPress={advanceToWatchlistScreen}>
                 <MyWatchlistText>{'See my watchlist'}</MyWatchlistText>

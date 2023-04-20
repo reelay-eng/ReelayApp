@@ -14,6 +14,7 @@ import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
 import TMDBCreditScreen from '../screens/authenticated/TMDBCreditScreen';
+import MyWatchlistScreen from '../screens/authenticated/WatchlistScreen';
 
 export const HomeTabNavigator = () => {
     const HomeTabStack = createStackNavigator();
@@ -45,6 +46,19 @@ export const ClubsTabNavigator = () => {
 	return (
         <AuthenticatedCommonStack initialRouteName='MyClubsScreen'>
             <ClubsTabStack.Screen name='MyClubsScreen' component={MyClubsScreen} options={{ 
+                ...commonOptions,
+                animationEnabled: false,
+            }} />
+        </AuthenticatedCommonStack>
+    );
+}
+
+export const DecisionTabNavigator = () => {
+    const DecisionTabStack = createStackNavigator();
+    const commonOptions = { headerShown: false };
+	return (
+        <AuthenticatedCommonStack initialRouteName='MyWatchlistScreen'>
+            <DecisionTabStack.Screen name='MyWatchlistScreen' component={MyWatchlistScreen} options={{ 
                 ...commonOptions,
                 animationEnabled: false,
             }} />

@@ -315,7 +315,7 @@ const NotificationList = ({ navigation }) => {
             onEndReached={extendNotifications}
             onEndReachedThreshold={0.1}
             renderItem={renderNotificationItem}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            refreshControl={<RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />}
             showsVerticalScrollIndicator={false}
         />
     );

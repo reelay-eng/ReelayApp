@@ -4,7 +4,7 @@ PODS:
   - amplitude-react-native (2.15.0):
     - Amplitude (= 8.13.0)
     - React-Core
-  - AnalyticsConnector (1.0.0)
+  - AnalyticsConnector (1.0.1)
   - ASN1Decoder (1.8.0)
   - boost (1.76.0)
   - DoubleConversion (1.1.6)
@@ -173,15 +173,15 @@ PODS:
     - React-Core
   - fmt (6.2.1)
   - glog (0.3.5)
-  - libwebp (1.2.3):
-    - libwebp/demux (= 1.2.3)
-    - libwebp/mux (= 1.2.3)
-    - libwebp/webp (= 1.2.3)
-  - libwebp/demux (1.2.3):
+  - libwebp (1.2.4):
+    - libwebp/demux (= 1.2.4)
+    - libwebp/mux (= 1.2.4)
+    - libwebp/webp (= 1.2.4)
+  - libwebp/demux (1.2.4):
     - libwebp/webp
-  - libwebp/mux (1.2.3):
+  - libwebp/mux (1.2.4):
     - libwebp/demux
-  - libwebp/webp (1.2.3)
+  - libwebp/webp (1.2.4)
   - Mixpanel-swift (4.0.2):
     - Mixpanel-swift/Complete (= 4.0.2)
   - Mixpanel-swift/Complete (4.0.2)
@@ -618,7 +618,7 @@ DEPENDENCIES:
   - EXVideoThumbnails (from `../node_modules/expo-video-thumbnails/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
-  - ffmpeg-kit-react-native/full-gpl (from `/Users/anthony/Projects/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec`)
+  - ffmpeg-kit-react-native/full-gpl (from `/Users/abdul.mansuri/Documents/Reelay/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -767,7 +767,7 @@ EXTERNAL SOURCES:
   FBReactNativeSpec:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   ffmpeg-kit-react-native:
-    :podspec: "/Users/anthony/Projects/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec"
+    :podspec: "/Users/abdul.mansuri/Documents/Reelay/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   MixpanelReactNative:
@@ -864,10 +864,10 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Amplitude: 0a239d682bc9ec1eb7a7b318af2541130ecd4bd3
   amplitude-react-native: 810f45fee51acc0d40e11f7248bc7c0e5dc9a673
-  AnalyticsConnector: 4c386d5972ac9da86e22d668564dbbac97558754
+  AnalyticsConnector: eccd7e1cd3dd18e6bd09ac2506e37d4ed43ba3f4
   ASN1Decoder: 6110fdeacfdb41559b1481457a1645be716610aa
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
+  DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EASClient: a2581835cf9b97d0defd5d630fc6eb1bf77045e7
   EXAppleAuthentication: b9e9d8fa9b0cc5277b2121eb809cf0f57c2496a7
   EXApplication: e418d737a036e788510f2c4ad6c10a7d54d18586
@@ -911,8 +911,8 @@ SPEC CHECKSUMS:
   ffmpeg-kit-ios-full-gpl: 9eb5c2e17ba5dea1b1b83cff35b54918b683b67f
   ffmpeg-kit-react-native: bc3c900af9f761b6fe30906ee1bd98000c79f9c9
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
-  libwebp: 60305b2e989864154bd9be3d772730f08fc6a59c
+  glog: 3d02b25ca00c2d456734d0bcff864cbc62f6ae1a
+  libwebp: f62cb61d0a484ba548448a4bd52aabf150ff6eef
   Mixpanel-swift: 91fc28834402720682f4cce760e95571fbb388c3
   MixpanelReactNative: f509f0674e7f80a7a294ff5afa88ac1e8ec61640
   RCT-Folly: b9d9fe1fc70114b751c076104e52f3b1b5e5a95a

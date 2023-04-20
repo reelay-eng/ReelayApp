@@ -12,7 +12,7 @@ import { manipulateAsync } from "expo-image-manipulator";
 import { Buffer } from "buffer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
-import { updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/ReelayDBApi";
+import { getRegisteredUser, updateProfilePic, updateUserBio, updateUserFirstName, updateUserLastName, updateUserWebsite } from "../../api/ReelayDBApi";
 import { AuthContext } from "../../context/AuthContext";
 
 import styled from "styled-components/native";
@@ -115,10 +115,16 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
 	const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
+	const initFirstName = reelayDBUser.firstName ? reelayDBUser.firstName : "";
+	const initLastName = reelayDBUser.lastName ? reelayDBUser.lastName : "";
   	const bioRef = useRef(initBio);
   	const bioInputRef = useRef(null);
   	const websiteRef = useRef(initWebsite);
     const websiteInputRef = useRef(null);
+	const firstNameRef = useRef(initFirstName);
+	const firstNameInputRef = useRef(null);
+	const lastNameRef = useRef(initLastName);
+	const lastNameInputRef = useRef(null);
 
 	useFocusEffect(() => {
 		dispatch({ type: 'setTabBarVisible', payload: false });
@@ -132,6 +138,7 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 		const successfulySaved = await saveInfo();
 		if (successfulySaved) {
 			dispatch({ type: 'setIsEditingProfile', payload: false });
+
 		} else{
 			showErrorToast("Info did not save successfully! Try again.")
 		}
@@ -146,11 +153,18 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 	const saveInfo = async () => {
 		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
 		const bioUpdatedSuccessfully = await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
+
+		reelayDBUser.firstName = firstNameRef.current.trim() === "" ? null : firstNameRef.current;
+		const firstNameUpdatedSuccessfully = await updateUserFirstName(reelayDBUser.sub, reelayDBUser.firstName);
+		
+		reelayDBUser.lastName = lastNameRef.current.trim() === "" ? null : lastNameRef.current;
+		const lastNameUpdatedSuccessfully = await updateUserLastName(reelayDBUser.sub, reelayDBUser.lastName);
+
 		reelayDBUser.website = (websiteRef.current.trim() === '') 
 			? null 
 			: websiteRef.current;
 		const websiteUpdatedSuccessfully = await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
-		return (bioUpdatedSuccessfully && websiteUpdatedSuccessfully);
+		return (bioUpdatedSuccessfully && websiteUpdatedSuccessfully && firstNameUpdatedSuccessfully && lastNameUpdatedSuccessfully);
 	}
 
 	return (
@@ -172,6 +186,8 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 						<EditInfoContainer>
 							<EditBio bioRef={bioRef} bioInputRef={bioInputRef} />
+							<EditFirstName firstNameRef={firstNameRef} firstNameInputRef={firstNameInputRef} />
+							<EditLastName lastNameRef={lastNameRef} lastNameInputRef={lastNameInputRef} />
 							<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} />
 						</EditInfoContainer>
 					</TouchableWithoutFeedback>
@@ -275,8 +291,9 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ON_UPLOAD_MESSAGE = 'Uploaded! It can take up to 24hrs for others to see the new pic';
 
 const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
-	const { reelayDBUser } = useContext(AuthContext);
+	const { reelayDBUser, setReelayDBUser } = useContext(AuthContext);
 	const s3Client = useSelector(state => state.s3Client);
+	const dispatch = useDispatch();
 
 	const takePhoto = async () => {
 		const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
@@ -327,6 +344,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 				await cacheProfilePic(reelayDBUser?.sub);
 				setIsUploading(false);
 				showMessageToast(ON_UPLOAD_MESSAGE);
+				await Next();
 			}
 		} catch (e) {
 			console.log("Upload Profile Picture Error: ", e);
@@ -339,6 +357,16 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 			alert("Profile photo upload failed. \nPlease try again.");
 		}
 	};
+
+	const Next = async() =>{
+		dispatch({ type: 'setIsEditingProfile', payload: false });
+
+		dispatch({ type: 'setCurrentAppLoadStage', payload: 2 });
+		const data = await getRegisteredUser(reelayDBUser?.sub);
+		setReelayDBUser(data)
+		console.log(reelayDBUser?.profilePictureURI)
+		dispatch({ type: 'setCurrentAppLoadStage', payload: 8 });
+	}
 
 	const resizeImage = async (photoURI) => {
 		const photoHeight = 256;
@@ -482,6 +510,51 @@ const EditWebsite = ({ websiteRef, websiteInputRef }) => {
 					ref={websiteInputRef}
 					defaultValue={websiteRef.current}
 					placeholder={"Any cool links?"}
+					placeholderTextColor={"gray"}
+					onChangeText={changeInputText}
+					onPressOut={Keyboard.dismiss()}
+					returnKeyLabel="return"
+					returnKeyType="default"
+				/>
+			</WebsiteInputContainer>
+		</EditWebsiteContainer>
+	);
+};
+
+const EditFirstName = ({ firstNameRef, firstNameInputRef }) => {
+	const changeInputText = (text) => firstNameRef.current = text;
+	return (
+		<EditWebsiteContainer>
+			<SectionTitleContainer>
+				<SectionTitleText>{"First Name"}</SectionTitleText>
+			</SectionTitleContainer>
+			<WebsiteInputContainer>
+				<WebsiteInput
+					ref={firstNameInputRef}
+					defaultValue={firstNameRef.current}
+					placeholder={"first name"}
+					placeholderTextColor={"gray"}
+					onChangeText={changeInputText}
+					onPressOut={Keyboard.dismiss()}
+					returnKeyLabel="return"
+					returnKeyType="default"
+				/>
+			</WebsiteInputContainer>
+		</EditWebsiteContainer>
+	);
+};
+const EditLastName = ({ lastNameRef, lastNameInputRef }) => {
+	const changeInputText = (text) => lastNameRef.current = text;
+	return (
+		<EditWebsiteContainer>
+			<SectionTitleContainer>
+				<SectionTitleText>{"Last Name"}</SectionTitleText>
+			</SectionTitleContainer>
+			<WebsiteInputContainer>
+				<WebsiteInput
+					ref={lastNameInputRef}
+					defaultValue={lastNameRef.current}
+					placeholder={"last name"}
 					placeholderTextColor={"gray"}
 					onChangeText={changeInputText}
 					onPressOut={Keyboard.dismiss()}

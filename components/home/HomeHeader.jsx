@@ -5,10 +5,10 @@ import { Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCommenting as faComment } from '@fortawesome/free-solid-svg-icons';
 
 import { useSelector } from 'react-redux';
-import { NotificationIconSVG, SearchIconSVG } from '../global/SVGs';
+import { NotificationIconSVG, SearchIconSVG,ChatsTabIconSVG } from '../global/SVGs';
 
 const HeaderContainer = styled(View)`
     padding-left: 12px;
@@ -59,6 +59,9 @@ export default HomeHeader = ({ navigation }) => {
 
     const advanceToMyNotifications = () => navigation.push('NotificationScreen');
     const advanceToSearchScreen = () => navigation.push('SearchScreen');
+    // const advanceToSearchScreen = () => navigation.push('ReferShareScreen');
+    // const advanceToSearchScreen = () => navigation.push('ReelayListScreen');
+    const directMessageScreen = () => navigation.push('MyClubsScreen');
 
     return (
         <HeaderContainer>
@@ -73,6 +76,11 @@ export default HomeHeader = ({ navigation }) => {
                     <IconContainer onPress={advanceToMyNotifications}>
                         <NotificationIconSVG />
                         { hasUnreadNotifications && <UnreadIconIndicator /> }
+                    </IconContainer>
+                )}
+                { !isGuestUser && (
+                    <IconContainer onPress={directMessageScreen}>
+                        <FontAwesomeIcon icon={faComment} color={'white'} size={24} />
                     </IconContainer>
                 )}
             </HeaderContainerRight>

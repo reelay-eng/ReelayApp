@@ -140,7 +140,7 @@ export default DiscoverSearch = ({ navigation }) => {
     return (
         <CategoryView>
             <CategoryHeader>{'Discover'}</CategoryHeader>
-            <HeaderSubText>{'Find something that’s just right'}</HeaderSubText>
+            {/* <HeaderSubText>{'Find something that’s just right'}</HeaderSubText> */}
             <CategoryOptionsView>
                 { filterOptions.map(renderFilter)}
             </CategoryOptionsView>

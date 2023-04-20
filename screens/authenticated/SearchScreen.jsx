@@ -52,16 +52,26 @@ const TopBarView = styled(View)`
 export default SearchScreen = ({ navigation, route }) => {
     const addToWatchlist = route?.params?.addToWatchlist ?? false;
     const initialSearchType = route?.params?.initialSearchType ?? 'Film';
+    const Redirect = route?.params?.Redirect ?? 0;
 
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
 
     const goBack = () => {
         if (addToWatchlist) {
+            if(Redirect == 0){
+            navigation.navigate('MyWatchlistScreen', {
+                myWatchlistItems,
+                myWatchlistRecs, 
+                Redirect
+            });
+        }else{
             navigation.navigate('WatchlistScreen', {
                 myWatchlistItems,
-                myWatchlistRecs,
+                myWatchlistRecs, 
+                Redirect
             });
+        }
         } else {
             navigation.goBack();
         }

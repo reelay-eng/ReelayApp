@@ -151,12 +151,37 @@ export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername
         deeplinkPath,
         propsJSON: null,
     };
-
+    console.log("postBody",postBody)
     const dbResult = await fetchResults(routePost, {
         method: 'POST',
         headers: ReelayAPIHeaders,
         body: JSON.stringify(postBody),
     });
+    console.log("dbResult",dbResult)
+    return dbResult;
+}
+
+
+export const createDeeplinkPathToTopics = async (linkingUserSub, linkingUsername, reelaySub) => {
+    // using the scheme reelayapp://, the statement below creates an unusable triple slash
+    // ...doesn't happen on expo
+    let deeplinkPath = Linking.createURL(`/topic/${reelaySub}`);
+    deeplinkPath = deeplinkPath.replace('///', '//'); 
+
+    const routePost = `${REELAY_API_BASE_URL}/deeplinktopics`;
+    const postBody = {
+        linkingUserSub, 
+        linkingUsername,
+        deeplinkPath,
+        propsJSON: null,
+    };
+    console.log("postBody",routePost)
+    const dbResult = await fetchResults(routePost, {
+        method: 'POST',
+        headers: ReelayAPIHeaders,
+        body: JSON.stringify(postBody),
+    });
+    console.log("dbResult",dbResult)
     return dbResult;
 }
 
@@ -268,7 +293,6 @@ export const getReelay = async (reelaySub, visibility=FEED_VISIBILITY) => {
         method: 'GET',
         headers: ReelayAPIHeaders,
     });
-
     if (!fetchedReelay) {
         console.log('Could not get reelays for this creator');
         return null;
@@ -282,6 +306,7 @@ export const getReelaysByCreator = async (creatorSub) => {
         method: 'GET',
         headers: ReelayAPIHeaders,
     });
+        // console.log("getReelaysByCreator",fetchedReelays)
     if (!fetchedReelays) {
         console.log('Could not get reelays for this creator');
         return null;
@@ -339,6 +364,14 @@ export const getStacksByCreator = async (creatorSub) => {
     });
 
     return stacksByCreator;
+}
+export const getReelsByCreator = async (creatorSub) => {
+    console.log('Getting reels by creator');
+    const creatorReelays = await getReelaysByCreator(creatorSub);
+    if (!creatorReelays) return [];
+
+    const  preparedReelays = await Promise.all(creatorReelays.map(prepareReelay));
+    return preparedReelays;
 }
 
 // call prepareReelay on every reelay in every stack
@@ -460,6 +493,9 @@ export const getFeed = async ({ authSession, reqUserSub, feedSource, page = 0 })
     const routeGet = (feedSource === 'discover') 
         ? `${REELAY_API_BASE_URL}/feed/global?page=${page}&visibility=${FEED_VISIBILITY}`
         : `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page}&visibility=${FEED_VISIBILITY}`
+
+        // console.log("apiHeader",getReelayAuthHeaders(authSession),reqUserSub)
+        // console.log("apiGet",routeGet)
     let fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
         headers: {
@@ -518,11 +554,24 @@ export const getRegisteredUser = async (userSub) => {
         method: 'GET',
         headers: ReelayAPIHeaders,
     });
-
+    console.log("getRegisteredUser",resultGet,routeGet)
     if (!resultGet || resultGet.error) {
         console.log('User not registered');
         return null;
     }
+    return resultGet;
+}
+
+export const updateLoginUser = async (userSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/users/isopen/${userSub}`;
+    const resultGet = await fetchResults(routeGet, { 
+        method: 'PATCH',
+        headers: ReelayAPIHeaders,
+    });
+    // if (!resultGet || resultGet.error) {
+    //     console.log('User not registered');
+    //     return null;
+    // }
     return resultGet;
 }
 
@@ -543,6 +592,17 @@ export const getUserByEmail = async (address) => {
     });
 
     console.log('Get user by email result: ', userResult);
+    return userResult;
+}
+
+export const getUserByReferral = async (referral) => {
+    const routeGet = `${REELAY_API_BASE_URL}/byreferralcode/${referral}`;
+    const userResult = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: ReelayAPIHeaders,
+    });
+
+    console.log('Get user by referral result: ', userResult);
     return userResult;
 }
 
@@ -720,18 +780,20 @@ export const prepareReelay = async (fetchedReelay) => {
     };
 }
 
-export const registerUser = async ({ email, username, sub }) => {
+export const registerUser = async ({ email, username, sub, firstName, lastName, referredby }) => {
     const encEmail = encodeURIComponent(email);
     const encUsername = encodeURI(username);
 
     try {
         console.log('Registering user...');
         // todo: sanity check emails and usernames
-        const routePost = `${REELAY_API_BASE_URL}/users/sub?email=${encEmail}&username=${encUsername}&sub=${sub}`;
+        const routePost = `${REELAY_API_BASE_URL}/users/sub?email=${encEmail}&username=${encUsername}&sub=${sub}&firstName=${firstName}&lastName=${lastName}&referredby=${referredby}`;
+        // console.log(routePost)
         const resultPost = await fetchResults(routePost, { 
             method: 'POST',
             headers: ReelayAPIHeaders,
         });
+        // console.log(resultPost)
         return resultPost;
     } catch (error) {
         console.log(error);
@@ -790,6 +852,7 @@ export const removeLike = async (like) => {
     }
 
     const routeRemove = `${REELAY_API_BASE_URL}/likes`;
+    console.log("routeRemove",routeRemove,removeBody)
     const resultRemove = await fetchResults(routeRemove, {
         method: 'DELETE',
         headers: ReelayAPIHeaders,
@@ -839,7 +902,7 @@ export const searchUsers = async (searchText, page = 0) => {
         method: "GET",
         headers: ReelayAPIHeaders,
     });
-
+    console.log("resultGet",routeGet,ReelayAPIHeaders)
     if (!resultGet) {
         console.log("User not registered");
         return null;
@@ -896,6 +959,38 @@ export const updateUserBio = async (userSub, bio) => {
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
     const updateBody = {
         bio: bio
+    };
+    const resultPatch = await fetchResults(routePatch, {
+        method: "PATCH",
+        headers: {
+            ...ReelayAPIHeaders,
+            requsersub: userSub,
+        },
+        body: JSON.stringify(updateBody),
+    });
+    return resultPatch;
+};
+
+export const updateUserFirstName = async (userSub, firstName) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
+    const updateBody = {
+        firstName: firstName
+    };
+    const resultPatch = await fetchResults(routePatch, {
+        method: "PATCH",
+        headers: {
+            ...ReelayAPIHeaders,
+            requsersub: userSub,
+        },
+        body: JSON.stringify(updateBody),
+    });
+    return resultPatch;
+};
+
+export const updateUserLastName = async (userSub, lastName) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
+    const updateBody = {
+        lastName: lastName
     };
     const resultPatch = await fetchResults(routePatch, {
         method: "PATCH",

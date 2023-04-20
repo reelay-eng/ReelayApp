@@ -23,6 +23,7 @@ import DiscoverClubs from '../../components/home/DiscoverClubs';
 import { getAllClubsFollowing, searchPublicClubs } from '../../api/ClubsApi';
 import SearchField from '../../components/create-reelay/SearchField';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import BackButton from '../../components/utils/BackButton';
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -112,7 +113,7 @@ const FilterButtonRow = styled(View)`
 const HeaderText = styled(ReelayText.H5Bold)`
     text-align: left;
     color: white;
-    margin-top: 8px;
+    margin-top: 5px;
 `
 const MyClubsScreenView = styled(View)`
     background-color: black;
@@ -157,7 +158,7 @@ const TopBarButtonView = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-right: -7px;
-    margin-top: 7px;
+    margin-top: 4px;
 `
 
 export default MyClubsScreen = ({ navigation }) => {
@@ -449,6 +450,7 @@ export default MyClubsScreen = ({ navigation }) => {
     const TopBar = () => {
         return (
             <TopBarView>
+                <BackButton navigation={navigation} />
                 <HeaderText>{'chats'}</HeaderText>
                 <TopBarButtonView>
                     <NewClubButton />

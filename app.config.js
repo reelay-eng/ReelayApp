@@ -1,38 +1,41 @@
 export default ({ config }) => {
     if (!process.env.NODE_ENV) {
-        process.env.NODE_ENV = 'production';
+        process.env.NODE_ENV = 'dev';
         // note: this is what happens in production
     }
 
     const getReelayAPIBaseURL = () => {
-        if (process.env.NODE_ENV === 'production') return 'https://api-prod.reelay.app';
-        if (process.env.NODE_ENV === 'dev' ||
-            process.env.NODE_ENV === 'devg') return 'https://api-dev.reelay.app';
-        if (process.env.NODE_ENV === 'local' || 
-            process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
+        // if (process.env.NODE_ENV === 'production') return 'https://api-prod.reelay.app';
+        // if (process.env.NODE_ENV === 'dev' ||
+        //     process.env.NODE_ENV === 'devg') return 'https://api-dev.reelay.app';
+        // if (process.env.NODE_ENV === 'local' || 
+        //     process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
 
         // should be unreachable but just in case
+        // return 'http://54.188.65.34';
+        // return 'http://localhost:3001';
         return 'https://api-prod.reelay.app';
     }
 
     const getReelayChatBaseURL = () => {
         // just uses the API server as the chat server for right now, but we should change this
-        if (process.env.NODE_ENV === 'production') return 'https://api-chat.reelay.app';
-        if (process.env.NODE_ENV === 'dev' ||
-            process.env.NODE_ENV === 'devg') return 'https://api-dev.reelay.app';
-        if (process.env.NODE_ENV === 'local' || 
-            process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
+        // if (process.env.NODE_ENV === 'production') return 'https://api-chat.reelay.app';
+        // if (process.env.NODE_ENV === 'dev' ||
+        //     process.env.NODE_ENV === 'devg') return 'https://api-dev.reelay.app';
+        // if (process.env.NODE_ENV === 'local' || 
+        //     process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
 
         // should be unreachable but just in case
+        // return 'https://api-dev.reelay.app';
         return 'https://api-chat.reelay.app';
     }
 
     const getVisibility = () => {
-        if (process.env.NODE_ENV === 'production' ||
-            process.env.NODE_ENV === 'devg' ||
-            process.env.NODE_ENV === 'localg') return 'global';
-        if (process.env.NODE_ENV === 'dev' ||
-            process.env.NODE_ENV === 'local') return 'dev';
+        // if (process.env.NODE_ENV === 'production' ||
+        //     process.env.NODE_ENV === 'devg' ||
+        //     process.env.NODE_ENV === 'localg') return 'global';
+        // if (process.env.NODE_ENV === 'dev' ||
+        //     process.env.NODE_ENV === 'local') return 'dev';
 
         // should be unreachable but just in case
         return 'global';
@@ -58,6 +61,7 @@ export default ({ config }) => {
         reelayApiBaseUrl: getReelayAPIBaseURL(),
         reelayChatBaseUrl: getReelayChatBaseURL(),
         reelayWebBaseUrl: 'https://on.reelay.app',
+        // reelayWebBaseUrl: 'http://35.93.27.255',
         reelayWebInviteUrl: 'https://invite.reelay.app/club/',
         reelayApiKey: 'ac739ac2-5877-47de-a861-59bc776bdd27',
         reelayS3UploadBucket: 'reelay-content211002-dev',
@@ -70,6 +74,9 @@ export default ({ config }) => {
 
         feedVisibility: getVisibility(),
         uploadVisibility: getVisibility(),
+        "eas": {
+            "projectId": "94fc6085-476f-49d9-85a8-4f0416bf9c59"
+          }
     };
 
     return {

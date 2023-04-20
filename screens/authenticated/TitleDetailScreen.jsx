@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { 
+	Alert,
     Dimensions, 
     Pressable, 
     ScrollView, 
@@ -30,7 +31,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import * as Haptics from 'expo-haptics';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faPlay, faPlusCircle, faVideo } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faPlusCircle, faShare, faVideo } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -53,6 +54,18 @@ const CreateReelayPressable = styled(TouchableOpacity)`
 	border-radius: 26px;
 	flex-direction: row;
 	height: 52px;
+	justify-content: center;
+	margin: 16px;
+	margin-top: 0px;
+	width: ${width - 32}px;
+`
+const ShareMoviePressable = styled(TouchableOpacity)`
+	align-items: center;
+	background-color: ${ReelayColors.reelayGreen};
+	border-radius: 26px;
+	flex-direction: row;
+	height: 52px;
+	margin-top:10px;
 	justify-content: center;
 	margin: 16px;
 	margin-top: 0px;
@@ -102,6 +115,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	// Parse Title Object
 	const { titleObj } = route.params;
 	const fromWatchlist = route.params?.fromWatchlist ?? false;
+	const Redirect = route.params?.Redirect ?? 0;
 
 	const tmdbTitleID = titleObj?.id;
 	const isSeries = titleObj?.isSeries;
@@ -122,6 +136,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	
 	useFocusEffect(() => {
 		dispatch({ type: 'setTabBarVisible', payload: false });
+		// console.log(Redirect)
 	});
 
 	const CreateReelayButton = () => {
@@ -144,15 +159,40 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		)
 	}
 
+	const ShareMovieButton = () => {
+		const shareTheTopic = () => Alert.alert("","Link to share movie");
+			
+		return (
+			<ShareMoviePressable onPress={shareTheTopic}>
+				<FontAwesomeIcon icon={faShare} color='white' size={24} />
+				<CreateReelayText>{'Share Movie'}</CreateReelayText>
+			</ShareMoviePressable>
+		)
+	}
+
 	const NavHeader = () => {
 		const myWatchlistItems = useSelector(state => state.myWatchlistItems);
 		const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
 		const goBack = () => {
 			if (fromWatchlist) {
-				navigation.navigate('WatchlistScreen', {
-					myWatchlistItems,
-					myWatchlistRecs,
-				})
+				if(Redirect == 0){
+					navigation.navigate('MyWatchlistScreen', {
+						myWatchlistItems,
+						myWatchlistRecs, 
+						Redirect
+					});
+				}else{
+					navigation.navigate('WatchlistScreen', {
+						myWatchlistItems,
+						myWatchlistRecs, 
+						Redirect
+					});
+				}
+				// navigation.navigate('WatchlistScreen', {
+				// 	myWatchlistItems,
+				// 	myWatchlistRecs, 
+				// 	Redirect:1
+				// })
 			} else {
 				navigation.goBack();
 			}
@@ -204,6 +244,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			<TitleDetailHeader navigation={navigation} titleObj={titleObj} />
 			<TitleReactions navigation={navigation} titleObj={titleObj} />
 			<CreateReelayButton />
+			{/* <ShareMovieButton /> */}
 			{/* <WatchTrailerButton /> */}
 			<MovieInformation titleObj={titleObj} />
 			<Spacer height={20} />
