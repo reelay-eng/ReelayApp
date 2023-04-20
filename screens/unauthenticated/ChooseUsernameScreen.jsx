@@ -130,17 +130,17 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
     const { setReelayDBUserID } = useContext(AuthContext);
     const [firstName, setFirstName] = useState(fullName ? fullName.givenName : '');
     const [firstnameFieldActive, setFirstNameFieldActive] = useState(false);
-    const showFirstNameError = firstName.length < 0;
+    const showFirstNameError = firstName?.length < 0;
 
     const [lastName, setLastName] = useState(fullName ? fullName.familyName : '');
     const [lastnameFieldActive, setLastNameFieldActive] = useState(false);
-    const showLasttNameError = lastName.length < 0;
+    const showLasttNameError = lastName?.length < 0;
 
     const [userName, setUserName] = useState('');
     const [referralCode, setReferralCode] = useState('');
     const [usernameFieldActive, setUserNameFieldActive] = useState(false);
     const [referralFieldActive, setReferralFieldActive] = useState(false);
-    const showUserNameError = userName.length < 0;
+    const showUserNameError = userName?.length < 0;
 
     const inputUsernameRef = useRef('');
 
