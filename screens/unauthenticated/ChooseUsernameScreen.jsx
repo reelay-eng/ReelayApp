@@ -128,11 +128,11 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
     const { authSession, method, email, fullName, googleUserID, appleUserID, password } = route?.params;
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const { setReelayDBUserID } = useContext(AuthContext);
-    const [firstName, setFirstName] = useState(fullName ? fullName.givenName : '');
+    const [firstName, setFirstName] = useState(fullName ? fullName?.givenName : '');
     const [firstnameFieldActive, setFirstNameFieldActive] = useState(false);
     const showFirstNameError = firstName?.length < 0;
 
-    const [lastName, setLastName] = useState(fullName ? fullName.familyName : '');
+    const [lastName, setLastName] = useState(fullName ? fullName?.familyName : '');
     const [lastnameFieldActive, setLastNameFieldActive] = useState(false);
     const showLasttNameError = lastName?.length < 0;
 
