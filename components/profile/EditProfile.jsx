@@ -12,7 +12,7 @@ import { manipulateAsync } from "expo-image-manipulator";
 import { Buffer } from "buffer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
-import { getRegisteredUser, updateProfilePic, updateUserBio, updateUserFirstName, updateUserLastName, updateUserWebsite } from "../../api/ReelayDBApi";
+import { getRegisteredUser, searchUsers, updateProfilePic, updateReferredBy, updateUserBio, updateUserFirstName, updateUserLastName, updateUserWebsite } from "../../api/ReelayDBApi";
 import { AuthContext } from "../../context/AuthContext";
 
 import styled from "styled-components/native";
@@ -24,6 +24,8 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { showErrorToast, showMessageToast } from "../utils/toasts";
 import { cacheProfilePic } from "../../api/ReelayLocalImageCache";
 import ProfilePicture from "../global/ProfilePicture";
+import Toast from 'react-native-toast-message'
+import { toastConfig } from "../utils/ToastConfig";
 
 const BioInput = styled(TextInput)`
 	color: white;
@@ -117,6 +119,7 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 	const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
 	const initFirstName = reelayDBUser.firstName ? reelayDBUser.firstName : "";
 	const initLastName = reelayDBUser.lastName ? reelayDBUser.lastName : "";
+	const initReferredBy = reelayDBUser.referredby ? reelayDBUser.referredby : "";
   	const bioRef = useRef(initBio);
   	const bioInputRef = useRef(null);
   	const websiteRef = useRef(initWebsite);
@@ -125,6 +128,8 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 	const firstNameInputRef = useRef(null);
 	const lastNameRef = useRef(initLastName);
 	const lastNameInputRef = useRef(null);
+	const referralRef = useRef(initReferredBy);
+	const referralInputRef = useRef(null);
 
 	useFocusEffect(() => {
 		dispatch({ type: 'setTabBarVisible', payload: false });
@@ -135,13 +140,23 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 
     const doneFunc = async () => {
 		// save all information
-		const successfulySaved = await saveInfo();
-		if (successfulySaved) {
-			dispatch({ type: 'setIsEditingProfile', payload: false });
 
-		} else{
-			showErrorToast("Info did not save successfully! Try again.")
+		const canSignUp = await isUsernameValid(referralRef.current);
+		if(canSignUp){
+			if(referralRef.current == reelayDBUser?.username){
+				showErrorToast("You cannot refer yourself!")
+			}else{
+				const successfulySaved = await saveInfo();
+				if (successfulySaved) {
+					dispatch({ type: 'setIsEditingProfile', payload: false });
+		
+				} else{
+					showErrorToast("Info did not save successfully! Try again.")
+				}
+			}
 		}
+		
+		
     }
 
     const cancelFunc = () => {
@@ -159,17 +174,37 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 		
 		reelayDBUser.lastName = lastNameRef.current.trim() === "" ? null : lastNameRef.current;
 		const lastNameUpdatedSuccessfully = await updateUserLastName(reelayDBUser.sub, reelayDBUser.lastName);
-
+		
+		reelayDBUser.referredby = referralRef.current.trim() === "" ? null : referralRef.current;
+		 const referralRefUpdated = await updateReferredBy(reelayDBUser.sub, reelayDBUser.referredby);
+			
+	
 		reelayDBUser.website = (websiteRef.current.trim() === '') 
 			? null 
 			: websiteRef.current;
 		const websiteUpdatedSuccessfully = await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
-		return (bioUpdatedSuccessfully && websiteUpdatedSuccessfully && firstNameUpdatedSuccessfully && lastNameUpdatedSuccessfully);
+		return (bioUpdatedSuccessfully && websiteUpdatedSuccessfully && firstNameUpdatedSuccessfully && lastNameUpdatedSuccessfully && referralRefUpdated);
+	}
+
+	const isUsernameValid = async (username) => {
+		const partialMatchingUsers = await searchUsers(username);
+		if (partialMatchingUsers?.error) {
+			return false;
+		}
+
+		const usernamesMatch = (userObj) => (userObj.username === username);
+		const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
+		if (fullMatchIndex === -1) {
+			showErrorToast("Referred user not found! Try again.")
+			return false;
+		}else{
+			return true;
+		}
 	}
 
 	return (
 		<ModalContainer>
-			<Modal animationType="slide" transparent={true} visible={isEditingProfile}>
+			<Modal style={{zIndex:0}} animationType="slide" transparent={true} visible={isEditingProfile}>
 				<ScrollView>
 					<HeaderContainer>
 						<HeaderDoneCancel
@@ -189,9 +224,12 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 							<EditFirstName firstNameRef={firstNameRef} firstNameInputRef={firstNameInputRef} />
 							<EditLastName lastNameRef={lastNameRef} lastNameInputRef={lastNameInputRef} />
 							<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} />
+							{!initReferredBy || initReferredBy == null ?
+							<ReferralCode referralRef={referralRef} referralInputRef={referralInputRef} />:null}
 						</EditInfoContainer>
 					</TouchableWithoutFeedback>
 				</ScrollView>
+				<Toast config={toastConfig}/>
 			</Modal>
 		</ModalContainer>
   );
@@ -555,6 +593,29 @@ const EditLastName = ({ lastNameRef, lastNameInputRef }) => {
 					ref={lastNameInputRef}
 					defaultValue={lastNameRef.current}
 					placeholder={"last name"}
+					placeholderTextColor={"gray"}
+					onChangeText={changeInputText}
+					onPressOut={Keyboard.dismiss()}
+					returnKeyLabel="return"
+					returnKeyType="default"
+				/>
+			</WebsiteInputContainer>
+		</EditWebsiteContainer>
+	);
+};
+
+const ReferralCode = ({ referralRef, referralInputRef }) => {
+	const changeInputText = (text) => referralRef.current = text;
+	return (
+		<EditWebsiteContainer>
+			<SectionTitleContainer>
+				<SectionTitleText>{"Referred By"}</SectionTitleText>
+			</SectionTitleContainer>
+			<WebsiteInputContainer>
+				<WebsiteInput
+					ref={referralInputRef}
+					defaultValue={referralRef.current}
+					placeholder={"Referred By"}
 					placeholderTextColor={"gray"}
 					onChangeText={changeInputText}
 					onPressOut={Keyboard.dismiss()}
