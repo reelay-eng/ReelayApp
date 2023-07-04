@@ -24,6 +24,7 @@ import RecommendedForYou from './RecommendedForYou';
 import GuessingGames from './GuessingGames';
 import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
 import HomeWatchlistCard from './HomeWatchlistCard';
+import SectionDiscover from './SectionDiscover';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -143,13 +144,14 @@ const HomeComponent = ({ navigation }) => {
             </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
+                {/* <SectionDiscover navigation={navigation}/> */}
                 { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> }
-                {/* <GuessingGames navigation={navigation} /> */}
+                {/* <GuessingGames navigation={navigation} /> // Hidden 1.08.04*/}
                 <RecommendedForYou navigation={navigation} />
                 <PopularTitles navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
-                {/* <TopicsCarousel navigation={navigation} source='discover' />  */}
-                <OnStreaming navigation={navigation} source='discover' />
+                {/* <TopicsCarousel navigation={navigation} source='discover' /> // Hidden 1.08.04 */}
+                {/* <OnStreaming navigation={navigation} source='discover' /> // Hidden 1.08.04 */}
                 <DiscoverSearch navigation={navigation} />
                 <Spacer />
             </ScrollContainer>

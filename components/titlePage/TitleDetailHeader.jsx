@@ -74,6 +74,7 @@ const PosterTitleView = styled(View)`
 `
 const PosterTitle = styled(ReelayText.H4Bold)`
 	color: white;
+	font-size: 28px;
 `
 const TaglineView = styled(View)`
 	width: 90%;

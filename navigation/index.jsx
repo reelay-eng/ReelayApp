@@ -31,6 +31,8 @@ import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { uploadReelay } from '../api/UploadAPI';
 import { getSingleTopic, getTopics } from '../api/TopicsApi';
 import { getReelay } from '../api/ReelayDBApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getCustomFromCode, getLists, shareList } from '../api/ListsApi';
 
 const UUID_LENGTH = 36;
 
@@ -48,6 +50,7 @@ export default Navigation = () => {
     const notificationListener = useRef();
     const responseListener = useRef(); 
     const [deeplinkURL, setDeeplinkURL] = useState(null);
+    const [checkFirstTimeLogin, setcheckFirstTimeLogin] = useState(null);
 
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
@@ -122,6 +125,7 @@ export default Navigation = () => {
     
     useEffect(() => {
         initDeeplinkHandlers();
+        checkFirsttimeVisit();
         notificationListener.current = addNotificationReceivedListener(onNotificationReceived);
         responseListener.current = addNotificationResponseReceivedListener(onNotificationResponseReceived);
 
@@ -180,6 +184,15 @@ export default Navigation = () => {
                     openTopicAtReelay(inviteCode)
                     // navigation.navigate('UserProfileFromLinkScreen', { inviteCode });
                 }
+            } else if (path?.startsWith('list/')) {
+                console.log('List found');
+                console.log(deeplinkURL);
+                
+                const inviteCode = path.substr('list/'.length);
+                console.log('inviteCode',inviteCode);
+                if (inviteCode) {
+                    getCustomFromCodes(inviteCode);
+                }
             } else if (path?.length === UUID_LENGTH) {
                 // assume it's a reelay sub -- not entirely sure why it's cutting
                 // off 'reelay/' from the front of path, but that's what we're seeing
@@ -188,6 +201,38 @@ export default Navigation = () => {
             }
         }
     }, [deeplinkURL]);
+
+    const getCustomFromCodes = async(inviteCode) =>{
+        const listData =  await getCustomFromCode(inviteCode,reelayDBUser?.sub)
+        const navigation = navigationRef?.current;
+        console.log('listData',listData);
+        if(listData){
+            const listNew = {
+                id:listData?.listId,
+                listName:listData?.listName,
+                description:listData?.description,
+                creatorName:listData?.creatorName,
+            }
+            navigation.navigate('ListMovieScreen',{listData:listNew, fromList:true, fromDeeplink:true})
+            
+            const postData ={
+                listName : listData?.listName,
+                creatorSub : listData?.creatorSub,
+                creatorName : listData?.creatorName,
+                shareSub : reelayDBUser?.sub,
+                shareName : reelayDBUser?.username,
+                sharedListId:listData.listId
+            }
+            await shareList(postData);
+            await getListss();
+        }
+    }
+
+    const getListss = async() =>{
+        dispatch({ type: 'setListData', payload: [] });
+        const GetListData = await getLists({reqUserSub:reelayDBUser?.sub});
+        dispatch({ type: 'setListData', payload: GetListData });
+    }
 
     const openTopicAtReelay = async (reelaySub) => {
         const navigation = navigationRef?.current;
@@ -258,12 +303,33 @@ export default Navigation = () => {
             publishReelay();
         }
     }, [uploadRequest, uploadStage]);
+
+    // useEffect=(()=>{
+    // },[])
+    
+    const checkFirsttimeVisit = async() => {
+        try {
+            const firstTime = await AsyncStorage.getItem('checkFirstTimeLogin');
+            if (!firstTime) {
+                setcheckFirstTimeLogin(false)
+                dispatch({ type: 'setFirstTimeLogin', payload: false });
+            }else{
+                setcheckFirstTimeLogin(true)
+                dispatch({ type: 'setFirstTimeLogin', payload: true });
+            }
+        } catch (error) {
+            console.log("firstTime",error);
+            return true;
+        }
+
+    }
     
     return (
         <NavigationContainer ref={navigationRef}
             linking={LinkingConfiguration}
             theme={DarkTheme}>
-            <RootNavigator />
+            {checkFirstTimeLogin !== null &&
+            <RootNavigator firstTime={checkFirstTimeLogin} />}
         </NavigationContainer>
     );
 }
@@ -272,19 +338,22 @@ export default Navigation = () => {
 // Read more here: https://reactnavigation.org/docs/modal
 const Stack = createStackNavigator();
 
-const RootNavigator = () => {
+const RootNavigator = ({firstTime}) => {
     const { reelayDBUser } = useContext(AuthContext);
     const signedIn = useSelector(state => state.signedIn);
+    const firstTimeLoginScreen = useSelector(state => state.firstTimeLoginScreen);
     let isCurrentlyBanned = false;
     if (reelayDBUser?.isBanned) {
         isCurrentlyBanned = (moment(reelayDBUser?.banExpiryAt).diff(moment(), 'minutes') > 0);
     }
+    // const firstTime = false;
 
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
+            { !signedIn && !firstTimeLoginScreen && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} initialParams={{redirect:"LandingScreen"}}/> }
             { signedIn && isCurrentlyBanned && <Stack.Screen name="Suspended" component={AccountSuspendedScreen} /> }
             { signedIn && !isCurrentlyBanned && <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} /> }
-            { !signedIn && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} /> }
+            { !signedIn && firstTimeLoginScreen  && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} initialParams={{redirect:"SignedOutScreen"}}/> }
         </Stack.Navigator>
     );
 }

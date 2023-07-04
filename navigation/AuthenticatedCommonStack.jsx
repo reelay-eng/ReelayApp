@@ -16,6 +16,7 @@ import CreateClubPart3Screen from '../screens/authenticated/CreateClubPart3Scree
 import CreateGuessingGameScreen from '../screens/authenticated/CreateGuessingGameScreen';
 import CreateGuessingGameCluesScreen from '../screens/authenticated/CreateGuessingGameCluesScreen';
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
+import CreateListScreen from '../screens/authenticated/CreateListScreen';
 import EditClubScreen from '../screens/authenticated/EditClubScreen';
 import FeedScreen from '../screens/authenticated/FeedScreen';
 import GuessingGameFeedScreen from '../screens/authenticated/GuessingGameFeedScreen';
@@ -51,6 +52,9 @@ import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
 import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
 import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
 import ReferShareScreen from '../screens/authenticated/ReferShareScreen';
+import SearchTitleScreen from '../screens/unauthenticated/SearchScreen';
+import SelectMovieScreen from '../screens/unauthenticated/SelectMovieScreen';
+import ListMovieScreen from '../components/lists/ListMovieScreen';
 
 export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
     const CommonStack = createStackNavigator();
@@ -74,6 +78,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='CreateGuessingGameScreen' component={CreateGuessingGameScreen} options={commonOptions} />
             <CommonStack.Screen name='CreateGuessingGameCluesScreen' component={CreateGuessingGameCluesScreen} options={commonOptions} />
             <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
+            <CommonStack.Screen name='CreateListScreen' component={CreateListScreen} options={commonOptions} />
             <CommonStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
             <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
             <CommonStack.Screen name='GuessingGameFeedScreen' component={GuessingGameFeedScreen} options={commonOptions} />
@@ -109,6 +114,9 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='WatchlistScreen' component={WatchlistScreen} options={commonOptions} />
             <CommonStack.Screen name='MyClubsScreen' component={MyClubsScreen} options={commonOptions} />
             <CommonStack.Screen name='ReferShareScreen' component={ReferShareScreen} options={commonOptions} />
+            <CommonStack.Screen name="SearchTitleScreen" component={SearchTitleScreen} options={commonOptions} />
+            <CommonStack.Screen name="SelectMovieScreen" component={SelectMovieScreen} options={commonOptions} />
+            <CommonStack.Screen name="ListMovieScreen" component={ListMovieScreen} options={commonOptions} />
         </CommonStack.Navigator>
     );
 }

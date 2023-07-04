@@ -18,6 +18,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCameraRotate, faPhotoVideo, faStop } from '@fortawesome/free-solid-svg-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { animate } from '../../hooks/animations';
+import { HeaderSkipBack } from '../../components/global/Headers';
+import * as ReelayText from '../../components/global/Text';
 
 const { height, width } = Dimensions.get('window');
 const CAPTURE_SIZE = Math.floor(height * 0.07);
@@ -59,7 +61,7 @@ const RecordButtonFadeCircle = styled(View)`
 `
 const RecordButtonOuterCircle = styled(TouchableOpacity)`
     align-items: center;
-    background-color: white;
+    background-color: ${props =>props.isRecording ? 'red':'white'};
     border-radius: ${Math.floor(CAPTURE_SIZE / 2)}px;
     height: ${CAPTURE_SIZE}px;
     justify-content: center;
@@ -105,6 +107,23 @@ const TitleBannerContainer = styled(View)`
     position: absolute;
     top: ${props => props.topOffset + 36}px;
 `
+const SortOptionPressable = styled(TouchableOpacity)`
+    padding-right: 30px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+`
+const SortOptionText = styled(ReelayText.Body2)`
+    color: white;
+    font-size: 17px;
+    text-align: right;
+`
+const SortOptionsView = styled(View)`
+    background-color: black;
+    padding: 2px;
+    position: absolute;
+    padding-top: ${props => props.topOffset - 7}px;
+    width: 100%;
+`
 
 export default ReelayCameraScreen = ({ navigation, route }) => {
     const { reelayDBUser} = useContext(AuthContext);
@@ -115,6 +134,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const topicID = route.params?.topicID ?? null;
     const clubID = route.params?.clubID ?? null;
     const draftGame = route?.params?.draftGame ?? null;
+    const fromFirstTitle = route?.params?.fromFirstTitle ?? false;
 
     const cameraRef = useRef(null);
     const topOffset = useSafeAreaInsets().top;
@@ -142,7 +162,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             titleObj, 
             topicID, 
             venue,
-            videoURI, 
+            videoURI,
+            fromFirstTitle 
         });
 
         // setting this prematurely when we advance to the upload screen,
@@ -220,7 +241,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                         pushToUploadScreen(videoRecording.uri);
                         logAmplitudeEventProd('videoRecorded', {
                             username: reelayDBUser?.username,
-                            title: titleObj.display,
+                            title: titleObj?.display,
                         })
                         
                     }
@@ -278,7 +299,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 <Fragment>
                     <RecordProgressCurrentView progressRatio={progressRatio} topOffset={topOffset} />
                     <RecordButtonOuterRing 
-                        colors={['#0789FD', '#FF4848']} 
+                        // colors={isRecording ?['#fff', '#fff']:['#0789FD', '#FF4848']} 
+                        colors={['#fff', '#fff']} 
                         start={{ x: outerRingXStart, y: outerRingYStart }}
                         end={{ x: outerRingXEnd, y: outerRingYEnd }}
                     />
@@ -291,8 +313,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 <RecordProgressMaxView topOffset={topOffset} />
                 <RecordProgress />
                 <RecordButtonContainer>
-                    <RecordButtonOuterCircle activeOpacity={0.7} onPress={onRecordButtonPress}>
-                        { isRecording && <FontAwesomeIcon icon={faStop} size={24} color='black' /> }
+                    <RecordButtonOuterCircle isRecording={isRecording} activeOpacity={0.7} onPress={onRecordButtonPress}>
+                        { isRecording && <FontAwesomeIcon icon={faStop} size={24} color='red' /> }
                     </RecordButtonOuterCircle>
                 </RecordButtonContainer>
             </Fragment>
@@ -325,11 +347,27 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         );
     }
 
+    const skipp = async() =>{
+        // navigation.replace('HomeScreen')
+        navigation.reset({
+            index: 0,
+            routes: [{name: 'HomeScreen'}],
+          })    
+    }
+    const goBack = () => { navigation.goBack(); }
+
     const RecordOverlay = () => {
         return (
             <OverlayContainer>
                 <RecordInterface />
-                <ReelayFeedHeader navigation={navigation} feedSource={'camera'} />
+                {/* <HeaderSkipBack onPressOverride={goBack} onSkip={skipp} navigation={navigation} text='Record Reelay' /> */}
+                {!fromFirstTitle ?
+                <ReelayFeedHeader navigation={navigation} feedSource={'camera'} />:
+                <View style={{backgroundColor:"#000"}}>
+                <SortOptionsView topOffset={topOffset}>
+                    <HeaderSkipBack onPressOverride={goBack} onSkip={skipp} navigation={navigation} text='Record Reelay' />
+                </SortOptionsView>
+                </View>}
                 {(!!titleObj?.id) && (
                     <TitleBannerContainer topOffset={topOffset}>
                         <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />

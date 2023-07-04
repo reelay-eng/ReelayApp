@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowUp, faArrowUpShortWide, faPlay, faPlayCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { moveWatchlistItemToFront, removeFromMyWatchlist } from '../../api/WatchlistApi';
+import { getWatchlistItems, moveWatchlistItemToFront, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import moment from 'moment';
 
 const { width } = Dimensions.get('window');
@@ -106,11 +106,17 @@ export default WatchlistItemDotMenu = ({
         console.log('remove from watchlist result: ', removeResult);
         logAmplitudeEventProd('removeItemFromWatchlist', {
             username: reelayDBUser?.username,
-            title: titleObj.display,
+            title: titleObj?.display,
             source: 'watchlist',
         });    
         onRefresh();
 
+    }
+
+    const onRefresh = async () => {
+        const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
+        dispatch({ type: 'setMyWatchlistItems', payload: [] });
+        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
     }
 
     const DotMenuOption = ({ icon, color='white', onPress, text }) => {

@@ -32,6 +32,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import * as Haptics from 'expo-haptics';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlay, faPlusCircle, faShare, faVideo } from '@fortawesome/free-solid-svg-icons';
+import { Camera } from 'expo-camera';
 
 const { width } = Dimensions.get('window');
 
@@ -143,7 +144,9 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		const advanceToCreateReelay = () => {
 			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 			if (showMeSignupIfGuest()) return;
-			navigation.push('VenueSelectScreen', { titleObj: titleObj });
+
+			// navigation.push('VenueSelectScreen', { titleObj: titleObj });
+			advancetoCameraScreen(titleObj)
 			logAmplitudeEventProd('advanceToCreateReelay', {
 				username: reelayDBUser?.username,
 				title: titleObj?.title?.display,
@@ -158,6 +161,42 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			</CreateReelayPressable>
 		)
 	}
+
+
+    const getCameraPermissions = async () => {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        return (status === "granted");
+    }
+
+    const getMicPermissions = async () => {
+        const { status } = await Camera.requestMicrophonePermissionsAsync();
+        return (status === "granted");
+    }
+
+    const advancetoCameraScreen = async(titleObj,topicID="", clubID="") => {
+        const hasCameraPermissions = await getCameraPermissions();
+        const hasMicPermissions = await getMicPermissions();
+        const venue = "";
+        if (hasCameraPermissions && hasMicPermissions) {
+            navigation.push('ReelayCameraScreen', { titleObj, venue, topicID, clubID });    
+            logAmplitudeEventProd('selectVenue', { venue });
+        } else {
+            alertCameraAccess();
+        }
+    }
+    const alertCameraAccess = async () => {
+        Alert.alert(
+            "Please allow camera access",
+            "To make a reelay, please enable camera and microphone permissions in your phone settings",
+            [
+              {
+                text: "Cancel",
+                style: "cancel"
+              },
+              { text: "Update camera settings", onPress: () => Linking.openSettings() }
+            ]
+        );        
+    }
 
 	const ShareMovieButton = () => {
 		const shareTheTopic = () => Alert.alert("","Link to share movie");

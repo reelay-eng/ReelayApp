@@ -134,7 +134,7 @@ const TopicBanner = ({
     
     const allowExpand = (titleObj?.titleKey !== 'film-0');
     // figure out how to do ellipses for displayTitle
-    const displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
+    const displayTitle = (titleObj?.display) ? titleObj?.display : 'Title not found'; 
 	const displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
     const runtime = titleObj?.runtime;
     const venue = reelay?.content?.venue;

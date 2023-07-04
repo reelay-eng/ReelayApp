@@ -102,7 +102,7 @@ export default ProfileHeaderAndInfo = ({
                 {websiteText !== "" && (
                     <WebsiteText onPress={goToWebsiteLink}>{websiteText}</WebsiteText>
                 )}
-                <SubscriptionsContainer>
+                {/* <SubscriptionsContainer>
                     {streamingSubscriptions.map((subscription, index) => {
                         return (
                             <VenueContainer key={index}>
@@ -110,7 +110,7 @@ export default ProfileHeaderAndInfo = ({
                             </VenueContainer>
                         );
                     })}
-                </SubscriptionsContainer>
+                </SubscriptionsContainer> */}
             </UserInfoContainer>    
         </React.Fragment>
     )

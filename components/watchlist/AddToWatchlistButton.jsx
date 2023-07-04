@@ -101,7 +101,7 @@ export default AddToWatchlistButton = ({
         if (shouldGoToWatchlist) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         } else {
-            showMessageToast(`Added ${titleObj.display} to your watchlist`);
+            showMessageToast(`Added ${titleObj?.display} to your watchlist`);
         }
 
         const addToWatchlistResult = await addToMyWatchlist({
@@ -111,7 +111,7 @@ export default AddToWatchlistButton = ({
             tmdbTitleID: titleObj?.id,
             titleType: titleObj?.titleType,
         });
-
+        dispatch({ type: 'setMyWatchlistItems', payload: [] });
         const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
 
         // todo: should also be conditional based on user settings

@@ -6,7 +6,7 @@ import BackButton from '../utils/BackButton';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faGear, faShare } from '@fortawesome/free-solid-svg-icons';
-import { fetchOrCreateProfileLink } from '../../api/ProfilesApi';
+import {  fetchOrCreateProfileLink } from '../../api/ProfilesApi';
 import { useSelector } from 'react-redux';
 import { showErrorToast } from '../../components/utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -30,6 +30,8 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
             });
             setProfileLink(profileLink);
         }
+
+        
         if (validCreatorName) {
             fetchProfileLink();
         }
@@ -111,7 +113,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         return (
             <RightCornerContainer>
                 { atProfileBase && <SettingsButton /> }
-                { validCreatorName && <ShareProfileLinkButton />}
+                {/* { validCreatorName && <ShareProfileLinkButton />} */}
             </RightCornerContainer>
         );
     }

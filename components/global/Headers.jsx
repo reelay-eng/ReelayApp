@@ -37,17 +37,23 @@ export const HeaderWithBackButton = ({
 	navigation, 
 	onPressOverride,
 	text = "Settings", 
-	light=false 
+	light=false,
+	checkMark = false,
+	onDone,
+	size=24
 }) => {
 	const onPress = onPressOverride ?? navigation?.goBack;
 	return (
 		<>
 			<HeaderView>
 				<BackButtonPressable onPress={onPress}>
-					<Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
+					<Icon type="ionicon" name="arrow-back-outline" color="white" size={size} />
 				</BackButtonPressable>
 				{ light && <HeaderTextLight>{text}</HeaderTextLight> }
 				{ !light && <HeaderText>{text}</HeaderText> }
+				{checkMark ?<Pressable style={{position:"absolute",right:30}} onPress={onDone}>
+					<Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} style={{fontWeight:"bold"}} size={size} />
+				</Pressable>:null}
 			</HeaderView>
 		</>
 	);
@@ -72,6 +78,9 @@ const CancelText = styled(ReelayText.Subtitle1Emphasized)`
 	color: white;
 	opacity: 0.9;
 `
+const SkipText = styled(ReelayText.Subtitle1Emphasized)`
+	color: white;
+`
 const Divider = styled(View)`
 	border-bottom-width: 1px;
 	border-color: white;
@@ -94,6 +103,24 @@ export const HeaderDoneCancel = ({ onDone, onCancel, text = "Settings", withBar=
 				</Pressable>
 			</CancelHeaderView>
 			{withBar && <Divider />}
+		</>
+	);
+};
+
+
+export const HeaderSkipBack = ({ onPressOverride, onSkip, text = "Settings", light = false, size=32}) => {
+	return (
+		<>
+			<HeaderView>
+				<BackButtonPressable onPress={onPressOverride}>
+					<Icon type="ionicon" name="arrow-back-outline" color="white" size={size} />
+				</BackButtonPressable>
+				{ light && <HeaderTextLight>{text}</HeaderTextLight> }
+				{ !light && <HeaderText>{text}</HeaderText> }
+				<Pressable  style={{position:"absolute",right:30}} onPress={onSkip}>
+					<SkipText>Skip</SkipText>
+				</Pressable>
+			</HeaderView>
 		</>
 	);
 };

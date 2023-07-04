@@ -142,11 +142,13 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
         }
 
         const localVideoURI = videoDir + '/' + reelay?.sub;
+        console.log("localVideoURI",localVideoURI)
         const localVideo = await downloadAsync(reelay?.content?.videoURI, localVideoURI);
         localReelayVideoURI.current = localVideo?.uri;
     }
 
     const shareToInstagram = async () => {
+        console.log("shareToInstagram")
         if (!CAN_USE_RN_SHARE) return;
         const inputURIs = {
             backplateURI: capturedBackplateURI.current.replace('/private', 'file:///'),
@@ -158,7 +160,7 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
             top: (backplateLayoutHeight - videoLayoutHeight) * (PIXEL_RATIO / 2),
             left:  (backplateLayoutWidth - videoLayoutWidth) * (PIXEL_RATIO / 2),
         }
-        
+        // file:///var/mobile/Containers/Data/Application/D82BE043-8E2E-49E5-8BC4-802EA767E151/Library/Caches/vid/9f797f01-fe86-40e3-949b-b764937fbf9e-insta-story.mp4
         const videoRes = {
             height: VIDEO_PLAYER_HEIGHT,
             width: VIDEO_PLAYER_WIDTH,
@@ -173,12 +175,13 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
         Clipboard.setStringAsync(url).then(() => {
             showMessageToast('Reelay link copied to clipboard');
             setTimeout(async () => {
-                const RN_SHARE = require('react-native-share');
-                const shareResult = await RN_SHARE.default.shareSingle({
+                const Share = require('react-native-share');
+                // console.log("attributionURL",url,compositeVideoURI)
+                const shareResult = await Share.default.shareSingle({
                     attributionURL: url,
                     backgroundVideo: compositeVideoURI,
                     url: url,
-                    social: RN_SHARE.Social.InstagramStories,
+                    social: Share.Social.Instagram,
                     type: 'video/mp4',
                 });
                 console.log('share result: ', shareResult);
@@ -196,7 +199,7 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
 
     const ProgressIndicator = () => {
         const bottomOffset = useSafeAreaInsets().bottom;
-        const [progress, setProgress] = useState(progressRef.current);
+        const [progress, setProgress] = useState(progressRef?.current);
         const getProgressText = () => {
             if (progress === 'downloading') return 'Downloading reelay...';
             if (progress === 'compositing') return 'Converting reelay to story...';
@@ -249,7 +252,7 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
 
         const onImageLoad = useCallback(() => {
             console.log('overlay loaded');
-            overlayRef.current.capture().then(uri => {
+            overlayRef.current?.capture().then(uri => {
                 console.log('overlay ref uri: ', uri);
                 capturedOverlayURI.current = uri;
             });

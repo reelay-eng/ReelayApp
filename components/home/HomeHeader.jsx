@@ -59,14 +59,14 @@ export default HomeHeader = ({ navigation }) => {
 
     const advanceToMyNotifications = () => navigation.push('NotificationScreen');
     const advanceToSearchScreen = () => navigation.push('SearchScreen');
-    // const advanceToSearchScreen = () => navigation.push('ReferShareScreen');
-    // const advanceToSearchScreen = () => navigation.push('ReelayListScreen');
+    // const directMessageScreen = () => navigation.push('SearchTitleScreen');
     const directMessageScreen = () => navigation.push('MyClubsScreen');
 
     return (
         <HeaderContainer>
             <HeaderContainerLeft>
-                <HeaderText>{'reelay'}</HeaderText>
+            {/* <HeaderText>{'reelay'}</HeaderText> */}
+            <HeaderText>{'Discover'}</HeaderText>
             </HeaderContainerLeft>
             <HeaderContainerRight>
                 <IconContainer onPress={advanceToSearchScreen}>

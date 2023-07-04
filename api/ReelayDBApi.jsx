@@ -416,7 +416,11 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
             requsersub: reqUserSub
         },
     });
-
+    // console.log("homeContent",homeContent)
+    if (!homeContent) {
+        console.log('Error: no home content');
+        return null;
+    }
     const versionInfo = {
         minVersionRequired: homeContent?.minVersionRequired,
         recommendedVersion: homeContent?.recommendedVersion
@@ -434,10 +438,7 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         'topOfTheWeek',
     ];
 
-    if (!homeContent) {
-        console.log('Error: no home content');
-        return null;
-    }
+   
 
     const { discover, following, global, profile } = homeContent;
     if (!discover || !following || !global || !profile) {
@@ -891,6 +892,22 @@ export const searchTitles = async (searchText, isSeries, page = 0) => {
     const annotatedResults = await Promise.all(
         resultGet.map(async (tmdbTitleObject) => {
             return await fetchAnnotatedTitle({ tmdbTitleID: tmdbTitleObject.id, isSeries });
+        })
+    );
+    return annotatedResults;
+}
+
+export const searchBothTitles = async (searchText, page = 0) => {
+    const cleanSearchText = searchText.toLowerCase().replace(/[\u2018\u2019\u201c\u201d/'/"]/g, "").replaceAll(' ', '%20');
+    const routeGet = `${REELAY_API_BASE_URL}/search/bothtitles?searchText=${cleanSearchText}&page=${page}`;
+    const resultGet = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: ReelayAPIHeaders,
+    });
+    
+    const annotatedResults = await Promise.all(
+        resultGet.map(async (tmdbTitleObject) => {
+            return await fetchAnnotatedTitle({ tmdbTitleID: tmdbTitleObject.id, isSeries: tmdbTitleObject.media_type == "movie" ? false:true });
         })
     );
     return annotatedResults;

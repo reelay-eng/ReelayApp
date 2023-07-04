@@ -24,6 +24,7 @@ import { searchPublicClubs } from "../../api/ClubsApi";
 // Styling
 import styled from "styled-components/native";
 import { useFocusEffect } from "@react-navigation/native";
+import { addToMyCustomlist, getCustomItems } from "../../api/WatchlistApi";
 
 const { width } = Dimensions.get('window');
 
@@ -50,12 +51,17 @@ const TopBarView = styled(View)`
 `
 
 export default SearchScreen = ({ navigation, route }) => {
+    const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
     const addToWatchlist = route?.params?.addToWatchlist ?? false;
+    const addCustomWatchlist = route?.params?.addCustomWatchlist ?? false;
+    const checkMark = route?.params?.checkMark ?? false;
     const initialSearchType = route?.params?.initialSearchType ?? 'Film';
     const Redirect = route?.params?.Redirect ?? 0;
 
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
+    const addCustomProfile = useSelector(state => state.addCustomProfile);
 
     const goBack = () => {
         if (addToWatchlist) {
@@ -77,19 +83,31 @@ export default SearchScreen = ({ navigation, route }) => {
         }
     }
 
+    const callMultiple = async() =>{
+        const addToMyCustomlists = await addToMyCustomlist({
+            reqUserSub: reelayDBUser?.sub,
+            titleData: addCustomProfile
+        });
+        goBack();
+        const getItems = await getCustomItems(reelayDBUser?.sub);
+        dispatch({ type: 'setCustomWatchData', payload: getItems });
+    }
+
     return (
 		<SearchScreenView>
 			<HeaderWithBackButton 
                 onPressOverride={goBack}
                 navigation={navigation} 
-                text={addToWatchlist ? 'add to watchlist' : 'search'} 
+                checkMark={checkMark}
+                onDone={callMultiple}
+                text={addToWatchlist ? 'add to watchlist' :addCustomWatchlist ? 'add to custom': 'search'} 
             />
-            <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist}/>
+            <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist} addCustomWatchlist={addCustomWatchlist}/>
 		</SearchScreenView>
 	);
 };
 
-const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist }) => {
+const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, addCustomWatchlist }) => {
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
@@ -100,8 +118,8 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
     const allSearchOptions = isGuestUser 
         ? ['Film', 'TV', 'Users'] 
         : ['Film', 'TV', 'Chats', 'Users']
-    const tabOptions = addToWatchlist 
-        ? ['Film', 'TV'] 
+    const tabOptions = addToWatchlist || addCustomWatchlist
+    ? ['Film', 'TV'] 
         : allSearchOptions;
 
     const [searchText, setSearchText] = useState("");
@@ -206,6 +224,7 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
                         searchText={searchText}
                         isSeries={(selectedType === 'TV')}
                         source={"search"}
+                        addCustomWatchlist={addCustomWatchlist}
                     />
                 )}
                 {selectedType === "Chats" && (
@@ -273,6 +292,7 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
                     navigation={navigation} 
                     selectedType={selectedType}
                     source='search'
+                    addCustomWatchlist={addCustomWatchlist}
                 /> 
             )}
             { loading && <ActivityIndicator /> }

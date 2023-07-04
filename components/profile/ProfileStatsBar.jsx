@@ -78,10 +78,12 @@ export default ProfileStatsBar = ({
                 <StatText>{reelayCount}</StatText>
                 <DimensionText>{"Reelays"}</DimensionText>
             </StatContainer>
+            <View style={{backgroundColor:"#fff",height:"80%",width:.5}}/>
             <StatContainer onPress={viewFollowers}>
                 <StatText>{ followers ? followers.length : 0}</StatText>
                 <DimensionText>{"Followers"}</DimensionText>
             </StatContainer>
+            <View style={{backgroundColor:"#fff",height:"80%",width:.5}}/>
             <StatContainer onPress={viewFollowing}>
                 <StatText>{ following ? following.length : 0}</StatText>
                 <DimensionText>{"Following"}</DimensionText>

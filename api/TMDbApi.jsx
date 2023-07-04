@@ -145,7 +145,28 @@ export const fetchPopularSeries = async (page = 0) => {
     }
 }
 
-export const fetchAnnotatedTitle = async ({ tmdbTitleID, isSeries, isWelcomeReelay=false, loadedTitleObj=null }) => {
+export const fetchTrendingMovies = async () => {
+    try {
+        const queryParams = `api_key=${TMDB_API_KEY}&language=en-US`;
+        const routeGet = `${TMDB_API_BASE_URL}/trending/all/day?${queryParams}`;
+        const tmdbResponse = await fetchResults(routeGet, { method: 'GET' });
+        const popularTitles = tmdbResponse?.results ?? [];
+        // console.log("popularTitles",popularTitles)
+        const annotateSeries = async (titleObj) => await fetchAnnotatedTitle({ 
+            tmdbTitleID: titleObj?.id,
+            isSeries: titleObj?.media_type=="movie" ? false: true,
+            loadedTitleObj: titleObj,
+            trending:true
+        });
+        
+        return await Promise.all(popularTitles.map(annotateSeries));
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const fetchAnnotatedTitle = async ({ tmdbTitleID, isSeries, isWelcomeReelay=false, loadedTitleObj=null, trending = false }) => {
     if (!tmdbTitleID) return EmptyTitleObject;
 
     const titleType = (isSeries) ? 'tv' : 'film';
@@ -190,7 +211,7 @@ export const fetchAnnotatedTitle = async ({ tmdbTitleID, isSeries, isWelcomeReel
     let annotatedTitle = {
         id: tmdbTitleObject.id,
         director: getDirector(titleCredits),
-        display: isSeries ? tmdbTitleObject.name : tmdbTitleObject.title,
+        display: trending ? tmdbTitleObject.original_title :  isSeries ? tmdbTitleObject.name : tmdbTitleObject.title,
         displayActors: getDisplayActors(titleCredits),
         isSeries,
         genres: tmdbTitleObject.genres,

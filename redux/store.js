@@ -26,6 +26,8 @@ const initialState = {
     reelayDBUser: {},
     reelayDBUserID: null,
     signedIn: false, 
+    firstTimeLoginScreen:false,
+    openAddTitle:false,
 
     // CLUBS + WATCHLISTS
     myClubs: [],
@@ -101,6 +103,10 @@ const initialState = {
     myDismissalHistory: {},
     showFestivalsRow: false,
 
+    //ListData
+    listData:[],
+
+
     // ON REELAYS
     likesVisible: false,
     commentsVisible: false,
@@ -127,6 +133,9 @@ const initialState = {
     // SEARCH
     suggestedMovieResults: { titles: [], nextPage: 0 },
     suggestedSeriesResults: { titles: [], nextPage: 0 },
+    addCustomProfile:[],
+    customWatchData:[],
+    trendingMovieResults: [],
 
     // SIGNUP
     isLoading: true,
@@ -167,6 +176,10 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, reelayDBUserID: action.payload }
         case 'setSignedIn':
             return { ...state, signedIn: action.payload }
+        case 'setFirstTimeLogin':
+            return { ...state, firstTimeLoginScreen: action.payload }
+        case 'setOpenAddTitle':
+            return { ...state, openAddTitle: action.payload }
 
         // CLUBS + WATCHLISTS
         case 'setMyClubs':
@@ -272,7 +285,7 @@ const appReducer = ( state = initialState, action) => {
             // holdover until we migrate entirely to the new discover feed
             let myHomeContent = action.payload;
             const discoverMostRecent = {
-                content: myHomeContent.global,
+                content: myHomeContent?.global,
                 filters: {},
                 nextPage: 1,
             };
@@ -296,6 +309,11 @@ const appReducer = ( state = initialState, action) => {
                 myHomeContent.following.topicsNextPage = nextPage;
             }
             return { ...state, myHomeContent };
+
+        //LISTDATA
+        case 'setListData':
+            return { ...state, listData: action.payload }
+            
 
         // ON REELAYS
         case 'setCommentsVisible':
@@ -340,8 +358,18 @@ const appReducer = ( state = initialState, action) => {
         // SEARCH
         case 'setSuggestedMovieResults':
             return { ...state, suggestedMovieResults: action.payload }
+
+        case 'setTrendingMovieResults':
+            return { ...state, trendingMovieResults: action.payload }
+
         case 'setSuggestedSeriesResults':
             return { ...state, suggestedSeriesResults: action.payload }
+
+        case 'setAddCustomProfile':
+            return { ...state, addCustomProfile: action.payload }
+        
+        case 'setCustomWatchData':
+            return { ...state, customWatchData: action.payload }
 
             case 'setMySettings':
             return { ...state, mySettings: action.payload }
@@ -392,6 +420,8 @@ export const mapStateToProps = (state) => ({
     reelayDBUser: state.reelayDBUser,
     reelayDBUserID: state.reelayDBUserID,
     signedIn: state.signedIn,
+    firstTimeLoginScreen: state.firstTimeLoginScreen,
+    openAddTitle:state.openAddTitle,
 
     // CLUBS + WATCHLISTS
     myClubs: state.myClubs,
@@ -435,6 +465,9 @@ export const mapStateToProps = (state) => ({
     myDismissalHistory: state.myDismissalHistory,
     showFestivalsRow: state.showFestivalsRow,
 
+    //LISTDATA
+    listData:state.listData,
+
     // ON REELAYS
     commentsVisible: state.commentsVisible,
     commentRefreshListener: state.commentRefreshListener,
@@ -460,7 +493,11 @@ export const mapStateToProps = (state) => ({
 
     // SEARCH
     suggestedMovieResults: state.suggestedMovieResults,
+    trendingMovieResults:state.trendingMovieResults,
     suggestedSeriesResults: state.suggestedSeriesResults,
+    addCustomProfile: state.addCustomProfile,
+    customWatchData:state.customWatchData,
+    custo: state.suggestedSeriesResults,
 
     // SIGNUP
     isLoading: state.isLoading,

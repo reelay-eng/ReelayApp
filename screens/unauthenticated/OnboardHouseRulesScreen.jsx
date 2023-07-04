@@ -182,7 +182,8 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
                 platform: venue,
             });
         }
-        await Promise.all(selectedVenues.map(registerSubscription));
+        const selectedVenue = selectedVenues?selectedVenues:[]
+        await Promise.all(selectedVenue?.map(registerSubscription));
     }
 
     return (

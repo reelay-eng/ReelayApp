@@ -40,7 +40,7 @@ const VenuesScrollContainer = styled(View)`
 
 export default WatchNow = ({ titleType, tmdbTitleID}) => {
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
-    const myStreamingSubscriptionsUnboxed = myStreamingSubscriptions.map(ss => ss.platform);
+    const myStreamingSubscriptionsUnboxed = myStreamingSubscriptions?.map(ss => ss.platform);
     const streamingVenues = getStreamingVenues();
     const streamingVenuesUnboxed = streamingVenues.map(vi => vi.venue);
 

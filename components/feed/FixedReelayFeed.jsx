@@ -26,6 +26,7 @@ const FixedReelayFeed = ({
     fixedStackList = [],
     forceRefresh = false, 
     navigation,
+    firstReelAfterSignup= false
 }) => {
     const dispatch = useDispatch();
     const feedPager = useRef();
@@ -64,6 +65,7 @@ const FixedReelayFeed = ({
                     navigation={navigation}
                     stack={stack} 
                     stackViewable={stackViewable}
+                    firstReelAfterSignup={firstReelAfterSignup}
                 />
             </React.Fragment>
         );

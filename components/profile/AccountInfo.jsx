@@ -122,6 +122,7 @@ const Logout = () => {
             });
     
             dispatch({ type: 'setSignedIn', payload: false });
+            dispatch({ type: 'setListData', payload: [] });
             if (authSession?.method === 'cognito') {
                 const signOutResult = await Auth.signOut();
                 console.log("1",signOutResult);

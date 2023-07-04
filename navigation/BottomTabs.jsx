@@ -15,13 +15,22 @@ import NotificationSettingsScreen from '../screens/authenticated/NotificationSet
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
 import TMDBCreditScreen from '../screens/authenticated/TMDBCreditScreen';
 import MyWatchlistScreen from '../screens/authenticated/WatchlistScreen';
+import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
+import SearchTitleScreen from '../screens/unauthenticated/SearchScreen';
+import SelectMovieScreen from '../screens/unauthenticated/SelectMovieScreen';
+import { useSelector } from 'react-redux';
 
-export const HomeTabNavigator = () => {
+export const HomeTabNavigator = ({ navigation, route }) => {
     const HomeTabStack = createStackNavigator();
     const commonOptions = { headerShown: false };
+    const openAddTitle = useSelector(state => state.openAddTitle);
+
 	return (
-		<AuthenticatedCommonStack initialRouteName="HomeScreen">
+		<AuthenticatedCommonStack initialRouteName= {openAddTitle ? "SearchTitleScreen":"HomeScreen"}>
+            {/* //"HomeScreen"> */}
 			<HomeTabStack.Screen name='HomeScreen' component={HomeScreen} options={commonOptions} />
+            {/* <HomeTabStack.Screen name="SearchTitleScreen" component={SearchTitleScreen} options={commonOptions} />
+            <HomeTabStack.Screen name="SelectMovieScreen" component={SelectMovieScreen} options={commonOptions} /> */}
 		</AuthenticatedCommonStack>
 	)
 }
@@ -34,8 +43,9 @@ export const CreateReelayTabNavigator = () => {
     const CreateTabStack = createStackNavigator();
     const commonOptions = { headerShown: false };
     return (
-        <AuthenticatedCommonStack initialRouteName='CreateScreen'>
-            <CreateTabStack.Screen name="CreateScreen" component={CreateScreen} options={commonOptions} />
+        <AuthenticatedCommonStack initialRouteName='SelectTitleScreen'>
+            {/* <CreateTabStack.Screen name="CreateScreen" component={CreateScreen} options={commonOptions} /> */}
+            {/* <CreateTabStack.Screen name="CreateTopicScreen" component={CreateTopicScreen} options={commonOptions} /> */}
         </AuthenticatedCommonStack>
     );
 }

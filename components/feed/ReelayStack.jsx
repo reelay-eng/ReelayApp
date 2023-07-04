@@ -64,6 +64,7 @@ const ReelayStack = ({
     onRefresh,
     stack,  
     stackViewable,
+    firstReelAfterSignup=false
 }) => {
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
@@ -159,6 +160,7 @@ const ReelayStack = ({
                     navigation={navigation} 
                     reelay={reelay} 
                     viewable={reelayIsViewable}
+                    firstReelAfterSignup={firstReelAfterSignup}
                 />
             </ReelayFeedContainer>
         );

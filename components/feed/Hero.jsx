@@ -1,5 +1,5 @@
 import React, { useContext, useRef, memo, useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
@@ -19,6 +19,8 @@ import styled from 'styled-components/native';
 import FeedTrailerDrawer from './FeedTrailerDrawer';
 import { animate } from '../../hooks/animations';
 import ShareGuessingGameDrawer from '../games/ShareGuessingGameDrawer';
+import ShareOutButton from './ShareOutButton';
+import { TouchableOpacity } from 'react-native';
 
 const BottomGradient = styled(LinearGradient)`
     position: absolute;
@@ -27,8 +29,7 @@ const BottomGradient = styled(LinearGradient)`
     height: 172px;
     width: 100%;
 `
-
-const HeroModals = ({ game = null, reelay, navigation }) => {
+const HeroModals = ({ game = null, reelay, navigation,firstReelAfterSignup = false }) => {
     const [modalsViewable, setModalsViewable] = useState(false);
     const likesVisible = useSelector(state => state.likesVisible);
     const commentsVisible = useSelector(state => state.commentsVisible);
@@ -93,7 +94,8 @@ export default Hero = ({
     navigation, 
     reelay, 
     showSidebar = true, 
-    viewable
+    viewable,
+    firstReelAfterSignup=false
 }) => {
 
     const getModalReelay = () => {
@@ -113,7 +115,7 @@ export default Hero = ({
             <FeedVideoPlayer gameID={game?.id ?? null} navigation={navigation} reelay={reelay} viewable={viewable} />
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
             <ReelayInfo clubStub={clubStub} feedSource={feedSource} navigation={navigation} reelay={reelay} />
-            { !isWelcomeVideo && showSidebar && (
+            { !isWelcomeVideo && showSidebar && !firstReelAfterSignup && (
                 <Sidebar 
                     commentsCount={commentsCount}
                     game={game}
@@ -121,7 +123,8 @@ export default Hero = ({
                     reelay={modalReelay} 
                 />
             )}
-            { viewable && <HeroModals game={game} reelay={modalReelay} navigation={navigation} /> }
+            { firstReelAfterSignup &&  <ShareOutButton navigation={navigation} reelay={reelay} firstReelAfterSignup={firstReelAfterSignup}/> }
+            { viewable && <HeroModals game={game} reelay={modalReelay} navigation={navigation} firstReelAfterSignup={firstReelAfterSignup}/> }
         </View>
     );
 }

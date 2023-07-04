@@ -35,7 +35,7 @@ const TitlePoster = ({ onLoad = () => {}, title, onPress, width = 60 }) => {
 	`
 
     if (!title) return <View />;
-    if (canUseFastImage) {
+    if (canUseFastImage && title?.posterPath) {
         return (
             <PosterContainer onPress={onPress}>
                 <FastImage source={source} style={style} />

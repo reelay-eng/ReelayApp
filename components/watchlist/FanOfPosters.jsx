@@ -64,16 +64,15 @@ const PosterTiltViewEmpty = styled(PosterTiltView)`
 `
 const PosterRowView = styled(View)`
     flex-direction: row;
+    height: 150px;
     height: 190px;
     width: 288px;
 `
 
-export default FanOfPosters = ({ titles = [] }) => {
+export default FanOfPosters = ({ titles = [], trending=false }) => {
 
     const getDisplayTitles = () => {
-        const displayTitles = (titles.length) > 4 
-            ? [...titles.slice(0,4)] 
-            : [...titles];
+        const displayTitles = (titles.length) > 4  ? [...titles.slice(0,4)]  : [...titles];
         while (displayTitles.length < 4) displayTitles.push(null);
         return displayTitles.reverse();
     }
@@ -92,14 +91,14 @@ export default FanOfPosters = ({ titles = [] }) => {
         }
 
         return (
-            <PosterTiltView {...posterTiltProps} key={title?.id}>
+            <PosterTiltView {...posterTiltProps}  key={title?.id}>
                 <TitlePoster title={title} width={POSTER_WIDTH} />
             </PosterTiltView>
         )
     }
 
     return (
-        <PosterRowView>
+        <PosterRowView trending={trending}>
              { getDisplayTitles().map(renderAngledPoster) }
         </PosterRowView>
     )

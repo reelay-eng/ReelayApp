@@ -292,3 +292,47 @@ export const setReactEmojis = async ({ authSession, itemID, reactEmojis, reqUser
         return [];
     }
 }
+
+//Add Custom Watchlist
+
+export const addToMyCustomlist = async ({ reqUserSub, titleData }) => {
+    const routePost = `${REELAY_API_BASE_URL}/custom/${reqUserSub}/add`;
+    const postBody = { 
+        array: titleData
+    };
+    console.log("postBody",postBody)
+    console.log("routePost",routePost)
+    try {
+        const dbResult = await fetchResults(routePost, {
+            method: 'POST',
+            headers: {
+                ...ReelayAPIHeaders,
+                requsersub: reqUserSub,
+            },
+            body: JSON.stringify(postBody),
+        });
+        return dbResult;
+        return prepareWatchlistItem(dbResult);
+    } catch (error) {
+        console.error(error);
+        return error;
+    }
+}
+
+export const getCustomItems = async (reqUserSub) => {
+    if (!reqUserSub) return [];
+    const routeGet = `${REELAY_API_BASE_URL}/custom/${reqUserSub}`;
+    try {
+        const watchlistItems = await fetchResults(routeGet, {
+            method: 'GET',
+            headers: { 
+                ...ReelayAPIHeaders, 
+                requsersub: reqUserSub,
+            },
+        });
+        return await Promise.all(watchlistItems.map(prepareWatchlistItem));    
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}

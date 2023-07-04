@@ -46,6 +46,20 @@ export const ProfileSettings = ({navigation}) => {
 			<HeaderWithBackButton navigation={navigation} text='settings' />
 			<SettingsContainer>
                 <SettingEntry
+                    text="Edit Profile"
+                    iconName="pencil"
+                    onPress={() => {
+                        dispatch({ type: 'setIsEditingProfile', payload: true });
+                    }}                    
+                />
+                <SettingEntry
+                    text="Refer a friend"
+                    iconName="person-add"
+                    onPress={() => {
+                        navigation.push("ReferShareScreen");
+                    }}                    
+                />
+                <SettingEntry
                     text="House Rules"
                     iconName="heart"
                     onPress={() => {

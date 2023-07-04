@@ -31,6 +31,10 @@ import ReelayFeedHeader from '../../components/feed/ReelayFeedHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faGlobeAmericas } from '@fortawesome/free-solid-svg-icons';
+import { HeaderSkipBack } from '../../components/global/Headers';
+import UploadProgressBar from '../../components/global/UploadProgressBar';
+import { async } from 'validate.js';
+import { getStacksByCreator } from '../../api/ReelayDBApi';
 
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
@@ -73,6 +77,15 @@ const TitleBannerContainer = styled(View)`
     top: ${props => props.topOffset + 36}px;
 `
 
+const SortOptionsView = styled(View)`
+background-color: black;
+padding: 2px;
+position: absolute;
+padding-top: ${props => props.topOffset - 7}px;
+
+    width: 100%;
+`
+
 export default ReelayUploadScreen = ({ navigation, route }) => {
     const { 
         clubID = null, 
@@ -81,6 +94,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         topicID = null, 
         videoURI = null, 
         venue = '',
+        fromFirstTitle = false
     } = route.params;
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -102,8 +116,12 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);    
     const uploadRequest = useSelector(state => state.uploadRequest);
     const uploadStage = useSelector(state => state.uploadStage);
+    const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const uploadStartedStages = ['check-club-title', 'upload-ready', 'preparing-upload', 'uploading'];
     const uploadStarted = uploadStartedStages.includes(uploadStage);
+
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
 
     // createUploadRequest can either be called from this screen or the
     // select destination drawer, so we need a variable clubID
@@ -147,7 +165,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 : 'OnProfile';
             
             const reelayDBBody = {
-                clubID: clubID ?? null,
+                clubID: clubID && clubID !== "" ? clubID : null,
                 creatorSub: reelayDBUser?.sub,
                 creatorName: reelayDBUser.username,
                 datastoreSub: uuidv4(), 
@@ -158,7 +176,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 starRating: Math.floor(starRating/2),
                 starRatingAddHalf: (starRating%2===1) ? true : false,
                 tmdbTitleID: titleObj.id,
-                topicID: topicID ?? null,
+                topicID: topicID && topicID !== "" ? topicID:null,
                 venue: venue,
                 videoS3Key: videoS3Key,
                 visibility: (!!draftGame) ? 'draft' : UPLOAD_VISIBILITY,
@@ -215,6 +233,26 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
     }    
 
+    const onRefresh = async() => {
+        console.log("onRefresh")
+        const nextMyCreatorStacks = await getStacksByCreator(reelayDBUser?.sub)
+        dispatch({ type: 'setMyCreatorStacks', payload: nextMyCreatorStacks });  
+        console.log("nextMyCreatorStacks",nextMyCreatorStacks)
+        // navigation.push('ProfileFeedScreen', { 
+        //     initialFeedPos: 0, 
+        //     stackList: nextMyCreatorStacks, 
+        // });
+        navigation.reset({
+            index: 1,
+            routes: [{name: 'HomeScreen'},{name: 'ProfileFeedScreen', params: { 
+                    initialFeedPos: 0, 
+                    stackList: nextMyCreatorStacks, 
+                    firstReelAfterSignup:true
+                }}],
+          })
+
+    }
+
     const publishReelay = async () => {
         try {
             setPreviewIsMuted(true);
@@ -244,9 +282,23 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const HeaderWithPoster = () => {
+        const skipp = async() =>{
+            // navigation.replace('HomeScreen') 
+            navigation.reset({
+                index: 0,
+                routes: [{name: 'HomeScreen'}],
+              })   
+        }
+        const goBack = () => { navigation.goBack(); }
+    
         return (
             <View>
-                <ReelayFeedHeader feedSource={'upload'} navigation={navigation} />
+                {/* <ReelayFeedHeader feedSource={'upload'} navigation={navigation} /> */}
+                {!fromFirstTitle ?
+                <ReelayFeedHeader feedSource={'upload'} navigation={navigation} /> :
+                <SortOptionsView topOffset={topOffset}>
+                    <HeaderSkipBack onPressOverride={goBack} onSkip={skipp} navigation={navigation} text='upload' />
+                </SortOptionsView>}
                 { (!!titleObj?.id) && (
                     <TitleBannerContainer topOffset={topOffset}>
                         <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />
@@ -312,13 +364,19 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         // in multipart uploads, the app will freeze during preparing-upload
         // so we don't want to navigate away until we're done with that part
         if (uploadStage === 'uploading') {
+            if(!fromFirstTitle){
             navigation.popToTop();
+            }
             const { reelayClub, reelayTopic } = uploadRequest;
             if (reelayClub) {
                 navigation.navigate('ClubActivityScreen', { club: reelayClub });
             } else if (draftGame) {
                 navigation.navigate('CreateGuessingGameCluesScreen', { game: draftGame })
             } else {
+                if(fromFirstTitle){
+                    // navigation.replace('HomeScreen')   
+                    return;
+                }
                 navigation.navigate('Discover');
             }
         }
@@ -327,8 +385,9 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     return (
         <UploadScreenContainer>
             <PreviewVideoPlayer isMuted={previewIsMuted} title={titleObj} videoURI={videoURI} />
+            {showProgressBar && fromFirstTitle && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
             <HeaderWithPoster />
-            <UploadBottomRow />
+            {!showProgressBar && <UploadBottomRow />}
             { confirmRetakeDrawerVisible && (
                 <ConfirmRetakeDrawer 
                     navigation={navigation} titleObj={titleObj} 
