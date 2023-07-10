@@ -1003,6 +1003,22 @@ export const updateUserLastName = async (userSub, lastName) => {
     return resultPatch;
 };
 
+export const updateReferredBy = async (userSub, referralUser) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
+    const updateBody = {
+        referralUser: referralUser
+    };
+    const resultPatch = await fetchResults(routePatch, {
+        method: "PATCH",
+        headers: {
+            ...ReelayAPIHeaders,
+            requsersub: userSub,
+        },
+        body: JSON.stringify(updateBody),
+    });
+    return resultPatch;
+};
+
 export const updateProfilePic = async (sub, photoURI) => {
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${sub}/profilepic`;
     const updateBody = {
