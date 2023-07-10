@@ -89,7 +89,7 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
                 const signUpResult = await Auth.confirmSignUp(username, confirmationCode);
                 const newCognitoUser = await Auth.signIn(username, password);
                 const cognitoSession = await Auth.currentSession();
-
+                dispatch({ type: 'setOpenAddTitle', payload: true });
                 await registerStreamingServices(newCognitoUser?.attributes?.sub);
                 dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
                 setCognitoUser(newCognitoUser);
@@ -107,7 +107,8 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
                     platform: venue,
                 });
             }
-            await Promise.all(selectedVenues.map(registerSubscription));
+            const selectedVenue = selectedVenues?selectedVenues:[]
+            await Promise.all(selectedVenue?.map(registerSubscription));
         }
         
     

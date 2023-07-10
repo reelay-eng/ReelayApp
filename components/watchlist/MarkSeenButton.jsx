@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ReelayColors from '../../constants/ReelayColors';
@@ -24,6 +24,7 @@ const MarkSeenButtonContainer = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
     padding-left: 4px;
+    
 `
 const MarkSeenText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
@@ -35,7 +36,7 @@ export default MarkSeenButton = ({
     onMarkedSeen = () => {},
     showText=true, 
     size=30,
-    watchlistItem,
+    watchlistItem,profile=0
 }) => {
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
@@ -105,11 +106,13 @@ export default MarkSeenButton = ({
 	}
 
     return (
+        <View style={{ marginTop: profile == 1 ? -45 : 0 }}>
         <MarkSeenButtonContainer onPress={(markedSeen) ? markUnseen : markSeen}>
-            { showText && <MarkSeenText>{markSeenText}</MarkSeenText> }
+            { showText && profile !== 1 && <MarkSeenText>{markSeenText}</MarkSeenText> }
             <MarkedSeenCircle markedSeen={markedSeen} size={size - 8} />
             { markedSeen && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayGreen} size={size} />}
             { !markedSeen && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={size} />}
         </MarkSeenButtonContainer>
+        </View>
     );
 }

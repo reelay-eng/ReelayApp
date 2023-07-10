@@ -72,7 +72,6 @@ const Spacer = styled(View)`
 const WatchlistCardView = styled(Pressable)`
     border-radius: 12px;
     margin: ${CARD_SIDE_MARGIN}px;
-    height: 240px;
     width: ${WATCHLIST_CARD_WIDTH}px;
 `
 
@@ -156,7 +155,7 @@ const WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistI
             <DotMenuButton />
             { showReactEmojis && <EmojiBadgeRow /> }
             { !showReactEmojis && <MarkSeen /> }
-            { drawerVisible && (
+            { drawerVisible &&  (
                 <WatchlistItemDotMenu 
                     closeDrawer={closeDrawer} 
                     navigation={navigation} 

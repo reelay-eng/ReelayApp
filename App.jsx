@@ -46,7 +46,7 @@ import {
     updateLoginUser,
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
-import { getWatchlistItems, getWatchlistRecs } from './api/WatchlistApi';
+import { getCustomItems, getWatchlistItems, getWatchlistRecs } from './api/WatchlistApi';
 
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
@@ -59,12 +59,13 @@ import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
-import { fetchAnnotatedTitle, fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
+import { fetchAnnotatedTitle, fetchPopularMovies, fetchPopularSeries, fetchTrendingMovies } from './api/TMDbApi';
 import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
 import { getAllClubsFollowing } from './api/ClubsApi';
 import { verifySocialAuthSession } from './api/ReelayUserApi';
 import { getGuessingGamesPublished } from './api/GuessingGameApi';
+import { getLists } from './api/ListsApi';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -295,6 +296,45 @@ function App() {
         await ensureLocalImageDirExists();
         await ensureLocalTitleDirExists();
         await maybeFlushTitleImageCache();
+        await loadFirstWithoutLogin();
+        await checkFirsttimeVisit();
+    }
+
+    const checkFirsttimeVisit = async() => {
+        try {
+            const firstTime = await AsyncStorage.getItem('checkFirstTimeLogin');
+            if (!firstTime) {
+                dispatch({ type: 'setFirstTimeLogin', payload: false });
+            }else{
+                dispatch({ type: 'setFirstTimeLogin', payload: true });
+            }
+
+            dispatch({ type: 'setOpenAddTitle', payload: false });
+        } catch (error) {
+            console.log("firstTime",error);
+            return true;
+        }
+
+    }
+
+    const loadFirstWithoutLogin = async () => {
+        const [
+            suggestedMovies,
+            suggestedSeries,
+            trendingMovieResults,
+        ] = await Promise.all([
+            fetchPopularMovies(),
+            fetchPopularSeries(),
+            fetchTrendingMovies(),
+        ])
+
+        dispatch({ type: 'setTrendingMovieResults', payload: trendingMovieResults });
+
+        const suggestedMovieResults = { titles: suggestedMovies, nextPage: 1 };
+        const suggestedSeriesResults = { titles: suggestedSeries, nextPage: 1 };
+
+        dispatch({ type: 'setSuggestedMovieResults', payload: suggestedMovieResults });
+        dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
     }
 
     const checkIsNewUser = async () => {
@@ -455,6 +495,9 @@ function App() {
             myWatchlistRecsLoaded,
             suggestedMovies,
             suggestedSeries,
+            setCustomWatchData,
+            trendingMovieResults,
+            listData,
         ] = await Promise.all([
             getEmptyGlobalTopics({ authSession, page: 0, reqUserSub: userSub }),
             getStacksByCreator(userSub),
@@ -465,7 +508,11 @@ function App() {
             getWatchlistRecs({ authSession, reqUserSub, category: 'all' }),
             fetchPopularMovies(),
             fetchPopularSeries(),
+            getCustomItems(userSub),
+            fetchTrendingMovies(),
+            getLists({reqUserSub:userSub}),
         ])
+
 
         console.log('loaded second set of profile data');
 
@@ -476,6 +523,7 @@ function App() {
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
         dispatch({ type: 'setMyWatchlistRecs', payload: myWatchlistRecsLoaded });
+        dispatch({ type: 'setTrendingMovieResults', payload: trendingMovieResults });
 
         const suggestedMovieResults = { titles: suggestedMovies, nextPage: 1 };
         const suggestedSeriesResults = { titles: suggestedSeries, nextPage: 1 };
@@ -483,6 +531,8 @@ function App() {
         dispatch({ type: 'setSuggestedMovieResults', payload: suggestedMovieResults });
         dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
         dispatch({ type: 'setCurrentAppLoadStage', payload: 3 });
+        dispatch({ type: 'setCustomWatchData', payload: setCustomWatchData });
+        dispatch({ type: 'setListData', payload: listData });
 
         const [
             donateLinksLoaded,

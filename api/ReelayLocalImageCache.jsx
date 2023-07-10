@@ -85,7 +85,7 @@ export const getProfilePicURI = (userSub, local = true) => {
 }
 
 export const getTitlePosterURI = (posterPath, local = true) => {
-    if (!posterPath) return '';
+    if (!posterPath) return require('../assets/images/reelay-splash-with-dog-black.png');
     const cleanedPosterPath = posterPath.replace('/', '');
     if (local) {
         return titlePosterLocalURI(cleanedPosterPath);

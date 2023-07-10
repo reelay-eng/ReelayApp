@@ -63,6 +63,7 @@ export default ({ config }) => {
         reelayWebBaseUrl: 'https://on.reelay.app',
         // reelayWebBaseUrl: 'http://35.93.27.255',
         reelayWebInviteUrl: 'https://invite.reelay.app/club/',
+        reelayWebListUrl: 'https://on.reelay.app/list/',
         reelayApiKey: 'ac739ac2-5877-47de-a861-59bc776bdd27',
         reelayS3UploadBucket: 'reelay-content211002-dev',
         reelayS3ThumbnailBucket: 'reelay-thumbnails',

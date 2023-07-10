@@ -162,7 +162,21 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
             }
         }
                 setIsCheckingUsername(false);
-                navigation.push('SelectMyStreamingScreen', {
+                // navigation.push('SelectMyStreamingScreen', {
+                //     appleUserID,
+                //     authSession,
+                //     email,
+                //     fullName,
+                //     googleUserID,
+                //     method,
+                //     password,
+                //     // username: inputUsernameRef.current,
+                //     username: userName,
+                //     firstName,
+                //     lastName,
+                //     referralCode
+                // });
+                navigation.push('OnboardHouseRulesScreen', {
                     appleUserID,
                     authSession,
                     email,
@@ -170,7 +184,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
                     googleUserID,
                     method,
                     password,
-                    // username: inputUsernameRef.current,
+                    selectedVenues: [],
                     username: userName,
                     firstName,
                     lastName,

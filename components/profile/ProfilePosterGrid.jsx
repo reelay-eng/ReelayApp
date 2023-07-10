@@ -14,9 +14,16 @@ const GRID_SIDE_MARGIN = 16;
 const GRID_WIDTH = width - (2 * GRID_SIDE_MARGIN);
 
 const POSTER_HALF_MARGIN = 4;
-const POSTER_ROW_LENGTH = 4;
-const POSTER_WIDTH = (GRID_WIDTH / POSTER_ROW_LENGTH) - (2 * POSTER_HALF_MARGIN);
+const POSTER_ROW_LENGTH = 3;
+const CARD_SIDE_MARGIN = 6;
+const POSTER_WIDTH = (width / 3) - (CARD_SIDE_MARGIN * 2)// (GRID_WIDTH / POSTER_ROW_LENGTH) - (2 * POSTER_HALF_MARGIN);
 const POSTER_HEIGHT = 1.5 * POSTER_WIDTH;
+
+
+const MAX_EMOJI_BADGE_COUNT = 3;
+const WATCHLIST_CARD_WIDTH = (width / 3) - (CARD_SIDE_MARGIN * 2);
+const BADGE_SIZE = (WATCHLIST_CARD_WIDTH / MAX_EMOJI_BADGE_COUNT) - 4;
+const EMOJI_SIZE = BADGE_SIZE - 16;
 
 const HeaderContainer = styled(View)`
     flex-direction: row;
@@ -55,7 +62,7 @@ const StarRatingContainer = styled(View)`
     position: absolute;
     z-index: 5;
 `
-export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
+export default ProfilePosterGrid = ({ creatorStacks, navigation, profile = 0 }) => {
     if (!creatorStacks.length) {
         return <View />;
     }
@@ -108,10 +115,11 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
 
     return (
         <PosterGridView>
-            <SectionHeader />
+            {profile !== 1 &&
+            <SectionHeader />}
             <FlashList
                 data={creatorStacks}
-                estimatedItemSize={POSTER_HEIGHT}
+                // estimatedItemSize={POSTER_HEIGHT}
                 keyExtractor={stack => String(stack[0]?.sub)}
                 numColumns={POSTER_ROW_LENGTH}
                 renderItem={renderPoster}

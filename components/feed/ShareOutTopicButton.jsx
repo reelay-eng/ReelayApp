@@ -70,6 +70,13 @@ const StartConvoText = styled(ReelayText.Overline)`
     <ShareTopicDrawer closeDrawer={closeDrawer} navigation={navigation} topic={topic} type={type} />
 )}
 </TouchableOpacity>:
+    type == 6 ? 
+    <TouchableOpacity style={{marginLeft:10}} onPress={() => setShareDrawerOpen(true)}>
+    <FontAwesomeIcon icon={faShare} color='white' size={24} />
+    { shareDrawerOpen && (
+    <ShareTopicDrawer closeDrawer={closeDrawer} navigation={navigation} topic={topic} type={type} />
+)}
+</TouchableOpacity>:
         <TouchableOpacity style={{marginLeft:10}} onPress={() => setShareDrawerOpen(true)}>
                 <FontAwesomeIcon icon={faShare} color='white' size={20} />
                 { shareDrawerOpen && (

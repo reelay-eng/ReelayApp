@@ -115,9 +115,9 @@ export default UserProfileScreen = ({ navigation, route }) => {
                     following={creatorFollowing}
                 />
                 {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
-                <Spacer />
-                <TopicsCarousel navigation={navigation} source='profile' creatorOnProfile={creator} />
-                <Spacer />
+                {/* <Spacer /> */}
+                {/* <TopicsCarousel navigation={navigation} source='profile' creatorOnProfile={creator} /> */}
+                {/* <Spacer /> */}
                 <ProfilePosterGrid
                     creatorStacks={creatorStacks}
                     navigation={navigation}

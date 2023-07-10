@@ -441,8 +441,8 @@ export default WatchlistScreen = ({ navigation, route }) => {
             <TopBarView topOffset={topOffset}>
                 <BackButtonView>
                     {Redirect == 1 ?
-                    <BackButton navigation={navigation} />:null
-                    }
+                    <BackButton navigation={navigation} />
+                    :null}
                 </BackButtonView>
                 <RecTitleText>{'My watchlist'}</RecTitleText>
                 <AddToWatchlistFromSearchButton />

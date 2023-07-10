@@ -12,15 +12,22 @@ import SignInScreen from '../screens/unauthenticated/SignInScreen';
 import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
 import SplashScreen from '../screens/unauthenticated/SplashScreen';
 import ChooseUsernameScreenEmail from '../screens/unauthenticated/ChooseUsernameScreenold';
+import SelectMovieScreen from '../screens/unauthenticated/SelectMovieScreen';
+import SearchTitleScreen from '../screens/unauthenticated/SearchScreen';
 // import TutorialScreen from '../screens/unauthenticated/TutorialScreen';
 import { useSelector } from 'react-redux';
+import LandingScreen from '../screens/unauthenticated/LandingScreen';
+import { async } from 'validate.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthenticationStack = createStackNavigator();
 
-export default UnauthenticatedNavigator = () => {
+export default UnauthenticatedNavigator = ({route}) => {
     const isReturningUser = useSelector(state => state.isReturningUser)
-    const initialRoute = 'SignedOutScreen';
-    // const initialRoute = 'SignUpScreen';
+    const { redirect } = route?.params
+    const initialRoute = redirect??'SignedOutScreen';
+    // let initialRoute = 'SelectMovieScreen';
+
     return (
         <AuthenticationStack.Navigator
             initialRouteName={initialRoute}
@@ -29,6 +36,13 @@ export default UnauthenticatedNavigator = () => {
             <AuthenticationStack.Screen
                 name="ChooseUsernameScreen"
                 component={ChooseUsernameScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <AuthenticationStack.Screen
+                name="LandingScreen"
+                component={LandingScreen}
                 options={{
                     headerShown: false,
                 }}
@@ -48,6 +62,13 @@ export default UnauthenticatedNavigator = () => {
                 }}
             />
             <AuthenticationStack.Screen
+                name="SearchTitleScreen"
+                component={SearchTitleScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <AuthenticationStack.Screen
                 name="ForgotPasswordScreen"
                 component={ForgotPasswordScreen}
                 options={{
@@ -57,6 +78,14 @@ export default UnauthenticatedNavigator = () => {
             <AuthenticationStack.Screen
                 name="ForgotPasswordSubmitScreen"
                 component={ForgotPasswordSubmitScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+
+            <AuthenticationStack.Screen
+                name="SelectMovieScreen"
+                component={SelectMovieScreen}
                 options={{
                     headerShown: false,
                 }}

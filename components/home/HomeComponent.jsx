@@ -24,6 +24,7 @@ import RecommendedForYou from './RecommendedForYou';
 import GuessingGames from './GuessingGames';
 import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
 import HomeWatchlistCard from './HomeWatchlistCard';
+import SectionDiscover from './SectionDiscover';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -55,16 +56,16 @@ const HomeComponent = ({ navigation }) => {
     const [selectedTab, setSelectedTab] = useState('discover');
     const tabOptions = ['discover', 'my stuff'];
     
-    useFocusEffect(() => {
-        const unsubscribe = navigation.getParent().addListener('tabPress', e => {
-            e.preventDefault();
-            if (scrollRef.current) {
-                scrollRef.current.scrollTo({ y: 0, animated: false });
-                onRefresh();
-            }
-        });
-        return () => unsubscribe();
-    })
+    // useFocusEffect(() => {
+    //     const unsubscribe = navigation.getParent().addListener('tabPress', e => {
+    //         e.preventDefault();
+    //         if (scrollRef.current) {
+    //             scrollRef.current.scrollTo({ y: 0, animated: false });
+    //             onRefresh();
+    //         }
+    //     });
+    //     return () => unsubscribe();
+    // })
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -141,18 +142,20 @@ const HomeComponent = ({ navigation }) => {
                     tabOptions={tabOptions} 
                 />
             </SafeAreaView>
-            <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
-                <AnnouncementsAndNotices navigation={navigation} />
-                { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> }
-                {/* <GuessingGames navigation={navigation} /> */}
-                <RecommendedForYou navigation={navigation} />
-                <PopularTitles navigation={navigation} />
-                <TopOfTheWeek navigation={navigation} />
-                {/* <TopicsCarousel navigation={navigation} source='discover' />  */}
-                <OnStreaming navigation={navigation} source='discover' />
-                <DiscoverSearch navigation={navigation} />
+
+            {/* <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}> */}
+            <SectionDiscover navigation={navigation} refreshControl={refreshControl}/>
+                {/* <AnnouncementsAndNotices navigation={navigation} /> */}
+                {/* { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> } */}
+                {/* <GuessingGames navigation={navigation} /> // Hidden 1.08.04*/}
+                {/* <RecommendedForYou navigation={navigation} /> */}
+                {/* <PopularTitles navigation={navigation} /> */}
+                {/* <TopOfTheWeek navigation={navigation} /> */}
+                {/* <TopicsCarousel navigation={navigation} source='discover' /> // Hidden 1.08.04 */}
+                {/* <OnStreaming navigation={navigation} source='discover' /> // Hidden 1.08.04 */}
+                {/* <DiscoverSearch navigation={navigation} /> */}
                 <Spacer />
-            </ScrollContainer>
+            {/* </ScrollContainer> */}
             <BottomBar 
                 colors={["transparent", "#000000"]} 
                 locations={[0.05, 0.95]}

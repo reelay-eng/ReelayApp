@@ -121,7 +121,7 @@ export const StreamingSelectorGrid = ({ venueList = [], setRefreshing }) => {
     });
 
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
-    const myStreamingPlatforms = myStreamingSubscriptions.map(({ platform }) => platform);
+    const myStreamingPlatforms = myStreamingSubscriptions?.map(({ platform }) => platform);
     const selectedVenues = useRef(myStreamingPlatforms);
     const streamingVenues = hasVenueList ? getVenuesFromList() : searchVenues;
 

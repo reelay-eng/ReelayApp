@@ -23,6 +23,7 @@ export default TitleSearchResults = ({
     searchText, 
     source, 
     topicID,
+    addCustomWatchlist = false
 }) => {
     const bottomOffset = useSafeAreaInsets().bottom + 16;
     const curPage = useRef(0);
@@ -45,6 +46,7 @@ export default TitleSearchResults = ({
                 source={source} 
                 clubID={clubID}
                 topicID={topicID}
+                addCustomWatchlist={addCustomWatchlist}
             />
         );
     }

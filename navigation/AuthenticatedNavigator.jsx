@@ -22,7 +22,7 @@ import {
 
 import { CameraPlusIconSVG, ChatsTabIconSVG } from '../components/global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircleUser, faCompass, faHouse, faUsers, faVideo,faUserCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCircleUser,faTelevision, faCompass, faHouse, faUsers, faVideo,faUserCheck } from '@fortawesome/free-solid-svg-icons';
 import CreateTabDrawer from '../screens/authenticated/CreateTabDrawer';
  
 const BottomTab = createBottomTabNavigator();
@@ -102,9 +102,9 @@ export default AuthenticatedNavigator = () => {
 				lazy: false,
 			}}
 		>
-			<BottomTab.Screen
+			{/* <BottomTab.Screen
 				name="Home"
-				component={HomeTabNavigator}
+				component={FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
@@ -113,10 +113,10 @@ export default AuthenticatedNavigator = () => {
 						</IconFocusView>
 					),
 				}}
-			/>
+			/> */}
 			<BottomTab.Screen
 				name="Discover"
-				component={FeedTabNavigator}
+				component={HomeTabNavigator}//FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<View>
@@ -131,20 +131,21 @@ export default AuthenticatedNavigator = () => {
 			/>
 			<BottomTab.Screen
 				name="Create"
+				// component={CreateReelayTabNavigator}
 				component={CreateReelayTabNavigator}
-				listeners={({ navigation }) => ({
-					tabPress: (event) => {
-						event.preventDefault();
-						navigationRef.current = navigation;
-						setCreateDrawerOpen(true);
-					}
-				})}
+				// listeners={({ navigation }) => ({
+				// 	tabPress: (event) => {
+				// 		event.preventDefault();
+				// 		navigationRef.current = navigation;
+				// 		setCreateDrawerOpen(true);
+				// 	}
+				// })}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<Fragment>
-							{ createDrawerOpen && (
+							{/* { createDrawerOpen && (
 								<CreateTabDrawer navigation={navigationRef?.current} closeDrawer={() => setCreateDrawerOpen(false)} />
-							)}
+							)} */}
 							<IconFocusView focused={focused}>
 								<CameraPlusIconSVG />
 								{/* <FontAwesomeIcon icon={faVideo} size={28} color={focused ? 'white' : '#D4D4D4'} /> */}
@@ -154,7 +155,7 @@ export default AuthenticatedNavigator = () => {
 					),
 				}}
 			/>
-			<BottomTab.Screen
+			{/* <BottomTab.Screen
 				// name="Chats"
 				name="Decide"
 				component={DecisionTabNavigator}
@@ -166,14 +167,26 @@ export default AuthenticatedNavigator = () => {
 						</IconFocusView>
 					),
 				}}
-			/>
-			<BottomTab.Screen
+			/> */}
+			{/* <BottomTab.Screen
 				name="Profile"
 				component={ProfileTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
 							<FontAwesomeIcon icon={faCircleUser} color={focused ? 'white' : '#D4D4D4'} size={24} />
+							{ focused && <IconFocusIndicator /> }
+						</IconFocusView>
+					),
+				}}
+			/> */}
+			<BottomTab.Screen
+				name="Watch"
+				component={ProfileTabNavigator}
+				options={{
+					tabBarIcon: ({ focused }) => (
+						<IconFocusView focused={focused}>
+							<FontAwesomeIcon icon={faTelevision} color={focused ? 'white' : '#D4D4D4'} size={24} />
 							{ focused && <IconFocusIndicator /> }
 						</IconFocusView>
 					),

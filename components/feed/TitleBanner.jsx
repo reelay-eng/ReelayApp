@@ -158,7 +158,7 @@ const TitleBanner = ({
     const isWelcomeReelay = reelay && (welcomeReelaySub === reelay?.sub);
     
     // figure out how to do ellipses for displayTitle
-    let displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
+    let displayTitle = (titleObj?.display) ? titleObj?.display : 'Title not found'; 
 	let displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
     const runtime = titleObj?.runtime;
     const runtimeString = runtime ? getRuntimeString(runtime) : '';
