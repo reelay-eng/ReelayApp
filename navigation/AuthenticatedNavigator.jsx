@@ -104,7 +104,7 @@ export default AuthenticatedNavigator = () => {
 		>
 			{/* <BottomTab.Screen
 				name="Home"
-				component={HomeTabNavigator}
+				component={FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>

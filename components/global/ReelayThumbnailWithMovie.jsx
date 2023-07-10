@@ -39,6 +39,7 @@ export default ReelayThumbnailWithMovie = ({
 }) => {
 	const DevWidth = Dimensions.get('window').width;
 	const asClubActivity = (asAllClubActivity || asSingleClubActivity);
+    const [mute, setMute] = useState(true);
 
 	const CREATOR_LINE_BOTTOM = asClubActivity ? 6 : 12;
 	const ICON_SIZE = asTopOfTheWeek ? 24 : asClubActivity ? 20 : 16;
@@ -185,8 +186,9 @@ export default ReelayThumbnailWithMovie = ({
 					</View>
 					</View>
 					<>
-					{/* <Ionicons name='volume-high' color={"#fff"} size={24} style={{marginRight:8}}/> */}
-					<Ionicons name='volume-mute' color={"#fff"} size={24} style={{marginRight:4}}/>
+					{mute ?
+					<Ionicons onPress={()=>setMute(false)} name='volume-mute' color={"#fff"} size={24} style={{marginRight:8}}/>:
+					<Ionicons onPress={()=>setMute(true)} name='volume-high' color={"#fff"} size={24} style={{marginRight:4}}/>}
 					</>
 					</BlurView>
 				</GradientContainer>
@@ -246,8 +248,10 @@ export default ReelayThumbnailWithMovie = ({
 			<React.Fragment>
 				<Video
 					isLooping
-					isMuted={true}
+					isMuted={mute}
+					key={reelay.id}
 					rate={1.0}
+					progressUpdateIntervalMillis={50}
 					resizeMode='cover'
 					shouldPlay={true}
 					source={{ uri: reelay?.content?.videoURI }}

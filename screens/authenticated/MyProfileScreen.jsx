@@ -489,19 +489,20 @@ export default MyProfileScreen = ({ navigation, route }) => {
                         layoutDirection="ltr" onPageSelected={({ nativeEvent }) => onPressS(nativeEvent.position)}
                         orientation="horizontal" scrollEnabled={true} initialPage={0}
                         >
-                        {filterKeys.map(items => 
-                        <ScrollView style={{paddingBottom:0}} refreshControl={refreshControl}>
+                        {filterKeys.map((items,inde) => 
+                        <ScrollView key={inde} style={{paddingBottom:0}} refreshControl={refreshControl}>
                             <View style={items !== "Custom" && {flexDirection:"row",flexWrap: 'wrap',flex:1}}>
                                 {items == "Reelays" ?
                                 <View>
                                     <ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} profile={1}/>
                                 </View>
                                 :items == "Custom" ?
-                                (listData?.map( item =>
-                                    <ListItemCard navigation={navigation}  listItem={item} Redirect={Redirect} />))
+                                (listData?.map( (item,indx) =>
+                                    <ListItemCard key={indx} navigation={navigation}  listItem={item} Redirect={Redirect} />))
                                 :
-                                (displayItems && displayItems?.map( item =>
+                                (displayItems && displayItems?.map( (item, ind) =>
                                     <WatchlistItemCardProfile
+                                    key={ind}
                                     onMoveToFront={onMoveToFront} onRemoveItem={onRemoveItem} navigation={navigation}
                                     watchlistItem={item} Redirect={Redirect} fromWatchlist={false}
                                 />))}

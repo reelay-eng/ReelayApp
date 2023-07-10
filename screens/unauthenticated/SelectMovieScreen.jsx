@@ -212,8 +212,9 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
                     </HomeWatchlistCardView>}
                     <View style={{flexDirection:"row",flexWrap: 'wrap'}}>
                         
-                    {customWatchData?.map( item =>
+                    {customWatchData?.map( (item, ind) =>
                             <WatchlistItemCardProfile
+                            key={ind}
                             navigation={navigation}
                             watchlistItem={item}
                             Redirect={true}

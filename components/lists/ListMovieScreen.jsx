@@ -332,8 +332,9 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
                     { loading && <ActivityIndicator /> }
                     <View style={{flexDirection:"row",flexWrap: 'wrap'}}>
                         
-                    {listMovies?.map( item =>
+                    {listMovies?.map( (item, ind) =>
                             <WatchlistItemCardProfile
+                            key={ind}
                             navigation={navigation}
                             watchlistItem={item}
                             Redirect={false}

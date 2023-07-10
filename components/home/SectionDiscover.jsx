@@ -16,10 +16,12 @@ import ReelayFeedNew from '../feed/ReelayFeedNew';
 import { getDiscoverFeed } from '../../api/FeedApi';
 import { getFeed } from '../../api/ReelayDBApi';
 import { coalesceFiltersForAPI } from '../utils/FilterMappings';
+import AllFeedFilters from '../feed/AllFeedFilters';
+import ReelayTile from './ReelayTile';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
-const InTheatersContainer = styled.View`
+const InTheatersContainer = styled(View)`
     width: 100%;
     height: auto;
     display: flex;
@@ -38,7 +40,7 @@ const HeaderText = styled(ReelayText.H5Bold)`
 `
 const FilterPressable = styled(TouchableOpacity)`
     align-items: center;
-    border-width: ${props => props.isSelected ? 1  : 0 };
+    border-width: ${props => props.isSelected ? 1 : 0};
     border-color:#fff;
     border-radius: 8px;
     justify-content: center;
@@ -64,8 +66,8 @@ const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
 	padding: 10px;
 	color: white;
 `
-const filterKeys = ['Newest','Following','Watchlist','More Filters'];
-const SectionDiscover = memo(({ navigation, route }) => {
+const filterKeys = ['Newest', 'Following', 'Watchlist', 'More Filters'];
+const SectionDiscover = memo(({ navigation, route, refreshControl }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
 
@@ -74,9 +76,11 @@ const SectionDiscover = memo(({ navigation, route }) => {
     const [displayItems, setDisplayItems] = useState([]);
     const pager = useRef(null);
     const topOfTheWeek = useSelector(state => state.myHomeContent?.global);
+    const [showAllFilters, setShowAllFilters] = useState(false);
+
 
     const myStreamingVenues = useSelector(state => state.myStreamingSubscriptions)
-    .map(subscription => subscription.platform);
+        .map(subscription => subscription.platform);
 
     const feedSource = route?.params?.feedSource ?? 'discover';
     const initialFeedFilters = route?.params?.initialFeedFilters ?? [];
@@ -101,13 +105,13 @@ const SectionDiscover = memo(({ navigation, route }) => {
     }
     const [sortMethod, setSortMethod] = useState('mostRecent');
     const isFirstRender = useRef(true);
-    const initNextPage = (feedSource === 'discover') ? sortedThreadData[sortMethod].nextPage: 1;
+    const initNextPage = (feedSource === 'discover') ? sortedThreadData[sortMethod].nextPage : 1;
     const nextPage = useRef(initNextPage);
 
-    const initReelayThreads = (feedSource === 'discover') 
+    const initReelayThreads = (feedSource === 'discover')
         ? sortedThreadData[sortMethod].content
         : preloadedStackList;
-        const [selectedFilters, setSelectedFilters] = useState(initialFeedFilters);
+    const [selectedFilters, setSelectedFilters] = useState(initialFeedFilters);
 
     const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
 
@@ -115,20 +119,23 @@ const SectionDiscover = memo(({ navigation, route }) => {
         const isSelected = selectedSection.includes(filterKey);
 
         const getOppositeKey = () => {
-        if (filterKey === 'Newest') return 0;
-        if (filterKey === 'Following') return 1;
-        if (filterKey === 'Watchlist') return 2;
-        if (filterKey === 'More Filters') return 3;
+            if (filterKey === 'Newest') return 0;
+            if (filterKey === 'Following') return 1;
+            if (filterKey === 'Watchlist') return 2;
+            if (filterKey === 'More Filters') return 3;
             return '';
         }
 
         const onPress = () => {
             const oppositeKey = getOppositeKey();
-            if(activeIndex !== oppositeKey){
+            if (activeIndex !== oppositeKey) {
                 setDisplayItems([]);
                 setActiveIndex(oppositeKey)
                 setSelectedSection(filterKey);
                 pager.current?.setPage?.(oppositeKey);
+                if (oppositeKey == 3) {
+                    setShowAllFilters(true)
+                }
             }
         }
 
@@ -140,21 +147,25 @@ const SectionDiscover = memo(({ navigation, route }) => {
     }
 
     const WatchlistFilters = () => {
-        const filterKeys = ['Newest','Following','Watchlist','More Filters']//'seen', 'unseen', 'movie', 'TV', '<90 min'];        
+        const filterKeys = ['Newest', 'Following', 'Watchlist', 'More Filters']//'seen', 'unseen', 'movie', 'TV', '<90 min'];        
         return (
             <FilterRowView>
-                { filterKeys.map(key => <FilterButton key={key} filterKey={key} /> ) }
+                {filterKeys.map(key => <FilterButton key={key} filterKey={key} />)}
             </FilterRowView>
         )
     }
 
     const goToReelay = (item, index) => {
-		console.log(item)
+        console.log("goToReelay", index)
+
+        if (index !== 0)
+            return;
+
         navigation.push("TitleFeedScreen", {
-			initialStackPos: index,
-			fixedStackList: topOfTheWeek,
-		});
-	};
+            initialStackPos: index,
+            fixedStackList: topOfTheWeek,
+        });
+    };
 
     const extendFeed = async () => {
         console.log("extendFeed")
@@ -162,19 +173,19 @@ const SectionDiscover = memo(({ navigation, route }) => {
             ? discoverMostRecent.nextPage
             : nextPage.current;
 
-        const fetchedThreads = (feedSource === 'discover') 
-            ? await getDiscoverFeed({ 
-                authSession, 
-                filters: coalesceFiltersForAPI(selectedFilters, myStreamingVenues), 
-                page, 
+        const fetchedThreads = (feedSource === 'discover')
+            ? await getDiscoverFeed({
+                authSession,
+                filters: coalesceFiltersForAPI(selectedFilters, myStreamingVenues),
+                page,
                 reqUserSub: reelayDBUser?.sub,
                 sortMethod,
             })
-            : await getFeed({ 
-                authSession, 
-                feedSource, 
-                page, 
-                reqUserSub: reelayDBUser?.sub, 
+            : await getFeed({
+                authSession,
+                feedSource,
+                page,
+                reqUserSub: reelayDBUser?.sub,
             });
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
@@ -227,11 +238,11 @@ const SectionDiscover = memo(({ navigation, route }) => {
                     reelay={reelay}
                     asTopOfTheWeek={true}
                     showVenue={false}
-                    // onPress={() => goToReelay(item, index)}
+                    onPress={() => goToReelay(item[0], index)}
                     // showPoster={true}
                     showLikes={false}
                 />
-                
+
             );
         }
 
@@ -239,11 +250,13 @@ const SectionDiscover = memo(({ navigation, route }) => {
             <TopReelaysContainer>
                 <FlatList
                     data={topReelays}
-                    columnWrapperStyle={{justifyContent:"center"}}
-                    estimatedItemSize={180}
+                    refreshControl={refreshControl}
+                    columnWrapperStyle={{ justifyContent: "center" }}
+                    contentContainerStyle={{ paddingBottom: 220 }}
+                    // estimatedItemSize={180}
                     numColumns={2}
                     key={reelay => reelay?.id}
-                    keyExtractor={reelay => reelay?.id}
+                    // keyExtractor={reelay => reelay?.id}
                     renderItem={renderReelayThumbnail}
                     // onEndReached={extendFeed}
                     showsHorizontalScrollIndicator={false}
@@ -251,25 +264,60 @@ const SectionDiscover = memo(({ navigation, route }) => {
             </TopReelaysContainer>
         );
     };
-    
+    const getOppositeKey = (item) => {
+        if (item === 0) return 'Newest';
+        if (item === 1) return 'Following';
+        if (item === 2) return 'Watchlist';
+        if (item === 3) return 'More Filters';
+        return '';
+    }
+
+    const onPressS = (item) => {
+        console.log(item, activeIndex)
+        if (activeIndex == item) {
+            return false;
+        }
+        setActiveIndex(item)
+        const oppositeKey = getOppositeKey(item);
+        // const filterOppositeKey = (key) => key !== oppositeKey;
+        setDisplayItems([]);
+        setSelectedSection(oppositeKey);
+        pager.current?.setPage?.(item);
+    }
+    const closeAllFiltersList = () => setShowAllFilters(false);
+
     return (
         <InTheatersContainer>
             <HeaderContainer>
                 <WatchlistFilters />
             </HeaderContainer>
 
-            <AnimatedPagerView style={{flex:1}} 
-            ref={pager} layoutDirection="ltr"
-            onPageSelected={({ nativeEvent }) => console.log(nativeEvent.position)}
-            orientation="horizontal" scrollEnabled={true} initialPage={3}>
-                {filterKeys.map(items => 
-                    <ScrollView style={{}}>
-                        <View style={{flexDirection:"row",flexWrap: 'wrap',flex:1}}>
-                        <TopOfTheWeek navigation={navigation} />
-                        </View>
-                    </ScrollView>)}
-                </AnimatedPagerView>
-                {/* <ReelayFeedNew 
+            <AnimatedPagerView
+                // style={{height:"100%",width:"100%"}} 
+                ref={pager} layoutDirection="ltr"
+                onPageSelected={({ nativeEvent }) => onPressS(nativeEvent.position)}
+                orientation="horizontal" scrollEnabled={true} initialPage={0}>
+                {filterKeys.map((items, index) =>
+                    //     <View style={{flexDirection:"row",flexWrap: 'wrap',flex:1}}>
+                    //     <TopOfTheWeek navigation={navigation} />
+                    //     </View>
+                    // <></>
+                    // </ScrollView>
+                    <ReelayTile navigation={navigation} keys={index} refreshControl={refreshControl} goToReelay={goToReelay} topReelays={topOfTheWeek} />
+                )}
+                {/* <TopReelays goToReelay={goToReelay} topReelays={topOfTheWeek}/> */}
+
+
+            </AnimatedPagerView>
+
+            {showAllFilters && (
+                <AllFeedFilters
+                    closeAllFiltersList={closeAllFiltersList}
+                    selectedFilters={selectedFilters}
+                    setSelectedFilters={setSelectedFilters}
+                />
+            )}
+            {/* <ReelayFeedNew 
                     forceRefresh={forceRefresh}
                     feedSource={feedSource}
                     initialFeedFilters={initialFeedFilters}
@@ -279,8 +327,7 @@ const SectionDiscover = memo(({ navigation, route }) => {
                     pinnedReelay={pinnedReelay}
                     preloadedStackList={preloadedStackList}
                 /> */}
-                <TopReelays goToReelay={goToReelay} topReelays={topOfTheWeek}/>
-                <ActivityIndicator size={"small"} color={"#fff"}/>
+            {/* <ActivityIndicator size={"small"} color={"#fff"}/> */}
         </InTheatersContainer>
     )
 });
