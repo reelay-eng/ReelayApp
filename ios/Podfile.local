@@ -1,0 +1,1 @@
+pod 'EXConstants', :path => "../node_modules/expo-constants/ios"

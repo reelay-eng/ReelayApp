@@ -7,7 +7,7 @@ import styled from 'styled-components/native';
 import { getRuntimeString } from "../../components/utils/TitleRuntime";
 import TitlePoster from "../../components/global/TitlePoster";
 import { FlatList, ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handler";
-import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
+// import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import ReelayColors from "../../constants/ReelayColors";
 import { LogBox } from 'react-native';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -433,7 +433,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
 
     return (
         <ScreenView topOffset={topOffset}>
-            <DraggableFlatList
+            {/* <DraggableFlatList
                 ListHeaderComponent={ComponentAboveList}
                 ListFooterComponent={ComponentBelowList}
                 data={clues}
@@ -442,7 +442,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                 renderItem={(props) => <ClueReelayRow { ...props } /> }                
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: bottomOffset + 100 }}
-            />
+            /> */}
             { showProgressBar && <UploadProgressBar mountLocation={'InClueBuilder'} onRefresh={onRefresh} /> }
         </ScreenView>
     )

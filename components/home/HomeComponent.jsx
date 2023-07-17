@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useRef, useState } from 'react';
+import React, { Fragment, memo, useContext, useRef, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 import styled from 'styled-components';
 
@@ -144,7 +144,7 @@ const HomeComponent = ({ navigation }) => {
             </SafeAreaView>
 
             {/* <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}> */}
-            <SectionDiscover navigation={navigation} refreshControl={refreshControl}/>
+            <SectionDiscover key={1} navigation={navigation} refreshControl={refreshControl}/>
                 {/* <AnnouncementsAndNotices navigation={navigation} /> */}
                 {/* { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> } */}
                 {/* <GuessingGames navigation={navigation} /> // Hidden 1.08.04*/}
@@ -190,9 +190,9 @@ const NoticesAndAnnouncements = ({ navigation }) => {
         <React.Fragment>
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
             { showNoticeAsOverlay && <NoticeOverlay navigation={navigation} /> }
-            { showAppUpdatePopup && <AppUpdateOverlay />}
+            { showAppUpdatePopup && <AppUpdateOverlay />}   
         </React.Fragment>
     )
 }
 
-export default HomeComponent;
+export default memo(HomeComponent);

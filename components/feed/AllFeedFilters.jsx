@@ -12,9 +12,10 @@ import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 
-const AllFiltersView = styled(SafeAreaView)`
+const AllFiltersView = styled(View)`
     align-items: center;
     background-color: black;
+    margin-top: ${props => props.newDiscover ? 0:30}px;
     width: ${width}px;
 `
 const BottomGradient = styled(LinearGradient)`
@@ -58,7 +59,7 @@ const FilterPressable = styled(TouchableOpacity)`
 `
 const FilterScrollView = styled(ScrollView)`
     background-color: black;
-    height: ${height-80}px;
+    height: ${height}px;
 `
 const FilterText = styled(ReelayText.Subtitle2)`
     color: white;
@@ -73,7 +74,7 @@ const SearchBarPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
-    bottom: ${props => props.bottomOffset + 100}px;
+    bottom: ${props => props.bottomOffset +  130}px;
     flex-direction: row;
     height: 40px;
     justify-content: center;
@@ -86,8 +87,28 @@ const SearchBarPressable = styled(TouchableOpacity)`
 const SearchBarText = styled(ReelayText.Overline)`
     color: white;
 `
+const SearchBarPressable1 = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: #fff;
+    border-radius: 20px;
+    border-color: ${ReelayColors.reelayBlue};
+    border-width:3px;
+    bottom: ${props => props.bottomOffset + 80}px;
+    flex-direction: row;
+    height: 40px;
+    justify-content: center;
+    position: absolute;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+    width: 90%;
+`
+const SearchBarText1 = styled(ReelayText.Overline)`
+    color: ${ReelayColors.reelayBlue};
+    font-weight:bold;
+`
 
-export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSelectedFilters }) => {
+export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSelectedFilters, newDiscover = false }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const hideCategories = isGuestUser ? ['Friends & Communities', 'Watchlist'] : [];
@@ -205,7 +226,19 @@ export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSele
             return (
                 <SearchBarPressable bottomOffset={bottomOffset} onPress={applyFilters}>
                     <SearchBarText>{'Apply'}</SearchBarText>
+                    
                 </SearchBarPressable>
+            );
+        }
+
+        const CancelButton = () => {
+            const applyFilters = () => {
+                closeAllFiltersList();
+            }
+            return (
+                <SearchBarPressable1 bottomOffset={bottomOffset} onPress={applyFilters}>
+                    <SearchBarText1>{'Cancel'}</SearchBarText1>
+                </SearchBarPressable1>
             );
         }
 
@@ -222,6 +255,7 @@ export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSele
                     end={{ x: 1, y: 0.5 }}
                 />
                 <SearchButton />
+               { newDiscover && <CancelButton />}
             </AllFiltersView>
         );
     }

@@ -309,6 +309,15 @@ const appReducer = ( state = initialState, action) => {
                 myHomeContent.following.topicsNextPage = nextPage;
             }
             return { ...state, myHomeContent };
+            // New Discover
+            case 'setNewestReels':
+                return { ...state, newestReels: action.payload }
+            case 'setFollowingReels':
+                return { ...state, followingReels: action.payload }
+            case 'setWatchlistReels':
+                return { ...state, watchlistReels: action.payload }
+            case 'setMoreFiltersReels':
+                return { ...state, moreFiltersReels: action.payload }
 
         //LISTDATA
         case 'setListData':
@@ -464,6 +473,11 @@ export const mapStateToProps = (state) => ({
     myHomeContent: state.myHomeContent,
     myDismissalHistory: state.myDismissalHistory,
     showFestivalsRow: state.showFestivalsRow,
+
+    newestReels: state.newestReels,
+    followingReels: state.followingReels,
+    watchlistReels: state.watchlistReels,
+    moreFiltersReels: state.moreFiltersReels,
 
     //LISTDATA
     listData:state.listData,
