@@ -168,6 +168,7 @@ export default ReelayFeed = ({ navigation,
         : reelayThreads;
 
     useEffect(() => {
+        console.log("selectedFilters",selectedFilters)
         if (isFirstRender.current) {
             if (feedSource === 'discover' && nextPage.current === 1) {
                 checkDiscoverForUnseenReelays();

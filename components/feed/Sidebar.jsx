@@ -62,8 +62,8 @@ export default Sidebar = ({ navigation, reelay, game = null }) => {
 	const { reelayDBUser } = useContext(AuthContext);
 
 	const hasComments = reelay.comments?.length > 0;
-	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);
-	const likedByUser = reelay.likes.find(like => like.username === reelayDBUser?.username);
+	const commentedByUser = reelay.comments?.find(comment => comment.authorName === reelayDBUser?.username);
+	const likedByUser = reelay.likes?.find(like => like.username === reelayDBUser?.username);
 
 	const onCommentLongPress = async () => {
 		if (showMeSignupIfGuest()) return;
