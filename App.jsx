@@ -5,7 +5,6 @@ import Navigation from './navigation';
 import styled from 'styled-components/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Reactotron from 'reactotron-react-native';
-
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
 import { Audio } from 'expo-av';

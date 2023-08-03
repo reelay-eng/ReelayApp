@@ -78,11 +78,11 @@ export default HomeHeader = ({ navigation }) => {
                         { hasUnreadNotifications && <UnreadIconIndicator /> }
                     </IconContainer>
                 )}
-                { !isGuestUser && (
+                {/* { !isGuestUser && (
                     <IconContainer onPress={directMessageScreen}>
                         <FontAwesomeIcon icon={faComment} color={'white'} size={24} />
                     </IconContainer>
-                )}
+                )} */}
             </HeaderContainerRight>
         </HeaderContainer>
     );

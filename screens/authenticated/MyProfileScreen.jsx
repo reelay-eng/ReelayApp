@@ -460,6 +460,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 					reelayCount={reelayCount}
 					followers={myFollowers}
 					following={myFollowing}
+                    
                 />
                 {/* <FlatList
                     ListHeaderComponent={(<WatchlistFilters />)}

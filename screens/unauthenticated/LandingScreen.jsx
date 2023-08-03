@@ -16,6 +16,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment, { min } from 'moment';
+import SocialLoginBar from '../../components/auth/SocialLoginBar';
 
 const LogoText = styled(ReelayText.H4Bold)`
     color: white;
@@ -87,12 +88,29 @@ const LoadingContainer = styled(View)`
     align-items: center;
     justify-content: center;
 `
+const DevSignUpIsVisible = process.env.NODE_ENV !== 'production';
+
+const SigningInOuterContainer = styled(View)`
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+`
+const SigningInContainer = styled(View)`
+    background-color: #0d0d0d;
+    border-radius: 20px;
+    width: 80%;
+    justify-content: center;
+    align-items: center;
+`
 
 export default LandingScreen = ({ navigation }) => {
     const scrollViewRef = useRef();
     const [signingInJustShowMe, setSigningInJustShowMe] = useState(false);
     const { setCognitoUser } = useContext(AuthContext);
     const dispatch = useDispatch();
+    const [signingInSocial, setSigningInSocial] = useState(false);
 
     useEffect(()=>{
         markFirstTime()
@@ -121,6 +139,19 @@ export default LandingScreen = ({ navigation }) => {
             setSigningInJustShowMe(false);
         }
     }
+
+    
+const SigningInIndicator = () => {
+    return (
+        <SigningInOuterContainer>
+            <SigningInContainer>
+                <ButtonText color='white' style={{fontSize: 20, lineHeight: 24}}>Just a moment</ButtonText>
+                <Spacer height='15%' />
+                <ActivityIndicator color='white' />
+            </SigningInContainer>
+        </SigningInOuterContainer>
+    )
+}
 
     const JustShowMeButton = () => {
         return(
@@ -187,19 +218,30 @@ export default LandingScreen = ({ navigation }) => {
             </ImageBackground>
             <View style={{height:height,}}>
                 <ButtonsFlexContainer>
-                        <View style={{height:"75%",justifyContent:"center"}}>
+                        <View style={{height:"65%",justifyContent:"center"}}>
                             <LogoText>{"Welcome to Reelay"}</LogoText>
                             <Spacer height="20%" />
                             <Image source={ReelayLogoText} style={{height: '20%'}} resizeMode="contain"/>
                         </View>
-                        <View style={{height:"25%",width:width-20}}>
+                        <View style={{height:"35%",width:width-20}}>
                         <Pressable style={{alignItems:"center",marginBottom:5}} onPress={() => navigation.push('SignInScreen')}>
                                 <ButtonText fontSize="17px">{'Sign In'}</ButtonText>
                         </Pressable>
                         <SignUpButton/>
                         <JustShowMeButton/>
+                        <SocialLoginBar
+                            navigation={navigation}
+                            setSigningIn={setSigningInSocial}
+                            boarding={true}
+                        />
+                        
                         </View>
+
+                    { (signingInSocial || signingInJustShowMe) &&
+                    <SigningInIndicator />
+                     }
                     </ButtonsFlexContainer>
+                    
                     </View>
         </ScrollView>
 	);

@@ -243,7 +243,7 @@ export default SuggestedTitlesGrid = ({
                 data={displayItems}
                 ListHeaderComponent={
                 <>
-                    <TrendingText>My Watchlish Movies & Shows</TrendingText>
+                    <TrendingText>My Watchlist Movies & Shows</TrendingText>
                 </>}
                 estimatedItemSize={POSTER_HEIGHT_WITH_MARGIN}
                 getItemLayout={getItemLayout}
@@ -275,7 +275,8 @@ export default SuggestedTitlesGrid = ({
                         <HomeWatchlistCardGradient colors={['rgba(255,255,255,0.65)', 'rgba(255,255,255,0)']} />
                         <FanOfPosters titles={trendingMovieResults.map(item => item)} trending={true}/>
                     </HomeWatchlistCardView>
-                    <MyWatchlistAdd/>
+                    {displayItems && displayItems.length !== 0?
+                    <MyWatchlistAdd/>:null}
                     <TrendingText>Trending Movies & TV Shows</TrendingText>
                 </>}
                 estimatedItemSize={POSTER_HEIGHT_WITH_MARGIN}

@@ -39,7 +39,8 @@ target 'ReelayApp' do
   pod 'RNShare', :path => '../node_modules/react-native-share'
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/React/FBReactNativeSpec"
   pod 'MixpanelReactNative', :path => "../node_modules/mixpanel-react-native"
-
+  # use_unimodules!
+  # use_frameworks!
   config = use_native_modules!
 
   use_react_native!(

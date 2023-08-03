@@ -117,7 +117,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const { titleObj } = route.params;
 	const fromWatchlist = route.params?.fromWatchlist ?? false;
 	const Redirect = route.params?.Redirect ?? 0;
-
+	// console.log(titleObj)
 	const tmdbTitleID = titleObj?.id;
 	const isSeries = titleObj?.isSeries;
 	const titleType = (isSeries) ? "tv" : "film";

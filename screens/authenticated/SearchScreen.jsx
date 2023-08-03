@@ -117,7 +117,8 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
     const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const allSearchOptions = isGuestUser 
         ? ['Film', 'TV', 'Users'] 
-        : ['Film', 'TV', 'Chats', 'Users']
+        // : ['Film', 'TV', 'Chats', 'Users']
+        : ['Film', 'TV', 'Users']
     const tabOptions = addToWatchlist || addCustomWatchlist
     ? ['Film', 'TV'] 
         : allSearchOptions;

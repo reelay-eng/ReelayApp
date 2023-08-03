@@ -10,6 +10,7 @@ import { fetchResults } from "../../api/fetchResults";
 import { AuthContext } from "../../context/AuthContext";
 
 import GoogleImage from "../../assets/icons/social/google.png";
+import AppleImage from "../../assets/icons/social/Apple.png";
 
 import { useDispatch } from 'react-redux';
 
@@ -47,6 +48,24 @@ const ButtonContainer = styled(View)`
     margin-bottom: 8px;
     width: 100%;
 `
+const ButtonContainerSmall = styled(View)`
+    align-items: center;
+	height: 50px;
+    border-radius:25px;
+    margin-top: 8px;
+    margin-right:10px;
+    margin-bottom: 8px;
+    width: 50px;
+`
+const ButtonContainerSmall2 = styled(View)`
+    align-items: center;
+	height: 50px;
+    border-radius:25px;
+    margin-top: 8px;
+    margin-left:10px;
+    margin-bottom: 8px;
+    width: 50px;
+`
 const ButtonText = styled(Text)`
     font-family: Outfit-Medium;
     color: ${props => props.color ?? ReelayColors.reelayBlue};
@@ -54,7 +73,7 @@ const ButtonText = styled(Text)`
     margin-left: 10px;
 `
 
-export default SocialLoginBar = ({ navigation, setSigningIn }) => {
+export default SocialLoginBar = ({ navigation, setSigningIn, boarding = false }) => {
     const dispatch = useDispatch();
     try {
     const { setReelayDBUserID } = useContext(AuthContext);
@@ -135,6 +154,8 @@ export default SocialLoginBar = ({ navigation, setSigningIn }) => {
         }
 
         return (
+            <>
+            {!boarding ? 
             <ButtonContainer>
                 <Apple.AppleAuthenticationButton
                     buttonType={Apple.AppleAuthenticationButtonType.CONTINUE}
@@ -143,7 +164,13 @@ export default SocialLoginBar = ({ navigation, setSigningIn }) => {
                     cornerRadius={24}
                     onPress={signInWithApple}
                 />
-            </ButtonContainer>
+            </ButtonContainer>:
+        <ButtonContainerSmall2>
+            <ButtonPressable backgroundColor={"#fff"} onPress={signInWithApple} activeOpacity={0.8}>
+                <Image source={AppleImage} style={{ width: 24, height: 24 }} resizeMode="contain" />
+            </ButtonPressable>
+        </ButtonContainerSmall2>}
+        </>
         );
     }
 
@@ -192,17 +219,28 @@ export default SocialLoginBar = ({ navigation, setSigningIn }) => {
         }, [response]);
 
         return (
+            !boarding ? 
             <ButtonContainer>
                 <ButtonPressable backgroundColor={ReelayColors.reelayBlue} onPress={signInWithGoogle} activeOpacity={0.8}>
                     <Image source={GoogleImage} style={{ width: 24, height: 24 }} resizeMode="contain" />
                     <ButtonText color='white'>{'Continue with Google'}</ButtonText>
                 </ButtonPressable>
-            </ButtonContainer>
+            </ButtonContainer>:
+        <ButtonContainerSmall>
+             <ButtonPressable backgroundColor={"#fff"} onPress={signInWithGoogle} activeOpacity={0.8}>
+                 <Image source={GoogleImage} style={{ width: 24, height: 24 }} resizeMode="contain" />
+             </ButtonPressable>
+         </ButtonContainerSmall>
         );
     }
 
     return (
-        <>
+        boarding ?
+        <View style={{flexDirection:"row",justifyContent:"center"}}>
+            <GoogleAuthButton />
+            <AppleAuthButton />
+        </View>:
+            <>
             <GoogleAuthButton />
             <AppleAuthButton />
         </>

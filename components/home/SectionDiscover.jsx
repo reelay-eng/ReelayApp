@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useState, useRef } from 'react';
-import { Image, Pressable, View, Animated, ScrollView, Dimensions, ActivityIndicator, Modal, SafeAreaView, RefreshControl } from 'react-native';
+import { Image, Pressable, View, Animated, ScrollView, Dimensions, ActivityIndicator, Modal, SafeAreaView, RefreshControl, Linking } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
@@ -13,28 +13,41 @@ import PagerView from 'react-native-pager-view';
 import TopOfTheWeek from './TopOfTheWeek';
 import ReelayThumbnailWithMovie from '../global/ReelayThumbnailWithMovie';
 import ReelayFeedNew from '../feed/ReelayFeedNew';
-import { getDiscoverFeed } from '../../api/FeedApi';
+import { getDiscoverFeed, getDiscoverFeedNew } from '../../api/FeedApi';
 import { getFeed } from '../../api/ReelayDBApi';
 import { coalesceFiltersForAPI } from '../utils/FilterMappings';
 import AllFeedFilters from '../feed/AllFeedFilters';
 import ReelayTile from './ReelayTile';
 import { Ionicons } from '@expo/vector-icons';
-import { faEdit, faPencil, faShare } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faPencil, faShare, fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import ReelayColors from '../../constants/ReelayColors';
 import ReelayDiscVideo from '../global/ReelayDiscVideo';
 import { Video } from 'expo-av';
+import VideoPlayer from 'expo-video-player'
 import { RecyclerListView, DataProvider, LayoutProvider } from 'recyclerlistview';
 import TitleBannerDiscover from '../feed/TitleBannerDiscover';
 import StarRating from '../global/StarRating';
 import { FlatList } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import FastImage from 'react-native-fast-image';
+import Constants from 'expo-constants';
+import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/ThumbnailApi';
+import SplashImage from "../../assets/images/reelay-splash-with-dog-black.png";
+import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
+import Hustle from '../../assets/images/home/hustle.png';
+import UploadProgressBar from '../global/UploadProgressBar';
+import { ResizeMode } from 'expo-av'
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { Carousel } from 'react-native-snap-carousel';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height, width } = Dimensions.get('window');
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 const POSTER_WIDTH = width / 2.3;
+const canUseFastImage = (Constants.appOwnership !== 'expo');
 
 const InTheatersContainer = styled(View)`
     width: 100%;
@@ -113,6 +126,7 @@ margin-bottom: 6px;
 const ThumbnailContainer = styled(Pressable)`
 justify-content: center;
 margin: 10px;
+border-radius:12px;
 width: ${POSTER_WIDTH};
 `
 const ThumbnailGradient = styled(LinearGradient)`
@@ -130,6 +144,48 @@ font-size: 14px;
 color: white;
 flex: 1;
 `
+const DogWithGlassesImage = styled(Image)`
+    height: 125px;
+    width: 100px;
+    border-radius:10px;
+    `
+
+const HustleImage = styled(Image)`
+    height: 185px;
+    width: 130px;
+    border-radius:10px;
+    `
+
+const ThumbnailImage = styled(canUseFastImage ? FastImage : Image)`
+        border-radius:12px;
+		height: ${240}px;
+        width: ${POSTER_WIDTH};
+	`
+const WelcomeText = styled(ReelayText.H5Bold)`
+    font-size: 18px;
+    margin-left: 2px;
+    line-height: 20px;
+    color: white;
+`
+const WelcomeText2 = styled(ReelayText.H5Bold)`
+font-size: 14px;
+margin-left: 2px;
+line-height: 20px;
+color: white;
+`
+const LearnText = styled(ReelayText.H5Bold)`
+		font-size: 12px;
+		margin-left: 2px;
+        line-height: 16px;
+		color: white;
+	`
+const LearnText2 = styled(ReelayText.Subtitle1)`
+		font-size: 12px;
+		margin-left: 2px;
+        line-height: 16px;
+        margin-top:10px;
+		color: white;
+	`
 const filterKeys = ['Newest', 'Following', 'Watchlist', 'More Filters'];
 const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -142,6 +198,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const topOfTheWeek = useSelector(state => state.myHomeContent?.global);
     const [showAllFilters, setShowAllFilters] = useState(false);
 
+    const isFocused = useIsFocused();
 
     const myStreamingVenues = useSelector(state => state.myStreamingSubscriptions)
         .map(subscription => subscription.platform);
@@ -153,6 +210,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const forceRefresh = route?.params?.forceRefresh ?? null;
     const pinnedReelay = route?.params?.pinnedReelay ?? null;
     const preloadedStackList = route?.params?.preloadedStackList ?? [];
+    const s3Client = useSelector(state => state.s3Client);
 
     const authSession = useSelector(state => state.authSession);
 
@@ -183,12 +241,380 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         : preloadedStackList;
     const [selectedFilters, setSelectedFilters] = useState(initialFeedFilters);
     const [feedLoad, setFeedLoad] = useState(false);
+    const [videoLoad, setVideoLoad] = useState(true);
 
     const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
     const [extendLoad, setExtendLoad] = useState(false);
     const [endLoop, setEndLoop] = useState(false);
+    const [onActive, setActive] = useState(true);
     const [muteIndex, setMuteIndex] = useState(0);
     const [focusedIndex, setFocusedIndex] = useState();
+    const [impressionAdv, setImpressionAdv] = useState(0);
+    const videoRef = useRef(null);
+    const uploadStage = useSelector(state => state.uploadStage);
+
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
+
+    const Advertise1 = [
+        {
+            "key":1,
+            "title": "Mission: Impossible - Dead Reckoning Part One",
+            "tmdbId":575264,
+            "release_date":2023,
+            "poster_path":"http://image.tmdb.org/t/p/w500/NNxYkU70HPurnNCSiCjYAmacwm.jpg",
+            "genress":"Action, Adventure, Thriller, Science Fiction",
+            "overview": "Ethan Hunt and his IMF team embark on their most dangerous mission yet: To track down a terrifying new weapon that threatens all of humanity before it falls into the wrong hands. With control of the future and the world's fate at stake and dark forces from Ethan's past closing in, a deadly race around the globe begins. Confronted by a mysterious, all-powerful enemy, Ethan must consider that nothing can matter more than his mission—not even the lives of those he cares about most.",
+            "director":  {
+                "adult": false,
+                "credit_id": "5c3d2a630e0a2655c48e51e4",
+                "department": "Directing",
+                "gender": 2,
+                "id": 9033,
+                "job": "Director",
+                "known_for_department": "Writing",
+                "name": "Christopher McQuarrie",
+                "original_name": "Christopher McQuarrie",
+                "popularity": 20.381,
+                "profile_path": "/82W339V8turXUdaCajqOyekxhmD.jpg",
+              },
+              "display": "Mission: Impossible - Dead Reckoning Part One",
+              "displayActors":  [
+                 {
+                  "adult": false,
+                  "cast_id": 4,
+                  "character": "Ethan Hunt",
+                  "credit_id": "5c3d2ae892514156e5ac7c11",
+                  "gender": 2,
+                  "id": 500,
+                  "known_for_department": "Acting",
+                  "name": "Tom Cruise",
+                  "order": 0,
+                  "original_name": "Tom Cruise",
+                  "popularity": 95.223,
+                  "profile_path": "/8qBylBsQf4llkGrWR3qAsOtOU8O.jpg",
+                },
+                 {
+                  "adult": false,
+                  "cast_id": 7,
+                  "character": "Grace",
+                  "credit_id": "5d7306183a4a120011d15a14",
+                  "gender": 1,
+                  "id": 39459,
+                  "known_for_department": "Acting",
+                  "name": "Hayley Atwell",
+                  "order": 1,
+                  "original_name": "Hayley Atwell",
+                  "popularity": 178.111,
+                  "profile_path": "/jm5pDDjsbgizhxSd7baDxbGYMtW.jpg",
+                },
+              ],
+              "id": 575264,
+              "isSeries": false,
+              "overview": "Ethan Hunt and his IMF team embark on their most dangerous mission yet: To track down a terrifying new weapon that threatens all of humanity before it falls into the wrong hands. With control of the future and the world's fate at stake and dark forces from Ethan's past closing in, a deadly race around the globe begins. Confronted by a mysterious, all-powerful enemy, Ethan must consider that nothing can matter more than his mission—not even the lives of those he cares about most.",
+              "posterPath": "/NNxYkU70HPurnNCSiCjYAmacwm.jpg",
+              "posterSource":  {
+                "uri": "http://image.tmdb.org/t/p/w185/NNxYkU70HPurnNCSiCjYAmacwm.jpg",
+              },
+              "rating": null,
+              "releaseDate": "2023-07-08",
+              "releaseYear": "2023",
+              "runtime": 0,
+              "titleKey": "film-575264",
+              "titleType": "film",
+              "trailerURI": "HurjfO_TDlQ",
+        },
+        {
+            "key":2,
+            "title": "Indiana Jones and the Dial of Destiny",
+            "tmdbId":335977,
+            "release_date":2023,
+            "poster_path":"http://image.tmdb.org/t/p/w500/Af4bXE63pVsb2FtbW8uYIyPBadD.jpg",
+            "genress":"Adventure, Action, Fantasy",
+            "overview": "Finding himself in a new era, and approaching retirement, Indy wrestles with fitting into a world that seems to have outgrown him. But as the tentacles of an all-too-familiar evil return in the form of an old rival, Indy must don his hat and pick up his whip once more to make sure an ancient and powerful artifact doesn't fall into the wrong hands.",
+            "director":  {
+                "adult": false,
+                "credit_id": "5e574108a6d93100145c82c6",
+                "department": "Directing",
+                "gender": 2,
+                "id": 366,
+                "job": "Director",
+                "known_for_department": "Directing",
+                "name": "James Mangold",
+                "original_name": "James Mangold",
+                "popularity": 24.589,
+                "profile_path": "/pk0GDjn99crNwR4qgCCEokDYd71.jpg",
+              },
+              "display": "Indiana Jones and the Dial of Destiny",
+              "displayActors":  [
+                 {
+                  "adult": false,
+                  "cast_id": 0,
+                  "character": "Indiana Jones",
+                  "credit_id": "56e8490ec3a368408f003646",
+                  "gender": 2,
+                  "id": 3,
+                  "known_for_department": "Acting",
+                  "name": "Harrison Ford",
+                  "order": 0,
+                  "original_name": "Harrison Ford",
+                  "popularity": 53.106,
+                  "profile_path": "/ActhM39LTxgx3tnJv3s5nM6hGD1.jpg",
+                },
+                 {
+                  "adult": false,
+                  "cast_id": 19,
+                  "character": "Helena Shaw",
+                  "credit_id": "60707c53924ce5003f3416e0",
+                  "gender": 1,
+                  "id": 1023483,
+                  "known_for_department": "Acting",
+                  "name": "Phoebe Waller-Bridge",
+                  "order": 1,
+                  "original_name": "Phoebe Waller-Bridge",
+                  "popularity": 37.206,
+                  "profile_path": "/bkDzGCyE84JpUniL2LP8UKxXGV1.jpg",
+                },
+              ],
+              "id": 335977,
+              "isSeries": false,
+              "overview": "Finding himself in a new era, approaching retirement, Indy wrestles with fitting into a world that seems to have outgrown him. But as the tentacles of an all-too-familiar evil return in the form of an old rival, Indy must don his hat and pick up his whip once more to make sure an ancient and powerful artifact doesn't fall into the wrong hands.",
+              "posterPath": "/Af4bXE63pVsb2FtbW8uYIyPBadD.jpg",
+              "posterSource":  {
+                "uri": "http://image.tmdb.org/t/p/w185/Af4bXE63pVsb2FtbW8uYIyPBadD.jpg",
+              },
+              "rating": "PG-13",
+              "releaseDate": "2023-06-28",
+              "releaseYear": "2023",
+              "runtime": 155,
+              "tagline": "A legend will face his destiny.",
+              "titleKey": "film-335977",
+              "titleType": "film",
+              "trailerURI": "eQfMbSe7F2g",
+        },
+        {
+            "key":3,
+            "title": "Oppenheimer",
+            "tmdbId":872585,
+            "release_date":2023,
+            "poster_path":"http://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+            "genress":"Drama, History",
+            "overview": "The story of J. Robert Oppenheimer's role in the development of the atomic bomb during World War II.",
+            "director":  {
+                "adult": false,
+                "credit_id": "613a93cbd38b58005f6a1964",
+                "department": "Directing",
+                "gender": 2,
+                "id": 525,
+                "job": "Director",
+                "known_for_department": "Directing",
+                "name": "Christopher Nolan",
+                "original_name": "Christopher Nolan",
+                "popularity": 34.803,
+                "profile_path": "/xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg",
+              },
+              "display": "Oppenheimer",
+              "displayActors":  [
+                 {
+                  "adult": false,
+                  "cast_id": 3,
+                  "character": "J. Robert Oppenheimer",
+                  "credit_id": "613a940d9653f60043e380df",
+                  "gender": 2,
+                  "id": 2037,
+                  "known_for_department": "Acting",
+                  "name": "Cillian Murphy",
+                  "order": 0,
+                  "original_name": "Cillian Murphy",
+                  "popularity": 127.948,
+                  "profile_path": "/dm6V24NjjvjMiCtbMkc8Y2WPm2e.jpg",
+                },
+                 {
+                  "adult": false,
+                  "cast_id": 161,
+                  "character": "Katherine 'Kitty' Oppenheimer",
+                  "credit_id": "6328c918524978007e9f1a7f",
+                  "gender": 1,
+                  "id": 5081,
+                  "known_for_department": "Acting",
+                  "name": "Emily Blunt",
+                  "order": 1,
+                  "original_name": "Emily Blunt",
+                  "popularity": 70.774,
+                  "profile_path": "/2mfJILwVGr4RBha3OihQVfq5nyL.jpg",
+                },
+              ],
+              "id": 872585,
+              "isSeries": false,
+              "overview": "The story of J. Robert Oppenheimer’s role in the development of the atomic bomb during World War II.",
+              "posterPath": "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+              "posterSource":  {
+                "uri": "http://image.tmdb.org/t/p/w185/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+              },
+              "rating": null,
+              "releaseDate": "2023-07-19",
+              "releaseYear": "2023",
+              "runtime": 0,
+              "titleKey": "film-872585",
+              "titleType": "film",
+              "trailerURI": "sOsIKu2VAkM",
+        },
+    ]
+    const Advertise2 = [
+        {
+            "key":1,
+            "title": "Barbie",
+            "tmdbId":346698,
+            "release_date":2023,
+            "poster_path":"http://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg",
+            "genress":"Comedy, Adventure, Fantasy",
+            "overview": "Barbie and Ken are having the time of their lives in the colorful and seemingly perfect world of Barbie Land. However, when they get a chance to go to the real world, they soon discover the joys and perils of living among humans.",
+            "director":  {
+                "adult": false,
+                "credit_id": "5f87d5b52385130036355b3a",
+                "department": "Directing",
+                "gender": 1,
+                "id": 45400,
+                "job": "Director",
+                "known_for_department": "Acting",
+                "name": "Greta Gerwig",
+                "original_name": "Greta Gerwig",
+                "popularity": 46.078,
+                "profile_path": "/nHrWXL1VFaV4a3wRNlhp5NfO98m.jpg",
+              },
+              "display": "Barbie",
+              "displayActors":  [
+                 {
+                  "adult": false,
+                  "cast_id": 58,
+                  "character": "Barbie",
+                  "credit_id": "5f88a9d28258fc0036ad14ff",
+                  "gender": 1,
+                  "id": 234352,
+                  "known_for_department": "Acting",
+                  "name": "Margot Robbie",
+                  "order": 0,
+                  "original_name": "Margot Robbie",
+                  "popularity": 97.413,
+                  "profile_path": "/euDPyqLnuwaWMHajcU3oZ9uZezR.jpg",
+                },
+                 {
+                  "adult": false,
+                  "cast_id": 59,
+                  "character": "Ken",
+                  "credit_id": "61732049a217c000434083ec",
+                  "gender": 2,
+                  "id": 30614,
+                  "known_for_department": "Acting",
+                  "name": "Ryan Gosling",
+                  "order": 1,
+                  "original_name": "Ryan Gosling",
+                  "popularity": 109.753,
+                  "profile_path": "/lyUyVARQKhGxaxy0FbPJCQRpiaW.jpg",
+                },
+              ],
+              "id": 346698,
+              "isSeries": false,
+              "overview": "Barbie and Ken are having the time of their lives in the colorful and seemingly perfect world of Barbie Land. However, when they get a chance to go to the real world, they soon discover the joys and perils of living among humans.",
+              "posterPath": "/cgYg04miVQUAG2FKk3amSnnHzOp.jpg",
+              "posterSource":  {
+                "uri": "http://image.tmdb.org/t/p/w185/cgYg04miVQUAG2FKk3amSnnHzOp.jpg",
+              },
+              "rating": null,
+              "releaseDate": "2023-07-19",
+              "releaseYear": "2023",
+              "runtime": 0,
+              "titleKey": "film-346698",
+              "titleType": "film",
+              "trailerURI": "Y1IgAEejvqM",
+        },
+        {
+            "key":2,
+            "title": "Napoleon",
+            "tmdbId":753342,
+            "release_date":2023,
+            "poster_path":"http://image.tmdb.org/t/p/w500/icQpWcVhwHvCRrT53BjDzbYJhJm.jpg",
+            "genress":"Drama, History, Action",
+            "overview": "A personal look at the French military leader’s origins and swift, ruthless climb to emperor, viewed through the prism of Napoleon’s addictive, volatile relationship with his wife and one true love, Josephine.",
+            "director":  {
+                "adult": false,
+                "credit_id": "5f87352ba1c59d00371171c6",
+                "department": "Directing",
+                "gender": 2,
+                "id": 578,
+                "job": "Director",
+                "known_for_department": "Directing",
+                "name": "Ridley Scott",
+                "original_name": "Ridley Scott",
+                "popularity": 11.881,
+                "profile_path": "/zABJmN9opmqD4orWl3KSdCaSo7Q.jpg",
+              },
+              "display": "Napoleon",
+              "displayActors":  [
+                 {
+                  "adult": false,
+                  "cast_id": 1,
+                  "character": "Napoleon Bonaparte",
+                  "credit_id": "5f8734f6d4b9d9003726f177",
+                  "gender": 2,
+                  "id": 73421,
+                  "known_for_department": "Acting",
+                  "name": "Joaquin Phoenix",
+                  "order": 0,
+                  "original_name": "Joaquin Phoenix",
+                  "popularity": 22.698,
+                  "profile_path": "/oe0ydnDvQJCTbAb2r5E1asVXoCP.jpg",
+                },
+                 {
+                  "adult": false,
+                  "cast_id": 9,
+                  "character": "Empress Josephine",
+                  "credit_id": "61d4df3cd48cee001ceca299",
+                  "gender": 1,
+                  "id": 556356,
+                  "known_for_department": "Acting",
+                  "name": "Vanessa Kirby",
+                  "order": 1,
+                  "original_name": "Vanessa Kirby",
+                  "popularity": 264.259,
+                  "profile_path": "/5fbvIkZ02RdcXfZHUUk4cQ9kILK.jpg",
+                },
+              ],
+              "id": 753342,
+              "isSeries": false,
+              "overview": "A personal look at the French military leader’s origins and swift, ruthless climb to emperor, viewed through the prism of Napoleon’s addictive, volatile relationship with his wife and one true love, Josephine.",
+              "posterPath": "/ofXToitZCjAPgadlbQDWM0Uaxa8.jpg",
+              "posterSource":  {
+                "uri": "http://image.tmdb.org/t/p/w185/ofXToitZCjAPgadlbQDWM0Uaxa8.jpg",
+              },
+              "rating": "R",
+              "releaseDate": "2023-11-22",
+              "releaseYear": "2023",
+              "runtime": 158,
+              "tagline": "He came from nothing. He conquered everything.",
+              "titleKey": "film-753342",
+              "titleType": "film",
+              "trailerURI": "CBmWztLPp9c",
+        },
+    ]
+
+    useEffect(()=>{
+        Syncc()
+    },[])
+    const Syncc = async() =>{
+        const advertiseImpression = await AsyncStorage.getItem('advertiseImpression');
+        console.log("advertiseImpression",advertiseImpression)
+        if(!advertiseImpression){
+            setImpressionAdv(0)
+            await AsyncStorage.setItem('advertiseImpression', "0");
+        }else if(advertiseImpression && advertiseImpression == "0"){
+            setImpressionAdv(1)
+            await AsyncStorage.setItem('advertiseImpression', "1");
+        }else if(advertiseImpression && advertiseImpression == "1"){
+            setImpressionAdv(0)
+            await AsyncStorage.setItem('advertiseImpression', "0");
+        }
+    }
 
     const FilterButton = ({ filterKey }) => {
         const isSelected = selectedSection.includes(filterKey);
@@ -217,15 +643,30 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             <FilterPressable isSelected={isSelected} onPress={onPress}>
                 <FilterText>{filterKey}</FilterText>
                 {filterKey == "More Filters" &&
-               <TouchableOpacity onPress={()=> setShowAllFilters(true)}>
-               <FontAwesomeIcon style={{marginLeft:5}} icon={faPencil} color={ReelayColors.reelayBlue} size={14} />
-               </TouchableOpacity>}
+                    <TouchableOpacity onPress={() => setShowAllFilters(true)}>
+                        <FontAwesomeIcon style={{ marginLeft: 5 }} icon={faPencil} color={ReelayColors.reelayBlue} size={14} />
+                    </TouchableOpacity>}
             </FilterPressable>
         )
     }
 
+    useFocusEffect(
+        React.useCallback(() => {
+            console.log("inside")    
+            setActive(true)
+            // setMuteIndex(0)
+          return () => {
+            console.log("outside") 
+            setActive(false)   
+            setMuteIndex(-1)
+          };
+        }, [])  
+        );
+
+
+
     const WatchlistFilters = () => {
-        const filterKeys = ['Newest', 'Following', 'Watchlist', 'More Filters']//'seen', 'unseen', 'movie', 'TV', '<90 min'];        
+        const filterKeys = ['Newest', 'Following', 'Watchlist', 'More Filters'];        
         return (
             <FilterRowView>
                 {filterKeys.map(key => <FilterButton key={key} filterKey={key} />)}
@@ -254,39 +695,48 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         loadFeed("Following");
         loadFeed("Watchlist");
         loadFeed("More Filters");
-        }, []);
+    }, []);
 
 
-      useEffect(() => {
+    useEffect(() => {
         console.log("selectFil inside")
 
-        if(selectedSection == "More Filters")
-        loadFeed("More Filters");
+        if (selectedSection == "More Filters")
+            loadFeed("More Filters");
 
-        }, [selectedFilters]);
+    }, [selectedFilters]);
 
     const loadFeed = async (items) => {
         setFeedLoad(true)
-        const silSelect = items == "Following"? [{
+        const silSelect = items == "Following" ? [{
             "category": "community",
             "display": "my friends",
             "option": "following",
-        }]:
-        items == "Watchlist" ? [{  
-            "category": "watchlist",
-            "display": "on my watchlist",
-            "option": "on_my_watchlist",
-        }]:
-        items == "Newest"? []:selectedFilters;
+        }] :
+            items == "Watchlist" ? [{
+                "category": "watchlist",
+                "display": "on my watchlist",
+                "option": "on_my_watchlist",
+            }] :
+                items == "Newest" ? [] : selectedFilters;
 
-        const fetchedThreads = 
-            await getDiscoverFeed({ 
-                authSession, 
-                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues), 
-                page: 0, 
-                reqUserSub: reelayDBUser?.sub, 
+        const fetchedThreads = items == "Newest" ?
+            await getDiscoverFeedNew({
+                authSession,
+                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+                page: 0,
+                reqUserSub: reelayDBUser?.sub,
                 sortMethod,
             })
+            :
+            await getDiscoverFeed({
+                authSession,
+                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+                page: 0,
+                reqUserSub: reelayDBUser?.sub,
+                sortMethod,
+            })
+        // console.log("fetchedThreads",fetchedThreads)
 
         if (feedSource === 'discover') {
             let dispatchAction = 'setDiscoverMostRecent';
@@ -303,49 +753,59 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         }
 
         nextPage.current = 1;
-        if(items == "Newest"){
+        if (items == "Newest") {
             // console.log("fetchedThreads",fetchedThreads[1])
             // console.error("reelData?.length",fetchedThreads.length)
+            // const FetThread = removeDuplicates(fetchedThreads)
+            fetchedThreads.splice(6, 0, { advertise: true, valIndex: 0 }); // n is declared and is the index where to add the object
             dispatch({ type: 'setNewestReels', payload: fetchedThreads });
             // dataProvider = dataProvider.cloneWithRows(fetchedThreads);
         }
-        if(items == "Following"){
+        if (items == "Following") {
             dispatch({ type: 'setFollowingReels', payload: fetchedThreads });
         }
-        if(items == "Watchlist"){
+        if (items == "Watchlist") {
             dispatch({ type: 'setWatchlistReels', payload: fetchedThreads });
         }
-        if(items == "More Filters"){
+        if (items == "More Filters") {
             dispatch({ type: 'setMoreFiltersReels', payload: fetchedThreads });
             // closeAllFiltersList()
         }
-        
+
         setFeedLoad(false)
 
     }
 
     const extendFeed = async (items) => {
         setExtendLoad(true)
-        console.log("extendFeed",nextPage.current,items)
+        console.log("extendFeed", nextPage.current, items)
         const page = (feedSource === 'discover')
             ? discoverMostRecent.nextPage
             : nextPage.current;
-        const silSelect = items == "Following"? [{
+        const silSelect = items == "Following" ? [{
             "category": "community",
             "display": "my friends",
             "option": "following",
-          },
-        ]:items == "Watchlist"? [{  
+        },
+        ] : items == "Watchlist" ? [{
             "category": "watchlist",
             "display": "on my watchlist",
             "option": "on_my_watchlist",
-          },
-        ]:items == "Newest"? []:selectedFilters;
+        },
+        ] : items == "Newest" ? [] : selectedFilters;
 
-        const fetchedThreads = await getDiscoverFeed({ 
-                authSession, 
-                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues), 
-                page, 
+        const fetchedThreads = items == "Newest" ?
+            await getDiscoverFeedNew({
+                authSession,
+                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+                page,
+                reqUserSub: reelayDBUser?.sub,
+                sortMethod,
+            }) :
+            await getDiscoverFeed({
+                authSession,
+                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+                page,
                 reqUserSub: reelayDBUser?.sub,
                 sortMethod,
             })
@@ -353,22 +813,22 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const threadEntries = {};
         const addToThreadEntries = (fetchedThread) => {
-            const reelay = fetchedThread[0];
+            const reelay = items == "Newest" ? fetchedThread : fetchedThread[0];
             threadEntries[reelay?.sub ?? reelay?.id] = 1;
         }
-        const reelayThread = items == "Watchlist"?watchlistReels:items == "Following"?followingReels:items == "Newest"?newestReels:moreFiltersReels;
+        const reelayThread = items == "Watchlist" ? watchlistReels : items == "Following" ? followingReels : items == "Newest" ? newestReels : moreFiltersReels;
         reelayThread?.forEach(addToThreadEntries);
 
         const notAlreadyInStack = (fetchedThread) => {
-            const reelay = fetchedThread[0];
+            const reelay = items == "Newest" ? fetchedThread : fetchedThread[0];
             const alreadyInStack = threadEntries[reelay?.sub ?? reelay?.id];
             if (alreadyInStack) console.log('Filtering stack ', reelay?.sub ?? reelay?.id);
             return !alreadyInStack;
         }
 
-        const filteredThreads = fetchedThreads.filter(notAlreadyInStack);
+        const filteredThreads = items == "Newest" ? fetchedThreads : fetchedThreads.filter(notAlreadyInStack);
         const allThreads = [...reelayThread, ...filteredThreads];
-        if(allThreads?.length == reelayThread?.length){
+        if (allThreads?.length == reelayThread?.length) {
             setEndLoop(true)
         }
         setExtendLoad(false)
@@ -389,17 +849,23 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         }
 
         nextPage.current = page + 1;
-        
-        if(items == "Newest"){
-            dispatch({ type: 'setNewestReels', payload: allThreads });
+
+        if (items == "Newest") {
+            console.log("allThreads.length", allThreads.length)
+            if (allThreads.length <= 17) {
+                allThreads.splice(13, 0, { advertise: true, valIndex: 1 }); // n is declared and is the index where to add the object
+                dispatch({ type: 'setNewestReels', payload: allThreads });
+            } else {
+                dispatch({ type: 'setNewestReels', payload: allThreads });
+            }
         }
-        if(items == "Following"){
+        if (items == "Following") {
             dispatch({ type: 'setFollowingReels', payload: allThreads });
         }
-        if(items == "Watchlist"){
+        if (items == "Watchlist") {
             dispatch({ type: 'setWatchlistReels', payload: allThreads });
         }
-        if(items == "More Filters"){
+        if (items == "More Filters") {
             dispatch({ type: 'setMoreFiltersReels', payload: allThreads });
             // closeAllFiltersList()
         }
@@ -427,10 +893,10 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         pager.current?.setPage?.(item);
     }
     const closeAllFiltersList = () => setShowAllFilters(false);
-    const closeAllFilters = () => {};
+    const closeAllFilters = () => { };
 
 
-  
+
 
     const layoutProvider = new LayoutProvider(
         index => {
@@ -442,191 +908,276 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         }
     );
 
-    const rowRenderer = ( {item, index}) => {
-        const reelay = item[0];
+    const rowRenderer = ({ item, index }) => {
+        const reelay = selectedSection == "Newest" ? item : item[0];
         const starRating = (reelay?.starRating ?? 0) + (reelay?.starRatingAddHalf ? 0.5 : 0);
         // var muteIndex = 0;
-        // const onPlaybackStatusUpdate = (playbackStatus,index) =>{
-        //     if(playbackStatus?.positionMillis > 6000){
-        //         setMuteIndex(index + 1)
-        //     }
-        // }
-        const gotoDetail=(reelay)=>{
+        const onPlaybackStatusUpdate = (playbackStatus, index) => {
+            if (playbackStatus?.positionMillis > 6000) {
+                // setMuteIndex(index + 1)
+                videoRef.current.stopAsync();
+
+            }
+        }
+        const gotoDetail = (reelay) => {
             setMuteIndex(-1)
-            navigation.push('SingleReelayScreen', { reelaySub:reelay?.sub })
+            navigation.push('SingleReelayScreen', { reelaySub: reelay?.sub })
         }
+
+        const generateAndSaveThumbnail = async () => {
+            console.log('ON ERROR TRIGGERED: ', getThumbnailURI(reelay));
+            const thumbnailObj = await generateThumbnail(reelay);
+            if (thumbnailObj && !thumbnailObj.error) {
+                const bnail = saveThumbnail(reelay, s3Client, thumbnailObj);
+                return bnail;
+            } else {
+                return SplashImage;
+            }
+            return thumbnailObj;
+        }
+
+        const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
         return (
-             // <ReelayThumbnailWithMovie
-            // navigation={navigation}
-            //     reelay={item[0]}
-            //     // onPress={() => goToReelay(item[0], index)}
-            //     index={index}
-            //     onPlaybackStatusUpdate={onPlaybackStatusUpdate}
-            // />
-            <ThumbnailContainer key={index} onPress={()=> gotoDetail(reelay)//goToReelay(item,index)
-            // navigation.push('SingleReelayScreen', { reelaySub:reelay?.sub })
-        }
-            >
-                 <Video
-					isLooping = {false}
-					isMuted={muteIndex == index ? false:true}
-					key={index}
-					rate={1.0}
-                    // ref={videoRef}
-					// progressUpdateIntervalMillis={50}
-					resizeMode='cover'
-					shouldPlay={muteIndex == index ? true:false}
-					source={{ uri: reelay?.content?.videoURI }}
-					style={{
-						height: 240,
-						width: POSTER_WIDTH,
-						borderRadius: 12,
-					}}
-					useNativeControls={false}
-					volume={1.0}
-                    // onPlaybackStatusUpdate={(playbackStatus) => onPlaybackStatusUpdate(playbackStatus,index)}                   
-				/>
-                {/* <ReelayDiscVideo
-                reelay={reelay}
-                index={index}
-                muteIndex={muteIndex}
-                setMuteIndex={setMuteIndex}
-                onPlaybackStatusUpdate={onPlaybackStatusUpdate}
-                /> */}
-                <TItleContainer>
-				 <TitleBannerDiscover
-                    titleObj={reelay?.title}
-                    reelay={reelay}
-                />
-			    </TItleContainer>
-                <GradientContainer>
-                    <ThumbnailGradient colors={["transparent", "#0B1424"]} />
-                    <BlurView intensity={15} tint='dark'
-                        style={{
-                            flexDirection: "row", justifyContent: "space-between", alignItems: 'center',
-                            width: '100%', height: 40, borderBottomRightRadius: 12, borderBottomLeftRadius: 12, overflow: "hidden"
-                        }}>
-                        <View style={{ flexDirection: "row", height: 40, width: "80%" }}>
-                            <>
-                            <CreatorLineContainer>
-                                <ProfilePicture user={reelay?.creator} size={26} border />
-                            </CreatorLineContainer>
-                            </>
-                            <View style={{ marginLeft: 5, width: "75%" }}>
-                                <UsernameText numberOfLines={2}>
-                                    {reelay?.creator?.username}
-                                </UsernameText>
-                                {starRating > 0 &&
-                                 <StarRatingContainer>
-                                    <StarRating
-                                        disabled={true}
-                                        rating={starRating}
-                                        starSize={12}
-                                        starStyle={{ paddingRight: 2 }}
-                                    />
-                                </StarRatingContainer>}
-                            </View>
+            !reelay?.advertise ?
+                <ThumbnailContainer key={index} onPress={() => gotoDetail(reelay)}>
+                    {onActive && muteIndex == index ?
+                        <View style={{ borderRadius: 12, overflow: "hidden", display: "flex" }}>
+                            <VideoPlayer
+                                videoProps={{
+                                    shouldPlay: true,
+                                    isMuted: false,
+                                    isLooping: false,
+                                    useNativeControls: false,
+                                    timeVisible: false,
+                                    defaultControlsVisible: false,
+                                    resizeMode: ResizeMode.COVER,
+                                    source: {
+                                        uri: reelay?.content?.videoURI,
+                                    },
+                                }}
+                                playbackCallback={(e) => {
+                                    if (e.isLoaded) {
+                                        // Video replay ended
+                                        if (e.didJustFinish) {
+                                            setMuteIndex(-1)
+                                        }
+                                    }
+                                }}
+                                icon={{
+                                    replay: <></>,
+                                }}
+                                slider={{
+                                    visible: false,
+                                }}
+                                timeVisible={false}
+                                defaultControlsVisible={false}
+                                useNativeControls={false}
+                                showControlsOnLoad={false}
+                                style={{
+                                    height: 240,
+                                    width: POSTER_WIDTH,
+                                    borderRadius: 12,
+                                    overflow: "hidden",
+                                    display: "flex"
+                                }}
+                            />
                         </View>
-                        <>
-                            {muteIndex !== index ?
+
+                        :
+
+                        <ThumbnailImage
+                            onError={generateAndSaveThumbnail}
+                            source={cloudfrontThumbnailSource}
+                        />
+                    }
+                    <TItleContainer>
+                        <TitleBannerDiscover
+                            titleObj={reelay?.title}
+                            reelay={reelay}
+                        />
+                    </TItleContainer>
+                    <GradientContainer>
+                        <ThumbnailGradient colors={["transparent", "#0B1424"]} />
+                        <BlurView intensity={15} tint='dark'
+                            style={{
+                                flexDirection: "row", justifyContent: "space-between", alignItems: 'center',
+                                width: '100%', height: 40, borderBottomRightRadius: 12, borderBottomLeftRadius: 12, overflow: "hidden"
+                            }}>
+                            <View style={{ flexDirection: "row", height: 40, width: "80%" }}>
+                                <>
+                                    <CreatorLineContainer>
+                                        <ProfilePicture user={reelay?.creator} size={26} border />
+                                    </CreatorLineContainer>
+                                </>
+                                <View style={{ marginLeft: 5, width: "75%" }}>
+                                    <UsernameText numberOfLines={2}>
+                                        {reelay?.creator?.username}
+                                    </UsernameText>
+                                    {starRating > 0 &&
+                                        <StarRatingContainer>
+                                            <StarRating
+                                                disabled={true}
+                                                rating={starRating}
+                                                starSize={12}
+                                                starStyle={{ paddingRight: 2 }}
+                                            />
+                                        </StarRatingContainer>}
+                                </View>
+                            </View>
+                            <>
+                                {muteIndex !== index ?
+
+                                    <Ionicons onPress={() => setMuteIndex(index)} name='volume-mute' color={"#fff"} size={24} style={{ marginRight: 8 }} />
+                                    :
+                                    <Ionicons onPress={() => setMuteIndex(-1)} name='volume-high' color={"#fff"} size={24} style={{ marginRight: 4 }} />}
+                            </>
+                        </BlurView>
+                    </GradientContainer>
+                </ThumbnailContainer> :
+                <>
+                    {reelay?.valIndex == 0 ?
+
+                        <Carousel
+                            activeSlideAlignment={'center'}
+                            data={Advertise1}
+                            loop={true}
+                            // activeIndex={2}
+                            inactiveSlideScale={0.95}
+                            //  itemHeight={452}
+                            firstItem={impressionAdv}
+                            itemWidth={width}
+                            renderItem={({item, index}) => 
                                 
-                                <Ionicons onPress={()=>setMuteIndex(index)} name='volume-mute' color={"#fff"} size={24} style={{marginRight:8}}/>
-                                :
-                                <Ionicons onPress={()=>setMuteIndex(-1)} name='volume-high' color={"#fff"} size={24} style={{ marginRight: 4 }} />}
-                        </>
-                    </BlurView>
-                </GradientContainer>
-            </ThumbnailContainer>
+                                 <Pressable onPress={() => navigation.push('TitleDetailScreen',{titleObj:item})} style={{ backgroundColor: item.key==1 ||item.key ==3?"#4388F1": "#1EC072", flexDirection: "row", borderRadius: 10, margin: 10, marginRight: 20, padding: 10 }}>
+                                 <View style={{ width: "35%" }}>
+                                     <View style={{ justifyContent: "center", alignSelf: "center" }}>
+                                         <HustleImage resizeMode='contain' source={{uri:item.poster_path}} />
+                                     </View>
+                                 </View>
+                                 <View style={{ width: "62%", paddingTop: 10, marginLeft: 10 }}>
+                                     <WelcomeText numberOfLines={2}>{item.title}</WelcomeText>
+                                     <WelcomeText2>{item.release_date}</WelcomeText2>
+                                     <LearnText numberOfLines={2}>{item.genres}</LearnText>
+                                     <LearnText2 numberOfLines={4}>{item.overview}</LearnText2>
+                                 </View>
+                             </Pressable>
+                            }
+                            sliderHeight={452}
+                            sliderWidth={width}
+                        /> :
+                        <Carousel
+                            activeSlideAlignment={'center'}
+                            data={Advertise2}
+                            loop={true}
+                            firstItem={impressionAdv}
+                            inactiveSlideScale={0.95}
+                            //  itemHeight={452}
+                            itemWidth={width}
+                            renderItem={({item, index}) => 
+                                
+                                 <Pressable onPress={() => navigation.push('TitleDetailScreen',{titleObj:item})} style={{ backgroundColor: item.key==2 ? "#4388F1": "#1EC072", flexDirection: "row", borderRadius: 10, margin: 10, marginRight: 20, padding: 10 }}>
+                                 <View style={{ width: "35%" }}>
+                                     <View style={{ justifyContent: "center", alignSelf: "center" }}>
+                                         <HustleImage resizeMode='contain' source={{uri:item.poster_path}} />
+                                     </View>
+                                 </View>
+                                 <View style={{ width: "62%", paddingTop: 10, marginLeft: 10 }}>
+                                     <WelcomeText numberOfLines={2}>{item.title}</WelcomeText>
+                                     <WelcomeText2>{item.release_date}</WelcomeText2>
+                                     <LearnText numberOfLines={2}>{item.genress}</LearnText>
+                                     <LearnText2 numberOfLines={4}>{item.overview}</LearnText2>
+                                 </View>
+                             </Pressable>
+                            }
+                            sliderHeight={452}
+                            sliderWidth={width}
+                        /> }
+                </>
         );
     };
     const refreshControls = <RefreshControl tintColor={"#fff"} refreshing={feedLoad} onRefresh={() => loadFeed(selectedSection)} />;
     const handleScroll = React.useCallback(({ nativeEvent: { contentOffset: { y } } }) => {
-        const offset = Math.round(y / 240);
-        // console.log("offset",offset * 2)
-        setMuteIndex(offset * 2)
-        setFocusedIndex(offset)
-      }, [focusedIndex]);
+        // const a = muteIndex <= 10 ? y:y-400
+        // alert("hi")
+        // console.log(onActive)
+        if (onActive) {
+            const offset = Math.round(y / 240);
+            let calOffset = muteIndex <= 12 ? offset * 2 : (offset * 2) - 2;
+            if (offset * 2 !== setMuteIndex) {
+                setMuteIndex(calOffset)//offset * 2)
+            }
+            setFocusedIndex(offset)
+        }
+    }, [focusedIndex]);
+
 
     return (
         <InTheatersContainer>
             <HeaderContainer>
                 <WatchlistFilters />
             </HeaderContainer>
-            {/* <AnimatedPagerView
-                style={{height:"100%",width:"100%"}} 
-                ref={pager} layoutDirection="ltr"
-                onPageSelected={({ nativeEvent }) => onPressS(nativeEvent.position)}
-                orientation="horizontal" scrollEnabled={false} initialPage={0}> */}
-                {/* {filterKeys.map((items, index) => */}
-               {!feedLoad ?
+            {!feedLoad ?
                 <View style={{}}>
-                    {/* {selectedSection == "Newest" || selectedSection == "Following"|| selectedSection == "Watchlist" || selectedSection == "More Filters" ?
-                    //     <ReelayTile navigation={navigation} keys={selectedSection} refreshControl={refreshControl} 
-                    //     goToReelay={goToReelay} topReelays={topOfTheWeek} items={selectedSection}
-                    //     closeAllFiltersList={closeAllFiltersList} showAllFilters={showAllFilters} 
-                    //     extendedFeed={extendFeed} extendLoad={extendLoad} loadFeed={loadFeed} endLoop={endLoop} feedLoad={feedLoad}/>:null}
-
-                        // <RecyclerListView
-                        //     // style={{ flex: 1 ,}}
-                        //     contentContainerStyle={{ margin: 3 }}
-                        //     onEndReached={() => !endLoop && extendFeed(selectedSection)}
-                        //     dataProvider={dataProvider}
-                        //     layoutProvider={layoutProvider}
-                        //     showsVerticalScrollIndicator={false}
-                        //     rowRenderer={rowRenderer}
-                        //     renderFooter={extendLoad && <ActivityIndicator style={{ margin: 10 }} size={"small"} color={"#fff"} />}
-                        // /> */}
-                        <FlatList
+                    <FlatList
                         data={selectedSection == "Watchlist" ? watchlistReels : selectedSection == "Following" ? followingReels : selectedSection == "Newest" ? newestReels : moreFiltersReels}
                         refreshControl={refreshControls}
                         onScroll={handleScroll}
-                        columnWrapperStyle={{ justifyContent: "center" }}
-                        contentContainerStyle={{ paddingBottom: 220 }}
-                        // estimatedItemSize={142}
-                        numColumns={2}
+                        contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', paddingBottom: 300 }}
+                        initialNumToRender={2}
                         removeClippedSubviews={false}
-                        // keyExtractor={(item, index) => index.toString()}
-                        renderItem={(item,index)=>rowRenderer(item,index)}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={(item, index) => rowRenderer(item, index)}
                         onEndReachedThreshold={0.2}
-                        ListFooterComponent={extendLoad && <ActivityIndicator style={{ margin: 10 }} size={"small"} color={"#fff"} />}
+                        ListFooterComponent={extendLoad &&
+                            <View style={{ width: width }}>
+                                <ActivityIndicator style={{ margin: 10 }} size={"small"} color={"#fff"} />
+                            </View>}
                         onEndReached={() => !endLoop && extendFeed(selectedSection)}
                         showsHorizontalScrollIndicator={false}
-                        // pagingEnabled={true}
-                    // initialNumToRender = {10}
-                    // onMomentumScrollBegin={() => { onEndReachedCalledDuringMomentum = false; }}
-    
                     />
-                        {/* :null} */}
-                        </View>
-                    :null}
+                </View>
+                : null}
 
-                {/* )} */}
-                {/* </AnimatedPagerView> */}
-                {selectedSection == "More Filters" && showAllFilters &&
-			    <Modal animationType="slide" transparent={true} visible={true}>
-                    <SafeAreaView style={{}}>
+            {showProgressBar && <UploadProgressBar mountLocation={'Discover'} onRefresh={() => loadFeed("Newest")} />}
+
+            {selectedSection == "More Filters" && showAllFilters &&
+                <Modal animationType="slide" transparent={true} visible={true}>
+                    <SafeAreaView style={{ marginTop: 25 }}>
                         <AllFeedFilters
                             closeAllFiltersList={closeAllFiltersList}
                             selectedFilters={selectedFilters}
                             setSelectedFilters={setSelectedFilters}
                             newDiscover={true}
-                            />
+                        />
                     </SafeAreaView>
                 </Modal>
-                }
-            {/* <ReelayFeedNew 
-                    forceRefresh={forceRefresh}
-                    feedSource={feedSource}
-                    initialFeedFilters={initialFeedFilters}
-                    initialFeedPos={initialFeedPos}
-                    initialStackPos={initialStackPos}
-                    navigation={navigation}
-                    pinnedReelay={pinnedReelay}
-                    preloadedStackList={preloadedStackList}
-                /> */}
-            {feedLoad && <ActivityIndicator style={{marginTop:height*0.3}} size={"small"} color={"#fff"}/>}
+            }
+
+            {feedLoad && <ActivityIndicator style={{ marginTop: height * 0.3 }} size={"small"} color={"#fff"} />}
         </InTheatersContainer>
     )
 };
 
 export default memo(SectionDiscover);
+
+{/* <AnimatedPagerView
+                style={{height:"100%",width:"100%"}} 
+                ref={pager} layoutDirection="ltr"
+                onPageSelected={({ nativeEvent }) => onPressS(nativeEvent.position)}
+                orientation="horizontal" scrollEnabled={false} initialPage={0}> */}
+{/* {filterKeys.map((items, index) => */ }
+
+{/* <Pressable onPress={() => Linking.openURL("https://www.reelay.app/")} style={{ backgroundColor: "#4388F1", flexDirection: "row", borderRadius: 10, margin: 10, marginRight: 20, padding: 10 }}>
+<View style={{ width: "35%" }}>
+    <View style={{ justifyContent: "center", alignSelf: "center" }}>
+        <LinearGradient style={{ margin: 10, padding: 10, paddingBottom: 30 }} colors={["#0B1424", "transparent"]} >
+            <DogWithGlassesImage resizeMode='contain' source={DogWithGlasses} />
+        </LinearGradient>
+    </View>
+</View>
+<View style={{ width: "62%", paddingTop: 10, marginLeft: 10 }}>
+    <WelcomeText>WELCOME TO REELAY!</WelcomeText>
+    <LearnText>LEARN HOW TO GET STARTED</LearnText>
+    <LearnText2>Clicking on anything here will take the user to Reelay's official account and their videos. Since it’s not technically a reelay, we should expand the “Tutorial” section within the app to include different videos and have the content basically be the same as the blog.</LearnText2>
+</View>
+</Pressable> */}

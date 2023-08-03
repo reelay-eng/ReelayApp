@@ -343,6 +343,7 @@ export const getStreamingSubscriptions = async (userSub) => {
 export const getStacksByCreator = async (creatorSub) => {
     console.log('Getting stacks by creator');
     const creatorReelays = await getReelaysByCreator(creatorSub);
+    console.log("creatorReelays",creatorReelays.length)
     if (!creatorReelays) return [];
 
     const  preparedReelays = await Promise.all(creatorReelays.map(prepareReelay));
@@ -362,6 +363,7 @@ export const getStacksByCreator = async (creatorSub) => {
             stacksByCreator.push([reelay]);
         }
     });
+    console.log("stacksByCreator",stacksByCreator.length)
 
     return stacksByCreator;
 }

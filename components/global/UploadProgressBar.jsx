@@ -14,7 +14,7 @@ import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const CloseContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -32,10 +32,11 @@ const FailureControlsContainer = styled(View)`
 `
 const ProgressContainer = styled(View)`
     align-items: center;
-    background-color: rgba(0,0,0,0.36);
+    background-color: rgba(0,0,0,0.8);
     border-radius: 8px;
     flex-direction: row;
-    left: 10px;
+    left: 20px;
+    right:20px;
     padding: 8px;
     position: absolute;
     top: ${props => props.topOffset}px;
@@ -58,10 +59,12 @@ export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
     const dispatch = useDispatch();
 
     const safeAreaTop = useSafeAreaInsets().top;
+    const safeAreaBottom = useSafeAreaInsets().bottom;
 
     const getTopOffset = () => {
         if (mountLocation === 'InClub') return safeAreaTop + 82;
         if (mountLocation === 'InClueBuilder') return safeAreaTop;
+        if (mountLocation === 'Discover') return safeAreaBottom + height/1.45;
         return safeAreaTop + 168;
     }
 
@@ -88,8 +91,8 @@ export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
 
     // we only need to make space for the close button on retry failed
     const progressBarWidth = (uploadStage === 'upload-failed-retry')
-        ? width - 132
-        : width - 68;
+        ? width - 162
+        : width - 98;
 
     const uploadIconName = (uploadStage === 'upload-failed-retry') 
         ? 'reload-outline' 
