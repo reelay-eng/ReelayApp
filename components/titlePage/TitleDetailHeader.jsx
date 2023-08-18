@@ -115,6 +115,7 @@ export default TitleDetailHeader = ({ navigation, titleObj }) => {
     const tmdbTitleID = titleObj?.id;
 	const trailerURI = titleObj?.trailerURI;
 	const genres = titleObj?.genres;
+	// console.log("genres",genres)
 	const releaseYear = titleObj?.releaseYear;
 	const runtime = titleObj?.runtime;
 	const isSeries = titleObj?.isSeries;
@@ -147,7 +148,7 @@ export default TitleDetailHeader = ({ navigation, titleObj }) => {
 
 	const PosterTagline = () => {
 		// Quick fix in order to fit runtime and release year
-		const ReducedGenres = genres?.slice(0, 2);
+		const ReducedGenres = genres && genres?.slice(0, 2);
 
 		//Conversion from minutes to hours and minutes
 		const runtimeString = getRuntimeString(runtime);

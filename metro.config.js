@@ -19,5 +19,5 @@ defaultConfig.transformer.getTransformOptions = async () => ({
       return url + '?platform=ios&dev=true&minify=false&modulesOnly=false&runModule=true';
     } // ...
   
-
+defaultConfig.resolver.sourceExts.push('cjs');
 module.exports = defaultConfig;

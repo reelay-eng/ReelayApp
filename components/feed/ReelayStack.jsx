@@ -83,20 +83,20 @@ const ReelayStack = ({
     const topOffset = useSafeAreaInsets().top + 26;
 
     const getClubStub = (reelay) => (reelay?.clubID) 
-        ? { id: reelay.clubID, name: reelay.clubName } 
+        ? { id: reelay?.clubID, name: reelay?.clubName } 
         : null;
 
     const topicStub = useMemo(() => {
         return (stack[0]?.topicID) ? {
-            id: stack[0].topicID,
-            title: stack[0].topicTitle,
+            id: stack[0]?.topicID,
+            title: stack[0]?.topicTitle,
         } : null;
     }, [stack]);
 
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
-        const viewableTitleID = stack[0].title.id;
-        const viewableTitleType = (stack[0].title.isSeries) ? 'tv' : 'film';
+        const viewableTitleID = stack[0]?.title?.id;
+        const viewableTitleType = (stack[0]?.title?.isSeries) ? 'tv' : 'film';
         return ((tmdbTitleID === viewableTitleID) && titleType === viewableTitleType);
     });
 
@@ -214,7 +214,7 @@ const ReelayStack = ({
             />
             { isPinnedReelay && renderPinnedHeader() }
             { !isPinnedReelay && !shouldRenderTopicBanner && renderTitleBanner(viewableReelay) }
-            { !isPinnedReelay && shouldRenderTopicBanner && renderTopicBanner(viewableReelay) }
+            {/* { !isPinnedReelay && shouldRenderTopicBanner && renderTopicBanner(viewableReelay) } */}
             { !isPinnedReelay && (stack.length > 1) && (
                 <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
             )}

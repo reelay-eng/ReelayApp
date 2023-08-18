@@ -173,9 +173,8 @@ const SearchBarWithResults = ({ navigation }) => {
                     />
                 <ReferText>Reelay is better with Friends</ReferText>
                 <MyReferShareView>
-                    {/* <ReferName>Referral Code</ReferName> */}
                     <RefeNameView onPress={copyLink}>
-                    <ReferName>{reelayDBUser.referralcode}</ReferName>
+                    <ReferName>{reelayDBUser?.referralcode}</ReferName>
                         <Icon type='ionicon' name='copy' size={20} style={{alignSelf:"center",}} color={'white'} />
                     </RefeNameView>
                 <MyWatchlistPressable onPress={shareGame}>
@@ -189,16 +188,7 @@ const SearchBarWithResults = ({ navigation }) => {
 
     return (
         <React.Fragment>
-            {/* <StoryBackplateImage 
-                    // onLoad={onImageLoad}
-                    height={'100%'} 
-                    source={InstaStoryBackground} 
-                    width={'100%'}
-                > */}
             <TopBar/>
-
-                {/* </StoryBackplateImage> */}
-
             { loading && <ActivityIndicator /> }
         </React.Fragment>
     )

@@ -129,6 +129,7 @@ const initialState = {
     myNotifications: [],
     myStreamingSubscriptions: [],
     mySettings: {},
+    followingData: 0,
 
     // SEARCH
     suggestedMovieResults: { titles: [], nextPage: 0 },
@@ -363,6 +364,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, myNotifications: action.payload }
         case 'setMyStreamingSubscriptions':
             return { ...state, myStreamingSubscriptions: action.payload }
+        case 'setFollowingData':
+                return { ...state, followingData: action.payload }
 
         // SEARCH
         case 'setSuggestedMovieResults':
@@ -504,7 +507,7 @@ export const mapStateToProps = (state) => ({
     myNotifications: state.myNotifications,
     myPreferences: state.myPreferences,
     myStreamingSubscriptions: state.myStreamingSubscriptions,
-
+    followingData: state.followingData,
     // SEARCH
     suggestedMovieResults: state.suggestedMovieResults,
     trendingMovieResults:state.trendingMovieResults,

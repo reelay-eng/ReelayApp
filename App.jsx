@@ -5,7 +5,6 @@ import Navigation from './navigation';
 import styled from 'styled-components/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Reactotron from 'reactotron-react-native';
-
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
 import { Audio } from 'expo-av';
@@ -44,6 +43,7 @@ import {
     getFeed,
     getReelsByCreator,
     updateLoginUser,
+    getFollowing,
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
 import { getCustomItems, getWatchlistItems, getWatchlistRecs } from './api/WatchlistApi';
@@ -66,6 +66,7 @@ import { getAllClubsFollowing } from './api/ClubsApi';
 import { verifySocialAuthSession } from './api/ReelayUserApi';
 import { getGuessingGamesPublished } from './api/GuessingGameApi';
 import { getLists } from './api/ListsApi';
+import { initializeApp } from 'firebase/app';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -137,6 +138,17 @@ function App() {
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
 
+    const firebaseConfig = {
+        apiKey: 'AIzaSyAX1EdRMfCBlcBU4xvVXZY8o1TLKdirn7E',
+        authDomain: 'reelay-acd1b.firebaseapp.com',
+        databaseURL: 'https://reelay-acd1b.firebaseio.com',
+        projectId: 'reelay-acd1b',
+        storageBucket: 'reelay-acd1b.appspot.com',
+        messagingSenderId: '763379224842',
+        appId: '1:763379224842:ios:f67ae9f73c01d902ee2af3',
+      };
+    initializeApp(firebaseConfig);
+
     useEffect(() => {
         initReelayApp();
     }, []);
@@ -150,7 +162,11 @@ function App() {
      */
 
     useEffect(() => {
-        if (reelayDBUserID && authSession?.accessToken) loadMyProfile(reelayDBUserID);
+        // if(canUseNativeModules){
+        //     const Crashlytics = require('@react-native-firebase/crashlytics')
+        //     Crashlytics().crash();
+        // }
+        if (reelayDBUserID && authSession?.accessToken) loadMyProfile(reelayDBUserID);//b3a93275-50f8-42be-a4d5-374d118cee8f
     }, [reelayDBUserID, authSession]);
 
     useEffect(() => {
@@ -413,12 +429,14 @@ function App() {
             myHomeContent,
             reelayDBUserLoaded,
             updateLogin,
+            following
         ] = await Promise.all([
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getDismissalHistory(),
             getHomeContent({ authSession, reqUserSub }),
             getRegisteredUser(userSub),
             updateLoginUser(userSub),
+            getFollowing(userSub),
         ]);
 
         const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
@@ -440,7 +458,7 @@ function App() {
             content: homeGuessingGames,
             nextPage: 1,
         }});
-        
+        dispatch({ type: 'setFollowingData', payload: following });
         dispatch({ type: 'setAppVersionInfo', payload: versionInfo })
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
         dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });

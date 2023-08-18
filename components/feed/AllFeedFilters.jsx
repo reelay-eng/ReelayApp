@@ -15,7 +15,7 @@ const { height, width } = Dimensions.get('window');
 const AllFiltersView = styled(View)`
     align-items: center;
     background-color: black;
-    margin-top: ${props => props.newDiscover ? 0:30}px;
+    margin-top: ${props => props.newDiscover ? 0:0}px;
     width: ${width}px;
 `
 const BottomGradient = styled(LinearGradient)`
@@ -74,11 +74,24 @@ const SearchBarPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
-    bottom: ${props => props.bottomOffset +  130}px;
+    bottom: ${props => props.bottomOffset +  100}px;
     flex-direction: row;
     height: 40px;
-    justify-content: center;
     position: absolute;
+    justify-content: center;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+    width: 90%;
+`
+const SearchBarPressableDi = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    flex-direction: row;
+    height: 40px;
+    margin-bottom:10px;
+    justify-content: center;
     shadow-offset: 4px 4px;
     shadow-color: black;
     shadow-opacity: 0.5;
@@ -93,11 +106,10 @@ const SearchBarPressable1 = styled(TouchableOpacity)`
     border-radius: 20px;
     border-color: ${ReelayColors.reelayBlue};
     border-width:3px;
-    bottom: ${props => props.bottomOffset + 80}px;
+    // bottom: ${props => props.bottomOffset + 50}px;
     flex-direction: row;
     height: 40px;
     justify-content: center;
-    position: absolute;
     shadow-offset: 4px 4px;
     shadow-color: black;
     shadow-opacity: 0.5;
@@ -231,6 +243,19 @@ export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSele
             );
         }
 
+        const SearchButtonDisc = () => {
+            const applyFilters = () => {
+                setSelectedFilters(allSelectedFiltersRef.current);
+                closeAllFiltersList();
+            }
+            return (
+                <SearchBarPressableDi bottomOffset={bottomOffset} onPress={applyFilters}>
+                    <SearchBarText>{'Apply'}</SearchBarText>
+                    
+                </SearchBarPressableDi>
+            );
+        }
+
         const CancelButton = () => {
             const applyFilters = () => {
                 closeAllFiltersList();
@@ -250,12 +275,17 @@ export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSele
                     <FilterListBottomSpacer />
                 </FilterScrollView>
                 <BottomGradient 
-                    colors={["transparent", "#0d0d0d"]} 
+                    colors={["#000", "#0d0d0d"]} 
                     start={{ x: -1, y: 0.5 }}
                     end={{ x: 1, y: 0.5 }}
                 />
-                <SearchButton />
-               { newDiscover && <CancelButton />}
+                { newDiscover ?
+                <View style={{backgroundColor:"#000",display:"flex",position:"absolute",bottom: bottomOffset,padding:10,paddingTop:20,paddingBottom:40,alignItems:"center",right:0,left:0}}>
+                <SearchButtonDisc/>
+                <CancelButton />
+               </View>:
+               <SearchButton />
+               }
             </AllFiltersView>
         );
     }

@@ -163,9 +163,10 @@ export default ReelayFeed = ({ navigation,
         }
     }
 
-    const displayReelayThreads = (feedSource === 'discover') 
-        ? getThreadsWithInterstitials() 
-        : reelayThreads;
+    const displayReelayThreads = //(feedSource === 'discover') 
+        // ? getThreadsWithInterstitials() 
+        // : 
+        reelayThreads;
 
     useEffect(() => {
         console.log("selectedFilters",selectedFilters)

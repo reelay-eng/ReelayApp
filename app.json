@@ -54,7 +54,8 @@
                 ],
                 "NSCameraUsageDescription": "The camera is active while you record reelays.",
                 "NSMicrophoneUsageDescription": "The microphone is active while you record reelays."
-            }
+            },
+            "googleServicesFile": "./GoogleService-Info.plist"
         },
         "android": {
             "softwareKeyboardLayoutMode":"pan",
@@ -69,6 +70,8 @@
         },
         "plugins": [
             "@config-plugins/ffmpeg-kit-react-native",
+            "@react-native-firebase/app",
+            "@react-native-firebase/crashlytics",
             [
                 "expo-image-picker",
                 { "photosPermission": "Reelay lets you upload videos from your media library as reelays, and upload photos to your profile and clubs." }

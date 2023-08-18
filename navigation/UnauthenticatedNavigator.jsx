@@ -26,7 +26,7 @@ export default UnauthenticatedNavigator = ({route}) => {
     const isReturningUser = useSelector(state => state.isReturningUser)
     const { redirect } = route?.params
     const initialRoute = redirect??'SignedOutScreen';
-    // let initialRoute = 'SelectMovieScreen';
+    // let initialRoute = 'LandingScreen';
 
     return (
         <AuthenticationStack.Navigator
