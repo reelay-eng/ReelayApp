@@ -665,7 +665,7 @@ DEPENDENCIES:
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
-  - ffmpeg-kit-react-native/full-gpl (from `/Users/abdul.mansuri/Documents/Reelay/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec`)
+  - ffmpeg-kit-react-native/full-gpl (from `/Users/sonam.khedkar/Documents/SonamK/MobileApp/Reelay_App/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -824,7 +824,7 @@ EXTERNAL SOURCES:
   FBReactNativeSpec:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   ffmpeg-kit-react-native:
-    :podspec: "/Users/abdul.mansuri/Documents/Reelay/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec"
+    :podspec: "/Users/sonam.khedkar/Documents/SonamK/MobileApp/Reelay_App/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   MixpanelReactNative:
