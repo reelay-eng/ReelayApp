@@ -155,8 +155,10 @@ const TitleBanner = ({
     const [expanded, setExpanded] = useState(false);
     const topOffset = useSafeAreaInsets().top;
     const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
+    const howtoReelaySub = Constants.manifest.extra.howtoReelaySub;
     const isWelcomeReelay = reelay && (welcomeReelaySub === reelay?.sub);
-    
+    const isHowtoReelay = reelay && (howtoReelaySub === reelay?.creator?.sub);
+
     // figure out how to do ellipses for displayTitle
     let displayTitle = (titleObj?.display) ? titleObj?.display : 'Title not found'; 
 	let displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
@@ -165,7 +167,12 @@ const TitleBanner = ({
 
     if (isWelcomeReelay) {
         displayTitle = 'Welcome to Reelay';
-        displayYear = '2022';
+        displayYear = '2023';
+    }
+
+    if (isHowtoReelay) {
+        displayTitle = 'Reelay';
+        displayYear = '2023';
     }
 
     const onClickExpand = () => {

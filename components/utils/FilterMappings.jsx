@@ -117,7 +117,8 @@ export const coalesceFiltersForAPI = (selectedFilters, myStreamingVenues) => {
                 break;
             case 'on_other_streaming':
                 const allStreamingVenues = streamingVenues.map(platform => platform.venue);
-                const removeMyStreaming = (nextVenue) => myStreamingVenues.findIndex(nextVenue) === -1;
+                const removeMyStreaming = (nextVenue) => allStreamingVenues?.findIndex(nextVenue) === -1;
+                console.log("removeMyStreaming",removeMyStreaming)
                 const otherStreamingVenues = allStreamingVenues.filter(removeMyStreaming);
                 optionsToAdd.push(...otherStreamingVenues);
                 break;
@@ -186,7 +187,7 @@ export const getTopFilters = (selectedFilters) => {
                 nextTopFilter.option === nextSelectedFilter.option
             );
         }
-        return selectedFilters.findIndex(matchSelectedFilter) === -1;
+        return selectedFilters?.findIndex(matchSelectedFilter) === -1;
     }
 
     // get up to 6 selected filters

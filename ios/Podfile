@@ -39,15 +39,23 @@ target 'ReelayApp' do
   pod 'RNShare', :path => '../node_modules/react-native-share'
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/React/FBReactNativeSpec"
   pod 'MixpanelReactNative', :path => "../node_modules/mixpanel-react-native"
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'FirebaseCoreExtension', :modular_headers => true
+  pod 'FirebaseCrashlytics', :modular_headers => true
+  pod 'FirebaseInstallations', :modular_headers => true
+  pod 'GoogleDataTransport', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'nanopb', :modular_headers => true
   # use_unimodules!
   # use_frameworks!
+  use_frameworks! :linkage => :static
   config = use_native_modules!
 
   use_react_native!(
     :path => config[:reactNativePath],
     :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
   )
-
+  $RNFirebaseAsStaticFramework = true
   # Uncomment to opt-in to using Flipper
   #
   # if !ENV['CI']

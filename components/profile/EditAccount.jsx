@@ -159,6 +159,7 @@ const EditAccountWrapper = ({ navigation, reelayDBUser }) => {
                 newUsername: usernameRef.current.trim(),
             });
 			reelayDBUser.username = usernameRef.current.trim();
+			reelayDBUser.referralcode = usernameRef.current.trim();
             setSavingInfo(false);
             navigation.goBack();
 		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {

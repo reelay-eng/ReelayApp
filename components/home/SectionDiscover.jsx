@@ -13,7 +13,7 @@ import PagerView from 'react-native-pager-view';
 import TopOfTheWeek from './TopOfTheWeek';
 import ReelayThumbnailWithMovie from '../global/ReelayThumbnailWithMovie';
 import ReelayFeedNew from '../feed/ReelayFeedNew';
-import { getDiscoverFeed, getDiscoverFeedNew } from '../../api/FeedApi';
+import { getDiscoverFeed, getDiscoverFeedLatest, getDiscoverFeedNew } from '../../api/FeedApi';
 import { getFeed } from '../../api/ReelayDBApi';
 import { coalesceFiltersForAPI } from '../utils/FilterMappings';
 import AllFeedFilters from '../feed/AllFeedFilters';
@@ -252,6 +252,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const [impressionAdv, setImpressionAdv] = useState(0);
     const videoRef = useRef(null);
     const uploadStage = useSelector(state => state.uploadStage);
+    const followingData = useSelector(state => state.followingData);
 
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
@@ -719,23 +720,46 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                 "option": "on_my_watchlist",
             }] :
                 items == "Newest" ? [] : selectedFilters;
-
-        const fetchedThreads = items == "Newest" ?
-            await getDiscoverFeedNew({
+                
+        var fetchedThreads;
+        if(items == "Following"){
+            // console.log("followingData",followingData)
+        if(followingData?.length < 50){
+            fetchedThreads =  await getDiscoverFeed({
                 authSession,
                 filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
                 page: 0,
                 reqUserSub: reelayDBUser?.sub,
                 sortMethod,
             })
-            :
-            await getDiscoverFeed({
+        }else{
+            fetchedThreads =  await getDiscoverFeedLatest({
                 authSession,
                 filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
                 page: 0,
                 reqUserSub: reelayDBUser?.sub,
                 sortMethod,
             })
+        }
+        }else{
+            fetchedThreads =  await getDiscoverFeedLatest({
+                authSession,
+                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+                page: 0,
+                reqUserSub: reelayDBUser?.sub,
+                sortMethod,
+            })
+        }
+        // items == "Newest" ?
+        //     await getDiscoverFeedNew({
+        //         authSession,
+        //         filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+        //         page: 0,
+        //         reqUserSub: reelayDBUser?.sub,
+        //         sortMethod,
+        //     })
+        //     :
+           
         // console.log("fetchedThreads",fetchedThreads)
 
         if (feedSource === 'discover') {
@@ -777,6 +801,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     }
 
     const extendFeed = async (items) => {
+        console.log("extended")
         setExtendLoad(true)
         console.log("extendFeed", nextPage.current, items)
         const page = (feedSource === 'discover')
@@ -794,39 +819,60 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         },
         ] : items == "Newest" ? [] : selectedFilters;
 
-        const fetchedThreads = items == "Newest" ?
-            await getDiscoverFeedNew({
-                authSession,
-                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-                page,
-                reqUserSub: reelayDBUser?.sub,
-                sortMethod,
-            }) :
-            await getDiscoverFeed({
+        var fetchedThreads;
+        // items == "Newest" ?
+        //     await getDiscoverFeedNew({
+        //         authSession,
+        //         filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+        //         page,
+        //         reqUserSub: reelayDBUser?.sub,
+        //         sortMethod,
+        //     }) :
+        if(items == "Following"){
+        if(followingData?.length < 50){
+            fetchedThreads =  await getDiscoverFeed({
                 authSession,
                 filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
                 page,
                 reqUserSub: reelayDBUser?.sub,
                 sortMethod,
             })
+        }else{
+            fetchedThreads =  await getDiscoverFeedLatest({
+                authSession,
+                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+                page,
+                reqUserSub: reelayDBUser?.sub,
+                sortMethod,
+            })
+        }
+        }else{
+            fetchedThreads =  await getDiscoverFeedLatest({
+                authSession,
+                filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+                page,
+                reqUserSub: reelayDBUser?.sub,
+                sortMethod,
+            })
+        }
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const threadEntries = {};
         const addToThreadEntries = (fetchedThread) => {
-            const reelay = items == "Newest" ? fetchedThread : fetchedThread[0];
+            const reelay = items == "Following" && followingData?.length < 50 ? fetchedThread[0]:fetchedThread//items == "Newest" ? fetchedThread : fetchedThread[0];
             threadEntries[reelay?.sub ?? reelay?.id] = 1;
         }
         const reelayThread = items == "Watchlist" ? watchlistReels : items == "Following" ? followingReels : items == "Newest" ? newestReels : moreFiltersReels;
-        reelayThread?.forEach(addToThreadEntries);
+        // reelayThread?.forEach(addToThreadEntries);
 
         const notAlreadyInStack = (fetchedThread) => {
-            const reelay = items == "Newest" ? fetchedThread : fetchedThread[0];
+            const reelay = fetchedThread//items == "Newest" ? fetchedThread : fetchedThread[0];
             const alreadyInStack = threadEntries[reelay?.sub ?? reelay?.id];
             if (alreadyInStack) console.log('Filtering stack ', reelay?.sub ?? reelay?.id);
             return !alreadyInStack;
         }
 
-        const filteredThreads = items == "Newest" ? fetchedThreads : fetchedThreads.filter(notAlreadyInStack);
+        const filteredThreads =fetchedThreads//items == "Newest" ? fetchedThreads : fetchedThreads.filter(notAlreadyInStack);
         const allThreads = [...reelayThread, ...filteredThreads];
         if (allThreads?.length == reelayThread?.length) {
             setEndLoop(true)
@@ -909,7 +955,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     );
 
     const rowRenderer = ({ item, index }) => {
-        const reelay = selectedSection == "Newest" ? item : item[0];
+        const reelay = selectedSection == "Following" && followingData?.length < 50 ? item[0]:item;//selectedSection == "Newest" ? item : item[0];
         const starRating = (reelay?.starRating ?? 0) + (reelay?.starRatingAddHalf ? 0.5 : 0);
         // var muteIndex = 0;
         const onPlaybackStatusUpdate = (playbackStatus, index) => {
