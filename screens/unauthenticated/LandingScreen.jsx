@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import ReelayLoanding from "../../assets/images/Landing/landing.png";
 import styled from 'styled-components';
-import { View, ImageBackground,Image, Dimensions, Text, Pressable, TouchableOpacity,ActivityIndicator } from 'react-native';
+import { View, ImageBackground,Image, Dimensions, Text, Pressable, TouchableOpacity,ActivityIndicator, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
@@ -202,15 +202,15 @@ const SigningInIndicator = () => {
                         </Pressable>
                     </View>
 
-                    <View style={{height:height-100, justifyContent:"center",alignItems:"center"}}>
+                    <View style={{height:Platform.isPad ? height*0.7: height-100, justifyContent:"center",alignItems:"center"}}>
                         <MiddleText>{"A Reelay is\nshort video review\ncreated by fans\nlike you"}</MiddleText>
                     </View>
                     
-                    <View style={{height:height-50, justifyContent:"center",alignItems:"center"}}>
+                    <View style={{height:Platform.isPad ? height*0.7:height-50, justifyContent:"center",alignItems:"center"}}>
                         <MiddleText>{"Record your\nown reelay"}</MiddleText>
                     </View>
 
-                    <View style={{height:height, justifyContent:"center",alignItems:"center"}}>
+                    <View style={{height:Platform.isPad ? height*0.7:height, justifyContent:"center",alignItems:"center"}}>
                         <MiddleText>{"Share your\nReviews\n& Watchlists"}</MiddleText>
                     </View>
 
