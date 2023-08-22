@@ -124,14 +124,13 @@ export default AuthenticatedNavigator = () => {
 								<FontAwesomeIcon icon={faCompass} size={24} color={focused ? 'white' : '#D4D4D4'} />
 								{ focused && <IconFocusIndicator /> }
 							</IconFocusView>
-							{ hasUnseenReelays && <UnreadIconIndicator /> }
+							{/* { hasUnseenReelays && <UnreadIconIndicator /> } */}
 						</View>
 					),
 				}}
 			/>
 			<BottomTab.Screen
 				name="Create"
-				// component={CreateReelayTabNavigator}
 				component={CreateReelayTabNavigator}
 				// listeners={({ navigation }) => ({
 				// 	tabPress: (event) => {
@@ -147,7 +146,7 @@ export default AuthenticatedNavigator = () => {
 								<CreateTabDrawer navigation={navigationRef?.current} closeDrawer={() => setCreateDrawerOpen(false)} />
 							)} */}
 							<IconFocusView focused={focused}>
-								<CameraPlusIconSVG />
+								<CameraPlusIconSVG size={24} color={focused ? 'white' : '#D4D4D4'}/>
 								{/* <FontAwesomeIcon icon={faVideo} size={28} color={focused ? 'white' : '#D4D4D4'} /> */}
 								{ focused && <IconFocusIndicator /> }
 							</IconFocusView>

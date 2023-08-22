@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useState, useRef } from 'react';
-import { Image, Pressable, View, Animated, ScrollView, Dimensions, ActivityIndicator, Modal, SafeAreaView, RefreshControl, Linking } from 'react-native';
+import { Image, Pressable, View, Animated, ScrollView, Dimensions, ActivityIndicator, Modal, SafeAreaView, RefreshControl, Linking, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
@@ -46,7 +46,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const { height, width } = Dimensions.get('window');
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
-const POSTER_WIDTH = width / 2.3;
+const POSTER_WIDTH = width * 0.50;
+const POSTER_WIDTH2 = width * 0.46;
+// const POSTER_WIDTH = Platform.isPad ? width *0.47 :width *0.445;
 const canUseFastImage = (Constants.appOwnership !== 'expo');
 
 const InTheatersContainer = styled(View)`
@@ -125,7 +127,6 @@ margin-bottom: 6px;
 `
 const ThumbnailContainer = styled(Pressable)`
 justify-content: center;
-margin: 10px;
 border-radius:12px;
 width: ${POSTER_WIDTH};
 `
@@ -159,7 +160,6 @@ const HustleImage = styled(Image)`
 const ThumbnailImage = styled(canUseFastImage ? FastImage : Image)`
         border-radius:12px;
 		height: ${240}px;
-        width: ${POSTER_WIDTH};
 	`
 const WelcomeText = styled(ReelayText.H5Bold)`
     font-size: 18px;
@@ -251,6 +251,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const [focusedIndex, setFocusedIndex] = useState();
     const [impressionAdv, setImpressionAdv] = useState(0);
     const videoRef = useRef(null);
+    const flatRef = useRef(null); 
     const uploadStage = useSelector(state => state.uploadStage);
     const followingData = useSelector(state => state.followingData);
 
@@ -630,7 +631,15 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
         const onPress = () => {
             const oppositeKey = getOppositeKey();
+            if(oppositeKey == 3){
+                setShowAllFilters(true)
+            }
+            if(flatRef?.current){
+                flatRef?.current?.scrollToIndex({ animated: true, index: 0 });
+    
+            }
             if (activeIndex !== oppositeKey) {
+                
                 setDisplayItems([]);
                 setActiveIndex(oppositeKey)
                 setSelectedSection(filterKey);
@@ -643,10 +652,10 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         return (
             <FilterPressable isSelected={isSelected} onPress={onPress}>
                 <FilterText>{filterKey}</FilterText>
-                {filterKey == "More Filters" &&
+                {/* {filterKey == "More Filters" &&
                     <TouchableOpacity onPress={() => setShowAllFilters(true)}>
                         <FontAwesomeIcon style={{ marginLeft: 5 }} icon={faPencil} color={ReelayColors.reelayBlue} size={14} />
-                    </TouchableOpacity>}
+                    </TouchableOpacity>} */}
             </FilterPressable>
         )
     }
@@ -986,6 +995,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         return (
             !reelay?.advertise ?
                 <ThumbnailContainer key={index} onPress={() => gotoDetail(reelay)}>
+                    <View style={{margin:10}}>
                     {onActive && muteIndex == index ?
                         <View style={{ borderRadius: 12, overflow: "hidden", display: "flex" }}>
                             <VideoPlayer
@@ -1021,16 +1031,14 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                 showControlsOnLoad={false}
                                 style={{
                                     height: 240,
-                                    width: POSTER_WIDTH,
+                                    width: POSTER_WIDTH2,
                                     borderRadius: 12,
                                     overflow: "hidden",
                                     display: "flex"
                                 }}
                             />
                         </View>
-
                         :
-
                         <ThumbnailImage
                             onError={generateAndSaveThumbnail}
                             source={cloudfrontThumbnailSource}
@@ -1043,7 +1051,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                         />
                     </TItleContainer>
                     <GradientContainer>
-                        <ThumbnailGradient colors={["transparent", "#0B1424"]} />
+                        {/* <ThumbnailGradient colors={["transparent", "#0B1424"]} /> */}
                         <BlurView intensity={15} tint='dark'
                             style={{
                                 flexDirection: "row", justifyContent: "space-between", alignItems: 'center',
@@ -1075,10 +1083,11 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
                                     <Ionicons onPress={() => setMuteIndex(index)} name='volume-mute' color={"#fff"} size={24} style={{ marginRight: 8 }} />
                                     :
-                                    <Ionicons onPress={() => setMuteIndex(-1)} name='volume-high' color={"#fff"} size={24} style={{ marginRight: 4 }} />}
+                                    <Ionicons onPress={() => setMuteIndex(-1)} name='volume-high' color={"#fff"} size={24} style={{ marginRight: 8 }} />}
                             </>
                         </BlurView>
                     </GradientContainer>
+                    </View>
                 </ThumbnailContainer> :
                 <>
                     {reelay?.valIndex == 0 ?
@@ -1094,7 +1103,9 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                             itemWidth={width}
                             renderItem={({item, index}) => 
                                 
-                                 <Pressable onPress={() => navigation.push('TitleDetailScreen',{titleObj:item})} style={{ backgroundColor: item.key==1 ||item.key ==3?"#4388F1": "#1EC072", flexDirection: "row", borderRadius: 10, margin: 10, marginRight: 20, padding: 10 }}>
+                                 <Pressable onPress={() => navigation.push('TitleDetailScreen',{titleObj:item})} 
+                                 style={{ backgroundColor: item.key==1 ||item.key ==3?"#4388F1": "#1EC072",
+                                  flexDirection: "row", borderRadius: 10, margin: 10, padding: 10 }}>
                                  <View style={{ width: "35%" }}>
                                      <View style={{ justifyContent: "center", alignSelf: "center" }}>
                                          <HustleImage resizeMode='contain' source={{uri:item.poster_path}} />
@@ -1169,7 +1180,8 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                         refreshControl={refreshControls}
                         onScroll={handleScroll}
                         contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', paddingBottom: 300 }}
-                        initialNumToRender={2}
+                        initialNumToRender={4}
+                        ref={flatRef}
                         removeClippedSubviews={false}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={(item, index) => rowRenderer(item, index)}
