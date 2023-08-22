@@ -23,7 +23,7 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { Amplitude, Identify } from '@amplitude/react-native';
 
-import { logAmplitudeEventProd, identifyUser, initMixpanel } from './components/utils/EventLogger';
+import { logAmplitudeEventProd, identifyUser, initMixpanel, firebaseCrashlyticsLog, firebaseCrashlyticsError } from './components/utils/EventLogger';
 import { StatusBar } from 'expo-status-bar';
 import useColorScheme from './hooks/useColorScheme';
 import { InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
@@ -166,6 +166,12 @@ function App() {
         //     const Crashlytics = require('@react-native-firebase/crashlytics')
         //     Crashlytics().crash();
         // }
+        try{
+            firebaseCrashlyticsLog('Firebase Log Testing');
+        }catch(error){
+            firebaseCrashlyticsError(error);
+        }
+        
         if (reelayDBUserID && authSession?.accessToken) loadMyProfile(reelayDBUserID);//b3a93275-50f8-42be-a4d5-374d118cee8f
     }, [reelayDBUserID, authSession]);
 
@@ -223,12 +229,16 @@ function App() {
                 username: tryCognitoUser?.attributes?.sub,
             });        
 
+            firebaseCrashlyticsLog('Authenticate User');
+
         } catch (error) {
             logAmplitudeEventProd('authErrorForAuthenticateUser', {
                 error: error,
                 hasValidCredentials: tryCredentials?.authenticated,
                 username: tryCognitoUser?.username,
             });
+
+            firebaseCrashlyticsError(error);
         }
 
         if (!tryCredentials?.authenticated && !tryVerifySocialAuth?.success) {

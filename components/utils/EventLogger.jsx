@@ -1,5 +1,6 @@
 import { Amplitude } from '@amplitude/react-native';
 import Constants from 'expo-constants';
+import { async } from 'validate.js';
 // import { Mixpanel } from 'mixpanel-react-native';
 
 const canUseNativeModules = Constants.appOwnership !== 'expo';
@@ -38,4 +39,19 @@ export const logAmplitudeEventProd = async (eventName, options) => {
         await Amplitude.getInstance('amp-reelay').logEvent(eventName, optionsNoLocation);
         // await mixpanel.track(eventName, options);
     }
+}
+
+export const firebaseCrashlyticsLog = async (screenTitle) => {
+     if(canUseNativeModules){
+            const Crashlytics = require('@react-native-firebase/crashlytics')
+            Crashlytics().logEvent(screenTitle)     //to log screen title/name
+            Crashlytics().crash();      //for testing purpose - remove it later
+    }
+}
+
+export const firebaseCrashlyticsError = async (error) => {
+    if(canUseNativeModules){
+           const Crashlytics = require('@react-native-firebase/crashlytics')
+           Crashlytics().error(error);      //to log error occured for particular event
+   }
 }
