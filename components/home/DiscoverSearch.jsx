@@ -5,6 +5,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../utils/EventLogger';
 
 const CategoryHeader = styled(ReelayText.H5Bold)`
     color: white;
@@ -28,9 +29,9 @@ const CategoryOptionsView = styled(View)`
 `
 const FilterPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${props => props.selected 
-        ? ReelayColors.reelayBlue 
-        : '#333333' 
+    background-color: ${props => props.selected
+        ? ReelayColors.reelayBlue
+        : '#333333'
     };
     border-radius: 8px;
     flex-direction: row;
@@ -56,12 +57,12 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
 `
 const SearchBarPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${props => props.fade 
-        ? 'black' 
+    background-color: ${props => props.fade
+        ? 'black'
         : ReelayColors.reelayBlue
     };
-    border-color: ${props => props.fade 
-        ? 'white' 
+    border-color: ${props => props.fade
+        ? 'white'
         : ReelayColors.reelayBlue
     };
     border-width: ${props => props.fade ? 1 : 0}px;
@@ -76,75 +77,80 @@ const SearchBarText = styled(ReelayText.Overline)`
 `
 
 export default DiscoverSearch = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
-    const hideForGuests = ['on_my_streaming', 'in_my_clubs'];
+    try {
+        firebaseCrashlyticsLog('Discover search');
+        const { reelayDBUser } = useContext(AuthContext);
+        const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
+        const hideForGuests = ['on_my_streaming', 'in_my_clubs'];
 
-    const [selectedFilters, setSelectedFilters] = useState([]);
-    const filterOptions = getHomeFilters();
-    const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
+        const [selectedFilters, setSelectedFilters] = useState([]);
+        const filterOptions = getHomeFilters();
+        const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
 
-    const isFilterSelected = (filter) => {
-        const matchFilter = (nextFilter) => (
-            nextFilter.category === filter.category && 
-            nextFilter.option === filter.option
-        );
-        return selectedFilters.find(matchFilter);
-    }
+        const isFilterSelected = (filter) => {
+            const matchFilter = (nextFilter) => (
+                nextFilter.category === filter.category &&
+                nextFilter.option === filter.option
+            );
+            return selectedFilters.find(matchFilter);
+        }
 
-    const onSelectOrUnselectFilter = (filter) => {
-        const { category, option } = filter;
-        const isSelecting = !isFilterSelected(filter);
+        const onSelectOrUnselectFilter = (filter) => {
+            const { category, option } = filter;
+            const isSelecting = !isFilterSelected(filter);
 
-        const removeFilter = (nextFilter) => (
-            nextFilter.category !== category || 
-            nextFilter.option !== option
-        );
+            const removeFilter = (nextFilter) => (
+                nextFilter.category !== category ||
+                nextFilter.option !== option
+            );
 
-        const nextSelectedFilters = (isSelecting)
-            ? [...selectedFilters, filter]
-            : selectedFilters.filter(removeFilter);
+            const nextSelectedFilters = (isSelecting)
+                ? [...selectedFilters, filter]
+                : selectedFilters.filter(removeFilter);
 
-        setSelectedFilters(nextSelectedFilters);
-    }
+            setSelectedFilters(nextSelectedFilters);
+        }
 
-    const FilterOption = ({ filter }) => {
-        const { category, option, display } = filter;
-        const isSelected = isFilterSelected(filter);
-        const onPress = () => onSelectOrUnselectFilter(filter);
+        const FilterOption = ({ filter }) => {
+            const { category, option, display } = filter;
+            const isSelected = isFilterSelected(filter);
+            const onPress = () => onSelectOrUnselectFilter(filter);
 
-        if (isGuestUser && hideForGuests.includes(option)) return <View />;
+            if (isGuestUser && hideForGuests.includes(option)) return <View />;
 
-        return (
-            <FilterPressable selected={isSelected} onPress={onPress}>
-                <FilterText>{display}</FilterText>
-            </FilterPressable>
-        )
-    }
+            return (
+                <FilterPressable selected={isSelected} onPress={onPress}>
+                    <FilterText>{display}</FilterText>
+                </FilterPressable>
+            )
+        }
 
-    const SearchButton = () => {
-        const applyFilters = () => {
-            navigation.push('FeedScreen', {
-                feedSource: 'discover',
-                initialFeedFilters: selectedFilters,
-            })
+        const SearchButton = () => {
+            const applyFilters = () => {
+                navigation.push('FeedScreen', {
+                    feedSource: 'discover',
+                    initialFeedFilters: selectedFilters,
+                })
+            }
+
+            return (
+                <SearchBarPressable fade={selectedFilters.length === 0} onPress={applyFilters}>
+                    <SearchBarText>{'Browse Reelays'}</SearchBarText>
+                </SearchBarPressable>
+            );
         }
 
         return (
-            <SearchBarPressable fade={selectedFilters.length === 0} onPress={applyFilters}>
-                <SearchBarText>{'Browse Reelays'}</SearchBarText>
-            </SearchBarPressable>
+            <CategoryView>
+                <CategoryHeader>{'Discover'}</CategoryHeader>
+                {/* <HeaderSubText>{'Find something that’s just right'}</HeaderSubText> */}
+                <CategoryOptionsView>
+                    {filterOptions.map(renderFilter)}
+                </CategoryOptionsView>
+                <SearchButton />
+            </CategoryView>
         );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-    
-    return (
-        <CategoryView>
-            <CategoryHeader>{'Discover'}</CategoryHeader>
-            {/* <HeaderSubText>{'Find something that’s just right'}</HeaderSubText> */}
-            <CategoryOptionsView>
-                { filterOptions.map(renderFilter)}
-            </CategoryOptionsView>
-            <SearchButton />
-        </CategoryView>
-    );
 }

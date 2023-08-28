@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { 
+import {
     ActivityIndicator,
     Dimensions,
-    Keyboard, 
-    SafeAreaView, 
-    TextInput, 
+    Keyboard,
+    SafeAreaView,
+    TextInput,
     TouchableOpacity,
-    TouchableWithoutFeedback, 
+    TouchableWithoutFeedback,
     View,
 } from 'react-native';
 import styled from 'styled-components/native';
@@ -24,6 +24,7 @@ import TitlePoster from '../../components/global/TitlePoster';
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import { postGuessingGameDraft } from '../../api/GuessingGameApi';
 import { showErrorToast } from '../../components/utils/toasts';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../../components/utils/EventLogger';
 
 const { width } = Dimensions.get('window');
 
@@ -114,155 +115,160 @@ const GAME_TITLE_MIN_LENGTH = 15;
 const GAME_TITLE_MAX_LENGTH = 140;
 
 export default CreateGuessingGameScreen = ({ navigation, route }) => {
-    const authSession = useSelector(state => state.authSession);
-    const { reelayDBUser } = useContext(AuthContext);
-    const [isSaving, setIsSaving] = useState(false);
-    const topOffset = useSafeAreaInsets().top;
-    const bottomOffset = useSafeAreaInsets().bottom;
-    const clubID = route?.params?.clubID ?? null;
-    const correctTitleObj = route?.params?.correctTitleObj;
+    try {
+        firebaseCrashlyticsLog('Create guessing game screen');
+        const authSession = useSelector(state => state.authSession);
+        const { reelayDBUser } = useContext(AuthContext);
+        const [isSaving, setIsSaving] = useState(false);
+        const topOffset = useSafeAreaInsets().top;
+        const bottomOffset = useSafeAreaInsets().bottom;
+        const clubID = route?.params?.clubID ?? null;
+        const correctTitleObj = route?.params?.correctTitleObj;
 
-    const dispatch = useDispatch();
-    const titleFieldRef = useRef(null);
-    const titleTextRef = useRef('');
+        const dispatch = useDispatch();
+        const titleFieldRef = useRef(null);
+        const titleTextRef = useRef('');
 
-    const actors = correctTitleObj?.displayActors?.map(actor => actor.name)
+        const actors = correctTitleObj?.displayActors?.map(actor => actor.name)
             .filter((actor) => actor !== undefined)
-            .join(", ") 
-        ?? [];
+            .join(", ")
+            ?? [];
 
 
-    const releaseYear = (correctTitleObj?.releaseDate && correctTitleObj?.releaseDate.length >= 4) 
-        ? correctTitleObj.releaseDate.slice(0,4) : '';
-    const runtimeString = getRuntimeString(correctTitleObj?.runtime);
+        const releaseYear = (correctTitleObj?.releaseDate && correctTitleObj?.releaseDate.length >= 4)
+            ? correctTitleObj.releaseDate.slice(0, 4) : '';
+        const runtimeString = getRuntimeString(correctTitleObj?.runtime);
 
-    const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
+        const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
 
-    const ContinueButton = () => {
-        const isValidTitle = () => (titleTextRef.current.length >= GAME_TITLE_MIN_LENGTH);
+        const ContinueButton = () => {
+            const isValidTitle = () => (titleTextRef.current.length >= GAME_TITLE_MIN_LENGTH);
 
-        const onPress = async () => {
-            if (!isValidTitle()) {
-                showErrorToast(`Ruh roh! Your prompt needs to be at least ${GAME_TITLE_MIN_LENGTH} characters`);
-                return;
-            }
-            setIsSaving(true);
-            const titleKey = `${correctTitleObj?.titleType}-${correctTitleObj?.id}`;
-            const saveDraftResult = await postGuessingGameDraft({
-                authSession,
-                reqUserSub: reelayDBUser?.sub,
-                clubID,
-                correctTitleKey: titleKey,
-                creatorName: reelayDBUser?.username,
-                title: titleTextRef.current,
-            });
+            const onPress = async () => {
+                if (!isValidTitle()) {
+                    showErrorToast(`Ruh roh! Your prompt needs to be at least ${GAME_TITLE_MIN_LENGTH} characters`);
+                    return;
+                }
+                setIsSaving(true);
+                const titleKey = `${correctTitleObj?.titleType}-${correctTitleObj?.id}`;
+                const saveDraftResult = await postGuessingGameDraft({
+                    authSession,
+                    reqUserSub: reelayDBUser?.sub,
+                    clubID,
+                    correctTitleKey: titleKey,
+                    creatorName: reelayDBUser?.username,
+                    title: titleTextRef.current,
+                });
 
-            console.log('save draft result: ', saveDraftResult);
-            if (saveDraftResult?.error) {
-                showErrorToast(`Ruh roh! Could not save a draft of your guessing game. Try again?`);
-                return;
-            }
+                console.log('save draft result: ', saveDraftResult);
+                if (saveDraftResult?.error) {
+                    showErrorToast(`Ruh roh! Could not save a draft of your guessing game. Try again?`);
+                    return;
+                }
 
-            navigation.push('CreateGuessingGameCluesScreen', {
-                game: { 
-                    ...saveDraftResult, 
-                    details: {
-                        correctTitleKey: titleKey,
-                        clueOrder: [],
+                navigation.push('CreateGuessingGameCluesScreen', {
+                    game: {
+                        ...saveDraftResult,
+                        details: {
+                            correctTitleKey: titleKey,
+                            clueOrder: [],
+                        },
+                        correctTitleObj,
+                        reelays: [],
                     },
-                    correctTitleObj,
-                    reelays: [],
-                },
-            });
+                });
 
-            setIsSaving(false);
+                setIsSaving(false);
+            }
+
+            return (
+                <ContinueButtonPressable onPress={onPress}>
+                    {isSaving && <ActivityIndicator />}
+                    {!isSaving && <ContinueText>{'Continue'}</ContinueText>}
+                </ContinueButtonPressable>
+            );
+        }
+
+        const Header = () => {
+            return (
+                <HeaderView topOffset={topOffset}>
+                    <HeaderWithBackButton navigation={navigation} text={'back'} />
+                </HeaderView>
+            );
+        }
+
+        const TitleInput = () => {
+            const changeTitleText = (text) => {
+                titleTextRef.current = text;
+            }
+            return (
+                <SectionView>
+                    <TouchableWithoutFeedback onPress={focusTitle}>
+                        <TitleInputField
+                            ref={titleFieldRef}
+                            blurOnSubmit={true}
+                            maxLength={GAME_TITLE_MAX_LENGTH}
+                            multiline
+                            defaultValue={titleTextRef.current}
+                            placeholder={"What netflix TV show was like..."}
+                            placeholderTextColor={'rgba(255,255,255,0.6)'}
+                            onChangeText={changeTitleText}
+                            onSubmitEditing={Keyboard.dismiss}
+                            returnKeyLabel="done"
+                            returnKeyType="done"
+                        />
+                    </TouchableWithoutFeedback>
+                </SectionView>
+            );
+        }
+
+        useFocusEffect(() => {
+            dispatch({ type: 'setTabBarVisible', payload: false });
+        });
+
+        const CreatePrompt = () => {
+            return (
+                <PromptView>
+                    {/* <GamesIconSVG /> */}
+                    <PromptText>{'Write a prompt for your guessing game'}</PromptText>
+                </PromptView>
+            );
+        }
+
+        const CorrectTitleLine = () => {
+            return (
+                <TitleLineView>
+                    <ImageContainer>
+                        {correctTitleObj?.posterSource && (
+                            <TitlePoster title={correctTitleObj} width={60} />
+                        )}
+                        {!correctTitleObj.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
+                    </ImageContainer>
+                    <TitleInfoView>
+                        <TitleText>{correctTitleObj?.display}</TitleText>
+                        <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
+                        <ActorText>{actors}</ActorText>
+                    </TitleInfoView>
+                </TitleLineView>
+            );
         }
 
         return (
-            <ContinueButtonPressable onPress={onPress}>
-                { isSaving && <ActivityIndicator /> }
-                { !isSaving && <ContinueText>{'Continue'}</ContinueText> }
-            </ContinueButtonPressable>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <CreateScreenView>
+                    <View style={{ display: 'flex' }}>
+                        <Header />
+                        <CreatePrompt />
+                        <CorrectTitleLine />
+                        <TitleInput />
+                    </View>
+                    <SectionViewBottom bottomOffset={bottomOffset}>
+                        <ContinueButton />
+                    </SectionViewBottom>
+                </CreateScreenView>
+            </TouchableWithoutFeedback>
         );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    const Header = () => {
-        return (
-            <HeaderView topOffset={topOffset}>
-                <HeaderWithBackButton navigation={navigation} text={'back'} />
-            </HeaderView>
-        );
-    }
-
-    const TitleInput = () => {
-        const changeTitleText = (text) => {
-            titleTextRef.current = text;
-        }    
-        return (
-            <SectionView>
-                <TouchableWithoutFeedback onPress={focusTitle}>
-                    <TitleInputField 
-                        ref={titleFieldRef}
-                        blurOnSubmit={true}
-                        maxLength={GAME_TITLE_MAX_LENGTH}
-                        multiline
-                        defaultValue={titleTextRef.current}
-                        placeholder={"What netflix TV show was like..."}
-                        placeholderTextColor={'rgba(255,255,255,0.6)'}
-                        onChangeText={changeTitleText}
-                        onSubmitEditing={Keyboard.dismiss}
-                        returnKeyLabel="done"
-                        returnKeyType="done"
-                    />
-                </TouchableWithoutFeedback>   
-            </SectionView> 
-        );
-    }
-
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-    });
-
-    const CreatePrompt = () => {
-        return (
-            <PromptView>
-                {/* <GamesIconSVG /> */}
-                <PromptText>{'Write a prompt for your guessing game'}</PromptText>
-            </PromptView> 
-        );
-    }
-
-    const CorrectTitleLine = () => {
-        return (
-            <TitleLineView>
-                <ImageContainer>
-                    { correctTitleObj?.posterSource && (
-                        <TitlePoster title={correctTitleObj} width={60} />
-                    )}
-                    { !correctTitleObj.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
-                </ImageContainer>
-                <TitleInfoView>
-                    <TitleText>{correctTitleObj?.display}</TitleText>
-                    <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
-                    <ActorText>{actors}</ActorText>
-                </TitleInfoView>
-            </TitleLineView>
-        );
-    }
-
-    return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <CreateScreenView>
-                <View style={{ display: 'flex' }}>
-                    <Header />
-                    <CreatePrompt />
-                    <CorrectTitleLine />
-                    <TitleInput />
-                </View>
-                <SectionViewBottom bottomOffset={bottomOffset}>
-                    <ContinueButton />
-                </SectionViewBottom>
-            </CreateScreenView>
-        </TouchableWithoutFeedback>
-    );
 };

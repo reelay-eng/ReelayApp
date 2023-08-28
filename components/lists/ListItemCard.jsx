@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { logAmplitudeEventProd, firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../utils/EventLogger';
 import * as ReelayText from '../global/Text';
 import { useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
@@ -56,23 +56,28 @@ const DogWithGlassesImage = styled(Image)`
     `
 
 const ListItemCard = ({ navigation, listItem }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const [load, setLoad] = useState(false)
-    return (
-        <ListCardView onPress={()=>navigation.navigate('ListMovieScreen',{listData:listItem, fromList:true, fromDeeplink:listItem.Flag == 2 ? true:false})}>
-                
+    try {
+        firebaseCrashlyticsLog('List item card screen');
+        const { reelayDBUser } = useContext(AuthContext);
+        const [load, setLoad] = useState(false)
+        return (
+            <ListCardView onPress={() => navigation.navigate('ListMovieScreen', { listData: listItem, fromList: true, fromDeeplink: listItem.Flag == 2 ? true : false })}>
+
                 {listItem?.profilePictureURI ?
-                <ListCardImage resizeMode='cover'
-                source={{uri:listItem?.profilePictureURI}}
-                />:
-                <DogWithGlassesImage resizeMode='center' source={DogWithGlasses} />}
+                    <ListCardImage resizeMode='cover'
+                        source={{ uri: listItem?.profilePictureURI }}
+                    /> :
+                    <DogWithGlassesImage resizeMode='center' source={DogWithGlasses} />}
 
                 <ListCardFlexView>
                     <ListTitleText numberOfLines={2}>{listItem?.listName}</ListTitleText>
                     <ListUserText>{listItem?.creatorName}</ListUserText>
                 </ListCardFlexView>
-        </ListCardView>
-    );
+            </ListCardView>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }
 
 export default memo(ListItemCard, (prevProps, nextProps) => true);

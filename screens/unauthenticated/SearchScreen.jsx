@@ -16,7 +16,7 @@ import * as ReelayText from "../../components/global/Text";
 import { AuthContext } from "../../context/AuthContext";
 
 // Logging
-import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
+import { logAmplitudeEventProd, firebaseCrashlyticsLog, firebaseCrashlyticsError } from "../../components/utils/EventLogger";
 
 // API
 import { searchBothTitles, searchTitles, searchUsers } from "../../api/ReelayDBApi";
@@ -90,61 +90,63 @@ const SkipText = styled(ReelayText.Subtitle1Emphasized)`
 	color: white;
 `
 export default SearchTitleScreen = ({ navigation, route }) => {
-    const dispatch = useDispatch();
-    const { reelayDBUser } = useContext(AuthContext);
-    const addToWatchlist = true;
-    const addCustomWatchlist = true;
-    const ListData = route?.params?.ListData ?? {};
-    const fromListAdd = route?.params?.fromListAdd ?? false;
-    const fromListUpdate = route?.params?.fromListUpdate ?? false;
-    const initialSearchType = 'Film';
-    const Redirect = route?.params?.Redirect ?? 0;
-    const [listLoading, setListLoading] = useState(false);
+    try {
+        firebaseCrashlyticsLog('Search title screen');
+        const dispatch = useDispatch();
+        const { reelayDBUser } = useContext(AuthContext);
+        const addToWatchlist = true;
+        const addCustomWatchlist = true;
+        const ListData = route?.params?.ListData ?? {};
+        const fromListAdd = route?.params?.fromListAdd ?? false;
+        const fromListUpdate = route?.params?.fromListUpdate ?? false;
+        const initialSearchType = 'Film';
+        const Redirect = route?.params?.Redirect ?? 0;
+        const [listLoading, setListLoading] = useState(false);
 
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
-    const addCustomProfile = useSelector(state => state.addCustomProfile);
+        const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+        const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
+        const addCustomProfile = useSelector(state => state.addCustomProfile);
 
-    const goBack = () => { navigation.goBack(); }
+        const goBack = () => { navigation.goBack(); }
 
-    const callMultiple = async() =>{
-        if(addCustomProfile.length < 2){
-            showErrorToast('Ruh roh! You need to select atleast two titles.');
-            return false;
+        const callMultiple = async () => {
+            if (addCustomProfile.length < 2) {
+                showErrorToast('Ruh roh! You need to select atleast two titles.');
+                return false;
+            }
+            console.log(addCustomProfile)
+            const addcusto = await addToMyCustomlist({
+                reqUserSub: reelayDBUser?.sub,
+                titleData: addCustomProfile
+            });
+            console.log("addcusto", addcusto)
+            const getItems = await getCustomItems(reelayDBUser?.sub);
+            dispatch({ type: 'setCustomWatchData', payload: getItems });
+            dispatch({ type: 'setAddCustomProfile', payload: [] });
+            navigation.navigate('SelectMovieScreen')
+            dispatch({ type: 'setOpenAddTitle', payload: false });
         }
-        console.log(addCustomProfile)
-       const addcusto = await addToMyCustomlist({
-            reqUserSub: reelayDBUser?.sub,
-            titleData: addCustomProfile
-        });
-        console.log("addcusto",addcusto)
-        const getItems = await getCustomItems(reelayDBUser?.sub);
-        dispatch({ type: 'setCustomWatchData', payload: getItems });
-        dispatch({ type: 'setAddCustomProfile', payload: [] });
-        navigation.navigate('SelectMovieScreen')
-        dispatch({ type: 'setOpenAddTitle', payload: false });
-    }
 
-    const getListss = async() =>{
-        dispatch({ type: 'setListData', payload: [] });
-        const GetListData = await getLists({reqUserSub:reelayDBUser?.sub});
-        dispatch({ type: 'setListData', payload: GetListData });
-    }
+        const getListss = async () => {
+            dispatch({ type: 'setListData', payload: [] });
+            const GetListData = await getLists({ reqUserSub: reelayDBUser?.sub });
+            dispatch({ type: 'setListData', payload: GetListData });
+        }
 
-    const addMoviesWithTopic = async() => {
-        setListLoading(true)
-        let List = ListData;
-        List["array"] = addCustomProfile;
+        const addMoviesWithTopic = async () => {
+            setListLoading(true)
+            let List = ListData;
+            List["array"] = addCustomProfile;
 
-        const publishResult = await createList(List);
-        console.log('publishResult',publishResult);
-         if (!publishResult || publishResult?.error) {
+            const publishResult = await createList(List);
+            console.log('publishResult', publishResult);
+            if (!publishResult || publishResult?.error) {
                 showErrorToast('Something went wrong! Could not create topic');
                 setListLoading(false);
             } else {
                 await getListss();
                 showMessageToast('List created');
-                navigation.pop(2) 
+                navigation.pop(2)
                 setListLoading(false);
                 dispatch({ type: 'setAddCustomProfile', payload: [] });
                 logAmplitudeEventProd('createdLists', {
@@ -154,23 +156,23 @@ export default SearchTitleScreen = ({ navigation, route }) => {
                 });
 
             }
-    }
+        }
 
-    const updateMoviesWithTopic = async() => {
-        // setListLoading(true)
+        const updateMoviesWithTopic = async () => {
+            // setListLoading(true)
 
-        setListLoading(true)
-        let array =  addCustomProfile.map(obj => ({ ...obj, listId: ListData?.id }))
-        let postBody = {array}
-        // console.log("updateMoviesList",postBody)
-        // return;
-        const publishResult = await updateMoviesList(reelayDBUser?.sub, postBody);
-         if (!publishResult || publishResult?.error) {
+            setListLoading(true)
+            let array = addCustomProfile.map(obj => ({ ...obj, listId: ListData?.id }))
+            let postBody = { array }
+            // console.log("updateMoviesList",postBody)
+            // return;
+            const publishResult = await updateMoviesList(reelayDBUser?.sub, postBody);
+            if (!publishResult || publishResult?.error) {
                 showErrorToast('Something went wrong! Could not create topic');
                 setListLoading(false);
             } else {
                 showMessageToast('List Updated');
-                navigation.pop() 
+                navigation.pop()
                 setListLoading(false);
                 dispatch({ type: 'setAddCustomProfile', payload: [] });
                 logAmplitudeEventProd('updatedLists', {
@@ -180,115 +182,120 @@ export default SearchTitleScreen = ({ navigation, route }) => {
                 });
 
             }
+        }
+
+        const skipp = async () => {
+            // navigation.replace('HomeScreen')  
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'HomeScreen' }],
+            })
+        }
+
+        useFocusEffect(() => {
+            dispatch({ type: 'setTabBarVisible', payload: false });
+        });
+
+
+        return (
+            <SearchScreenView>
+                <HeaderView>
+                    {fromListAdd || fromListUpdate ? <BackButtonPressable onPress={goBack}>
+                        <Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
+                    </BackButtonPressable> : null}
+                    <HeaderText>{""}</HeaderText>
+                    {!fromListAdd && !fromListUpdate ? <Pressable style={{ position: "absolute", right: 30 }} onPress={addCustomProfile?.length !== 0 ? callMultiple : skipp}>
+                        <SkipText>{addCustomProfile?.length !== 0 ? "Done" : "Skip"}</SkipText>
+                    </Pressable> :
+                        (listLoading ? <ActivityIndicator style={{ position: "absolute", right: 30 }} size={"small"} color={"#fff"} /> :
+                            <Pressable style={{ position: "absolute", right: 30 }} onPress={() => fromListUpdate ? updateMoviesWithTopic() : addMoviesWithTopic()}>
+                                <SkipText>{"Done"}</SkipText>
+                            </Pressable>)}
+                </HeaderView>
+                <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist} addCustomWatchlist={addCustomWatchlist} fromListAdd={fromListAdd} ListData={ListData} fromListUpdate={fromListUpdate} />
+            </SearchScreenView>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    const skipp = async() =>{
-        // navigation.replace('HomeScreen')  
-        navigation.reset({
-            index: 0,
-            routes: [{name: 'HomeScreen'}],
-          }) 
-    }
-
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-    });
-
-
-    return (
-		<SearchScreenView>
-			<HeaderView>
-                {fromListAdd || fromListUpdate ? <BackButtonPressable onPress={goBack}>
-                    <Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
-				</BackButtonPressable>:null}
-				 <HeaderText>{""}</HeaderText> 
-                 {!fromListAdd && !fromListUpdate ? <Pressable  style={{position:"absolute",right:30}} onPress={addCustomProfile?.length !== 0 ?callMultiple:skipp}>
-					<SkipText>{addCustomProfile?.length !== 0 ? "Done":"Skip"}</SkipText>
-				</Pressable>:
-                (listLoading?<ActivityIndicator style={{position:"absolute",right:30}} size={"small"} color={"#fff"}/>:
-                <Pressable  style={{position:"absolute",right:30}} onPress={()=> fromListUpdate ? updateMoviesWithTopic():addMoviesWithTopic()}>
-                <SkipText>{"Done"}</SkipText>
-            </Pressable>)}
-			</HeaderView>
-            <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist} addCustomWatchlist={addCustomWatchlist} fromListAdd={fromListAdd} ListData={ListData} fromListUpdate={fromListUpdate} />
-		</SearchScreenView>
-	);
 };
 
 const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, addCustomWatchlist, fromListAdd, ListData, fromListUpdate }) => {
-    const dispatch = useDispatch();
-    const authSession = useSelector(state => state.authSession);
-    const { reelayDBUser } = useContext(AuthContext);
-    const [loading, setLoading] = useState(false);
+    try {
+        firebaseCrashlyticsLog('Search bar screen with results');
+        const dispatch = useDispatch();
+        const authSession = useSelector(state => state.authSession);
+        const { reelayDBUser } = useContext(AuthContext);
+        const [loading, setLoading] = useState(false);
 
-    const myFollowing = useSelector(state => state.myFollowing);
-    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
-    const allSearchOptions =  ['Film', 'TV']
-    const tabOptions = addToWatchlist || addCustomWatchlist
-    ? ['Film', 'TV'] 
-        : allSearchOptions;
+        const myFollowing = useSelector(state => state.myFollowing);
+        const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
+        const allSearchOptions = ['Film', 'TV']
+        const tabOptions = addToWatchlist || addCustomWatchlist
+            ? ['Film', 'TV']
+            : allSearchOptions;
 
-    const [searchText, setSearchText] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
-    const [selectedType, setSelectedType] = useState(initialSearchType);
+        const [searchText, setSearchText] = useState("");
+        const [searchResults, setSearchResults] = useState([]);
+        const [selectedType, setSelectedType] = useState(initialSearchType);
 
-    const searchTextEmpty = (!searchText || searchText === undefined || searchText === '');
-    const showSuggestions = searchTextEmpty;
-    const updateCounter = useRef(0);
+        const searchTextEmpty = (!searchText || searchText === undefined || searchText === '');
+        const showSuggestions = searchTextEmpty;
+        const updateCounter = useRef(0);
 
-    useEffect(() => {
-        updateCounter.current += 1;
-        const nextUpdateCounter = updateCounter.current;
-        setTimeout(() => {
-            updateSearch(searchText, selectedType, nextUpdateCounter);
-        }, 200);
-    }, [searchText, selectedType]);
+        useEffect(() => {
+            updateCounter.current += 1;
+            const nextUpdateCounter = updateCounter.current;
+            setTimeout(() => {
+                updateSearch(searchText, selectedType, nextUpdateCounter);
+            }, 200);
+        }, [searchText, selectedType]);
 
-    useEffect(() => {
-        setLoading(false);
-    }, [searchResults]);
+        useEffect(() => {
+            setLoading(false);
+        }, [searchResults]);
 
 
 
-    const updateSearch = async (newSearchText, searchType, counter) => {
-        if (searchTextEmpty) {            
-            setSearchResults([]);
-            return;
-        }
-
-        try {
-            setLoading(true);
-            let annotatedResults = await searchBothTitles(newSearchText);
-            
-
-            if (updateCounter.current === counter) {
-                setSearchResults(annotatedResults);
-                logAmplitudeEventProd('searchBothTVandMovie', {
-                    username: reelayDBUser?.sub,
-                    searchText: newSearchText,
-                    searchType: searchType,
-                    source: 'search',
-                });        
+        const updateSearch = async (newSearchText, searchType, counter) => {
+            if (searchTextEmpty) {
+                setSearchResults([]);
+                return;
             }
-        } catch (error) {
-            console.log(error);
+
+            try {
+                setLoading(true);
+                let annotatedResults = await searchBothTitles(newSearchText);
+
+
+                if (updateCounter.current === counter) {
+                    setSearchResults(annotatedResults);
+                    logAmplitudeEventProd('searchBothTVandMovie', {
+                        username: reelayDBUser?.sub,
+                        searchText: newSearchText,
+                        searchType: searchType,
+                        source: 'search',
+                    });
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        const updateSearchText = async (newSearchText) => {
+            if (newSearchText !== searchText) {
+                setSearchText(newSearchText);
+            }
         }
-    };
-
-    const updateSearchText = async (newSearchText) => {
-        if (newSearchText !== searchText) {
-            setSearchText(newSearchText);
-        }
-    }
 
 
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-    });
+        useFocusEffect(() => {
+            dispatch({ type: 'setTabBarVisible', payload: false });
+        });
 
-    const SearchResults = () => {
-        return (
-            <Fragment>
+        const SearchResults = () => {
+            return (
+                <Fragment>
                     <TitleSearchResults
                         navigation={navigation}
                         searchResults={searchResults}
@@ -297,35 +304,38 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
                         source={"search"}
                         addCustomWatchlist={addCustomWatchlist}
                     />
-                
-            </Fragment>
-        );
-    }
 
-    return (
-        <React.Fragment>
-            <HeaderTextLight>{fromListAdd || fromListUpdate ? "Choose titles you love":"Choose 2 titles you love"}</HeaderTextLight> 
-            {/* <TopBar /> */}
-            <SearchBarView>
-                <SearchField
-                    backgroundColor="#232425"
-                    border={false}
-                    borderRadius={4}
-                    searchText={searchText}
-                    updateSearchText={updateSearchText}
-                    placeholderText={`Search Movies & TV `}
-                />
-            </SearchBarView>
-            { !loading && !showSuggestions && <SearchResults /> }
-            { !loading && showSuggestions && (
-                <TrendingTitlesGrid 
-                    navigation={navigation} 
-                    selectedType={selectedType}
-                    source='search'
-                    addCustomWatchlist={addCustomWatchlist}
-                /> 
-            )}
-            { loading && <ActivityIndicator /> }
-        </React.Fragment>
-    )
+                </Fragment>
+            );
+        }
+
+        return (
+            <React.Fragment>
+                <HeaderTextLight>{fromListAdd || fromListUpdate ? "Choose titles you love" : "Choose 2 titles you love"}</HeaderTextLight>
+                {/* <TopBar /> */}
+                <SearchBarView>
+                    <SearchField
+                        backgroundColor="#232425"
+                        border={false}
+                        borderRadius={4}
+                        searchText={searchText}
+                        updateSearchText={updateSearchText}
+                        placeholderText={`Search Movies & TV `}
+                    />
+                </SearchBarView>
+                {!loading && !showSuggestions && <SearchResults />}
+                {!loading && showSuggestions && (
+                    <TrendingTitlesGrid
+                        navigation={navigation}
+                        selectedType={selectedType}
+                        source='search'
+                        addCustomWatchlist={addCustomWatchlist}
+                    />
+                )}
+                {loading && <ActivityIndicator />}
+            </React.Fragment>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }

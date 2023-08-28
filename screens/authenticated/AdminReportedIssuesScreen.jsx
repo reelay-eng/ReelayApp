@@ -9,6 +9,7 @@ import BackButton from '../../components/utils/BackButton';
 import { getReportedIssues } from '../../api/ReelayDBApi';
 import { useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../../components/utils/EventLogger';
 
 const { width } = Dimensions.get('window');
 
@@ -60,62 +61,67 @@ const TimestampText = styled(ReelayText.Body2)`
     color: white;
 `
 export default AdminReportedIssuesScreen = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const authSession = useSelector(state => state.authSession);
-    const [reportedIssues, setReportedIssues] = useState([]);
+    try {
+        firebaseCrashlyticsLog('Admin reported issues screen');
+        const { reelayDBUser } = useContext(AuthContext);
+        const authSession = useSelector(state => state.authSession);
+        const [reportedIssues, setReportedIssues] = useState([]);
 
-    useEffect(() => {
-        loadReportedIssues();
-    }, []);
+        useEffect(() => {
+            loadReportedIssues();
+        }, []);
 
-    const mostRecent = (issue0, issue1) => {
-        const reportedAt0 = moment(issue0.createdAt);
-        const reportedAt1 = moment(issue1.createdAt);
-        return reportedAt1.diff(reportedAt0, 'minutes');
-    }
-
-    const loadReportedIssues = async () => {
-        const fetchedIssues = await getReportedIssues({ authSession, reqUserSub: reelayDBUser?.sub });
-        if (fetchedIssues && !fetchedIssues.error) {
-            setReportedIssues(fetchedIssues.sort(mostRecent));
+        const mostRecent = (issue0, issue1) => {
+            const reportedAt0 = moment(issue0.createdAt);
+            const reportedAt1 = moment(issue1.createdAt);
+            return reportedAt1.diff(reportedAt0, 'minutes');
         }
-    }
 
-    const Header = () => {
+        const loadReportedIssues = async () => {
+            const fetchedIssues = await getReportedIssues({ authSession, reqUserSub: reelayDBUser?.sub });
+            if (fetchedIssues && !fetchedIssues.error) {
+                setReportedIssues(fetchedIssues.sort(mostRecent));
+            }
+        }
+
+        const Header = () => {
+            return (
+                <HeaderContainer>
+                    <HeaderLeftContainer>
+                        <BackButton navigation={navigation} />
+                        <HeaderText>{'Reported Issues'}</HeaderText>
+                    </HeaderLeftContainer>
+                </HeaderContainer>
+            );
+        }
+
+        const ReportedIssueCard = ({ issue }) => {
+            const displayEmail = (issue?.email === '') ? '[anonymous]' : issue?.email;
+            const displayUsername = (issue?.email === '') ? '' : `@${issue?.username}`;
+            const timeAgoReported = moment(issue?.createdAt).fromNow();
+            const timestampText = `reported ${timeAgoReported} ago`;
+            return (
+                <IssueCardContainer>
+                    {(displayUsername.length > 0) && <EmailText>{displayUsername}</EmailText>}
+                    <EmailText>{displayEmail}</EmailText>
+                    <IssueText>{issue?.issueText}</IssueText>
+                    <TimestampText>{timestampText}</TimestampText>
+                </IssueCardContainer>
+            );
+        }
+
+
         return (
-            <HeaderContainer>
-                <HeaderLeftContainer>
-                    <BackButton navigation={navigation} />
-                    <HeaderText>{'Reported Issues'}</HeaderText>
-                </HeaderLeftContainer>
-            </HeaderContainer>
+            <ReportedContentFeedContainer>
+                <Header navigation={navigation} />
+                <IssueScrollContainer showVerticalScrollIndicator={false}>
+                    {reportedIssues.map((issue) => {
+                        return <ReportedIssueCard key={issue?.id} issue={issue} />
+                    })}
+                </IssueScrollContainer>
+            </ReportedContentFeedContainer>
         );
-    }    
-
-    const ReportedIssueCard = ({ issue }) => {
-        const displayEmail = (issue?.email === '') ? '[anonymous]' : issue?.email;
-        const displayUsername = (issue?.email === '') ? '' : `@${issue?.username}`;
-        const timeAgoReported = moment(issue?.createdAt).fromNow();
-        const timestampText = `reported ${timeAgoReported} ago`;    
-        return (
-            <IssueCardContainer>
-                { (displayUsername.length > 0) && <EmailText>{displayUsername}</EmailText> }
-                <EmailText>{displayEmail}</EmailText>
-                <IssueText>{issue?.issueText}</IssueText>
-                <TimestampText>{timestampText}</TimestampText>
-            </IssueCardContainer>
-        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-
-    return (
-        <ReportedContentFeedContainer>
-            <Header navigation={navigation} />
-            <IssueScrollContainer showVerticalScrollIndicator={false}>
-                { reportedIssues.map((issue) => {
-                    return <ReportedIssueCard key={issue?.id} issue={issue} />
-                })}
-            </IssueScrollContainer>
-        </ReportedContentFeedContainer>
-    );
 }

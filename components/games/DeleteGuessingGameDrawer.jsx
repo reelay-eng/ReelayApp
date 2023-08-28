@@ -15,6 +15,7 @@ import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
 import { deleteGuessingGameDraft } from '../../api/GuessingGameApi';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
 
@@ -94,70 +95,75 @@ const DeleteDraftIconPad = styled(View)`
 `
 
 export default DeleteGuessingGameDrawer = ({ closeDrawer, guessingGame, navigation }) => {
-    const authSession = useSelector(state => state.authSession);
-    const bottomOffset = useSafeAreaInsets().bottom;
-    const { reelayDBUser } = useContext(AuthContext);
+    try {
+        firebaseCrashlyticsLog('Delete guessing game drawer');
+        const authSession = useSelector(state => state.authSession);
+        const bottomOffset = useSafeAreaInsets().bottom;
+        const { reelayDBUser } = useContext(AuthContext);
 
-    const DrawerHeader = () => {
-        return (
-            <DrawerHeaderView>
-                <LeftSpacer />
-                <HeaderText>{'Delete draft'}</HeaderText>
-                <CloseDrawerButton onPress={closeDrawer}>
-                    <FontAwesomeIcon icon={faXmark} size={20} color='white' />
-                </CloseDrawerButton>
-            </DrawerHeaderView>
-        )
-    }
+        const DrawerHeader = () => {
+            return (
+                <DrawerHeaderView>
+                    <LeftSpacer />
+                    <HeaderText>{'Delete draft'}</HeaderText>
+                    <CloseDrawerButton onPress={closeDrawer}>
+                        <FontAwesomeIcon icon={faXmark} size={20} color='white' />
+                    </CloseDrawerButton>
+                </DrawerHeaderView>
+            )
+        }
 
-    const DeleteDraftButton = () => {
-        const confirmDelete = async () => {
-            closeDrawer();
-            navigation.popToTop();
+        const DeleteDraftButton = () => {
+            const confirmDelete = async () => {
+                closeDrawer();
+                navigation.popToTop();
 
-            try {
-                const deleteResult = await deleteGuessingGameDraft({
-                    authSession,
-                    reqUserSub: reelayDBUser?.sub,
-                    topicID: guessingGame?.id,
-                });    
+                try {
+                    const deleteResult = await deleteGuessingGameDraft({
+                        authSession,
+                        reqUserSub: reelayDBUser?.sub,
+                        topicID: guessingGame?.id,
+                    });
 
-                if (deleteResult?.error) {
-                    console.log('Delete result error: ', deleteResult?.error);
+                    if (deleteResult?.error) {
+                        console.log('Delete result error: ', deleteResult?.error);
+                        showErrorToast('Ruh roh! Could not delete draft game. Try again?');
+                    } else {
+                        showMessageToast('Your game is deleted.');
+                    }
+                } catch (error) {
+                    console.log(error);
                     showErrorToast('Ruh roh! Could not delete draft game. Try again?');
-                } else {
-                    showMessageToast('Your game is deleted.');
                 }
-            } catch (error) {
-                console.log(error);
-                showErrorToast('Ruh roh! Could not delete draft game. Try again?');
+
+
             }
 
-            
+            return (
+                <DeleteDraftPressable onPress={confirmDelete}>
+                    <DeleteDraftIconPad />
+                    <DeleteDraftTextView>
+                        <DeleteDraftText>{'Permanently delete this game'}</DeleteDraftText>
+                    </DeleteDraftTextView>
+                </DeleteDraftPressable>
+            )
         }
 
         return (
-            <DeleteDraftPressable onPress={confirmDelete}>
-                <DeleteDraftIconPad />
-                <DeleteDraftTextView>
-                    <DeleteDraftText>{'Permanently delete this game'}</DeleteDraftText>
-                </DeleteDraftTextView>
-            </DeleteDraftPressable>
+            <Modal animationType='slide' transparent={true} visible={true}>
+                <Backdrop onPress={closeDrawer} />
+                <DrawerView bottomOffset={bottomOffset}>
+                    <DrawerHeader />
+                    <DeleteDraftsRowView>
+                        <DeleteDraftPromptText>
+                            {'Are you sure you want to delete this game? These videos will be deleted too.'}
+                        </DeleteDraftPromptText>
+                        <DeleteDraftButton />
+                    </DeleteDraftsRowView>
+                </DrawerView>
+            </Modal>
         )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    return (
-        <Modal animationType='slide' transparent={true} visible={true}>
-            <Backdrop onPress={closeDrawer} />
-            <DrawerView bottomOffset={bottomOffset}>
-                <DrawerHeader />
-                <DeleteDraftsRowView>
-                    <DeleteDraftPromptText>
-                        {'Are you sure you want to delete this game? These videos will be deleted too.'}
-                    </DeleteDraftPromptText>
-                    <DeleteDraftButton />
-                </DeleteDraftsRowView>
-            </DrawerView>
-        </Modal>
-    )
 }

@@ -7,6 +7,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 import { FlashList } from '@shopify/flash-list';
+import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../utils/EventLogger';
 
 const { width } = Dimensions.get('window');
 
@@ -63,68 +64,73 @@ const StarRatingContainer = styled(View)`
     z-index: 5;
 `
 export default ProfilePosterGrid = ({ creatorStacks, navigation, profile = 0 }) => {
-    if (!creatorStacks.length) {
-        return <View />;
-    }
+    try {
+        firebaseCrashlyticsLog('Profile poster grid screen');
+        if (!creatorStacks.length) {
+            return <View />;
+        }
 
-    const SectionHeader = () => {
-        return (
-            <HeaderContainer>
-                <HeaderText>{'Reelays'}</HeaderText>
-            </HeaderContainer>
-        );
-    }
+        const SectionHeader = () => {
+            return (
+                <HeaderContainer>
+                    <HeaderText>{'Reelays'}</HeaderText>
+                </HeaderContainer>
+            );
+        }
 
-    const StarRatingLine = ({ rating }) => {
-		return (
-			<StarRatingContainer>
-				<StarRating 
-					disabled={true}
-					rating={rating}
-					starSize={10}
-					starStyle={{ paddingRight: 2 }}
-				/>
-			</StarRatingContainer>
-		);
-	}
+        const StarRatingLine = ({ rating }) => {
+            return (
+                <StarRatingContainer>
+                    <StarRating
+                        disabled={true}
+                        rating={rating}
+                        starSize={10}
+                        starStyle={{ paddingRight: 2 }}
+                    />
+                </StarRatingContainer>
+            );
+        }
 
-    const renderPoster = ({ item, index }) => {
-        const stack = item;
-        const starRating = (stack[0].starRating ?? 0) + (stack[0].starRatingAddHalf ? 0.5 : 0);
+        const renderPoster = ({ item, index }) => {
+            const stack = item;
+            const starRating = (stack[0].starRating ?? 0) + (stack[0].starRatingAddHalf ? 0.5 : 0);
 
-        const viewProfileFeed = () => {
-            navigation.push('ProfileFeedScreen', { 
-                initialFeedPos: index, 
-                stackList: creatorStacks, 
-            });
+            const viewProfileFeed = () => {
+                navigation.push('ProfileFeedScreen', {
+                    initialFeedPos: index,
+                    stackList: creatorStacks,
+                });
+            }
+
+            return (
+                <PosterContainer key={stack[0].title.id}>
+                    <TitlePoster title={stack[0].title} onPress={viewProfileFeed} width={POSTER_WIDTH} />
+                    {starRating > 0 && (
+                        <Fragment>
+                            <PosterGradient colors={["transparent", ReelayColors.reelayBlack]} />
+                            <StarRatingLine rating={starRating} />
+                        </Fragment>
+                    )}
+                </PosterContainer>
+            );
+
         }
 
         return (
-            <PosterContainer key={stack[0].title.id}>
-                <TitlePoster title={stack[0].title} onPress={viewProfileFeed} width={POSTER_WIDTH} />
-                { starRating > 0 && (
-                    <Fragment>
-                        <PosterGradient colors={["transparent", ReelayColors.reelayBlack]} />
-                        <StarRatingLine rating={starRating} />
-                    </Fragment>
-                )}
-            </PosterContainer>
+            <PosterGridView>
+                {profile !== 1 &&
+                    <SectionHeader />}
+                <FlashList
+                    data={creatorStacks}
+                    // estimatedItemSize={POSTER_HEIGHT}
+                    keyExtractor={stack => String(stack[0]?.sub)}
+                    numColumns={POSTER_ROW_LENGTH}
+                    renderItem={renderPoster}
+                    showsVerticalScrollIndicator={false}
+                />
+            </PosterGridView>
         );
-
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    return (
-        <PosterGridView>
-            {profile !== 1 &&
-            <SectionHeader />}
-            <FlashList
-                data={creatorStacks}
-                // estimatedItemSize={POSTER_HEIGHT}
-                keyExtractor={stack => String(stack[0]?.sub)}
-                numColumns={POSTER_ROW_LENGTH}
-                renderItem={renderPoster}
-                showsVerticalScrollIndicator={false}
-            />
-        </PosterGridView>
-    );
 }

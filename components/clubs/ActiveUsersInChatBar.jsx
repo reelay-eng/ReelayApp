@@ -8,6 +8,7 @@ import moment from 'moment';
 import ReelayColors from '../../constants/ReelayColors';
 import { AuthContext } from '../../context/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../utils/EventLogger';
 
 const LAST_ACTIVE_MAX_SECONDS = 180;
 
@@ -37,71 +38,76 @@ const ProfilePicRowView = styled(View)`
 `
 
 export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const topOffset = useSafeAreaInsets().top;
+    try {
+        firebaseCrashlyticsLog('Active users in chat bar');
+        const { reelayDBUser } = useContext(AuthContext);
+        const topOffset = useSafeAreaInsets().top;
 
-    const getDisplayUsersInChat = () => {
-        const activeUsersInChat = Object.values(activeUsersInChatRef?.current);
-        const displayUsersInChat = activeUsersInChat.filter(userInChat => {
-            const lastActiveMoment = moment(userInChat?.lastActiveAt);
-            const secondsSinceActive = moment().diff(lastActiveMoment, 'seconds');
-            return secondsSinceActive < LAST_ACTIVE_MAX_SECONDS;
-        });
-        return displayUsersInChat;    
-    }
-
-    const [displayUsersInChat, setDisplayUsersInChat] = useState(getDisplayUsersInChat());
-    const otherUsersInChatCount = displayUsersInChat?.length - 1;
-    const otherUsersActive = otherUsersInChatCount > 0;
-
-    // todo: only display up to 5 profile pics
-
-    const ProfilePicRow = () => {
-        return (
-            <ProfilePicRowView>
-                { displayUsersInChat.map(activeUser => {
-                    const picUserObj = {
-                        sub: activeUser?.userSub,
-                        username: activeUser?.username,
-                    }
-                    // if (picUserObj?.sub === reelayDBUser?.sub) return <View />;
-
-                    return (
-                        <ProfilePicView key={picUserObj?.sub}>
-                            <ProfilePicture user={picUserObj} size={24} />
-                        </ProfilePicView>
-                    );
-                })}
-            </ProfilePicRowView>
-        );
-    }
-
-    const updateActiveUsersInChat = () => {
-        try {
-            const nextDisplayUsersInChat = getDisplayUsersInChat();
-            const refString = JSON.stringify(nextDisplayUsersInChat);
-            const stateString = JSON.stringify(displayUsersInChat);
-            if (refString !== stateString) {
-                setDisplayUsersInChat(nextDisplayUsersInChat);
-            }    
-        } catch (error) {
-            console.log('error in updating active users in chat bar');
-            console.log(error);
+        const getDisplayUsersInChat = () => {
+            const activeUsersInChat = Object.values(activeUsersInChatRef?.current);
+            const displayUsersInChat = activeUsersInChat.filter(userInChat => {
+                const lastActiveMoment = moment(userInChat?.lastActiveAt);
+                const secondsSinceActive = moment().diff(lastActiveMoment, 'seconds');
+                return secondsSinceActive < LAST_ACTIVE_MAX_SECONDS;
+            });
+            return displayUsersInChat;
         }
+
+        const [displayUsersInChat, setDisplayUsersInChat] = useState(getDisplayUsersInChat());
+        const otherUsersInChatCount = displayUsersInChat?.length - 1;
+        const otherUsersActive = otherUsersInChatCount > 0;
+
+        // todo: only display up to 5 profile pics
+
+        const ProfilePicRow = () => {
+            return (
+                <ProfilePicRowView>
+                    {displayUsersInChat.map(activeUser => {
+                        const picUserObj = {
+                            sub: activeUser?.userSub,
+                            username: activeUser?.username,
+                        }
+                        // if (picUserObj?.sub === reelayDBUser?.sub) return <View />;
+
+                        return (
+                            <ProfilePicView key={picUserObj?.sub}>
+                                <ProfilePicture user={picUserObj} size={24} />
+                            </ProfilePicView>
+                        );
+                    })}
+                </ProfilePicRowView>
+            );
+        }
+
+        const updateActiveUsersInChat = () => {
+            try {
+                const nextDisplayUsersInChat = getDisplayUsersInChat();
+                const refString = JSON.stringify(nextDisplayUsersInChat);
+                const stateString = JSON.stringify(displayUsersInChat);
+                if (refString !== stateString) {
+                    setDisplayUsersInChat(nextDisplayUsersInChat);
+                }
+            } catch (error) {
+                console.log('error in updating active users in chat bar');
+                console.log(error);
+            }
+        }
+
+        useEffect(() => {
+            const activeUsersInterval = setInterval(() => updateActiveUsersInChat(), 250);
+            return () => clearInterval(activeUsersInterval);
+        }, []);
+
+        if (!otherUsersActive) return <View />;
+
+        return (
+            <BarView topOffset={topOffset}>
+                <OnlineNowText>{'In the chat now'}</OnlineNowText>
+                <ProfilePicRow />
+            </BarView>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    useEffect(() => {
-        const activeUsersInterval = setInterval(() => updateActiveUsersInChat(), 250);
-        return () => clearInterval(activeUsersInterval);
-    }, []);
-
-    if (!otherUsersActive) return <View />;
-
-    return (
-        <BarView topOffset={topOffset}>
-            <OnlineNowText>{'In the chat now'}</OnlineNowText>
-            <ProfilePicRow />
-        </BarView>
-    )
 }
 

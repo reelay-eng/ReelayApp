@@ -11,6 +11,7 @@ import GuessingGamePreview from '../../components/home/GuessingGamePreview';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../../components/utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
 
@@ -29,64 +30,71 @@ const ScreenView = styled(View)`
 `
 
 export default AllGamesScreen = ({ navigation, route }) => {
-    const authSession = useSelector(state => state.authSession);
-    const { reelayDBUser } = useContext(AuthContext);
-    const dispatch = useDispatch();
-    const displayGames = useSelector(state => state?.homeGuessingGames?.content ?? []);
-    const nextPage = useSelector(state => state?.homeGuessingGames?.nextPage ?? 1);
-    const topOffset = useSafeAreaInsets().top;
+    try {
+        firebaseCrashlyticsLog('All games screen');
+        const authSession = useSelector(state => state.authSession);
+        const { reelayDBUser } = useContext(AuthContext);
+        const dispatch = useDispatch();
+        const displayGames = useSelector(state => state?.homeGuessingGames?.content ?? []);
+        const nextPage = useSelector(state => state?.homeGuessingGames?.nextPage ?? 1);
+        const topOffset = useSafeAreaInsets().top;
 
-    const [endReached, setEndReached] = useState(false);
-    const [showAdmin, setShowAdmin] = useState(false);
-    const canShowAdminControls = (reelayDBUser?.role === 'admin');
+        const [endReached, setEndReached] = useState(false);
+        const [showAdmin, setShowAdmin] = useState(false);
+        const canShowAdminControls = (reelayDBUser?.role === 'admin');
 
-    const extendGuessingGames = async () => {
-        if (endReached) return;
-        const nextGuessingGames = await getGuessingGamesPublished({
-            authSession,
-            reqUserSub: reelayDBUser?.sub,
-            page: nextPage,
-        });
+        const extendGuessingGames = async () => {
+            if (endReached) return;
+            const nextGuessingGames = await getGuessingGamesPublished({
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+                page: nextPage,
+            });
 
-        if (!nextGuessingGames || nextGuessingGames?.length === 0) {
-            setEndReached(true);
-            return;
+            if (!nextGuessingGames || nextGuessingGames?.length === 0) {
+                setEndReached(true);
+                return;
+            }
+
+            const allGuessingGames = [...displayGames, ...nextGuessingGames];
+            dispatch({
+                type: 'setHomeGuessingGames', payload: {
+                    content: allGuessingGames,
+                    nextPage: nextPage + 1,
+                }
+            });
         }
 
-        const allGuessingGames = [...displayGames, ...nextGuessingGames];
-        dispatch({ type: 'setHomeGuessingGames', payload: {
-            content: allGuessingGames,
-            nextPage: nextPage + 1,
-        }});
-    }
+        const ShowAdminControlsButton = () => {
+            return (
+                <AdminControlsButtonPressable topOffset={topOffset} onPress={() => setShowAdmin(!showAdmin)}>
+                    <FontAwesomeIcon icon={faEye} color='white' size={24} />
+                </AdminControlsButtonPressable>
+            );
+        }
 
-    const ShowAdminControlsButton = () => {
         return (
-            <AdminControlsButtonPressable topOffset={topOffset} onPress={() => setShowAdmin(!showAdmin)}>
-                <FontAwesomeIcon icon={faEye} color='white' size={24} />
-            </AdminControlsButtonPressable>
-        );
+            <ScreenView topOffset={topOffset}>
+                <HeaderWithBackButton navigation={navigation} text={'all games'} />
+                {canShowAdminControls && <ShowAdminControlsButton />}
+                <FlatList
+                    contentContainerStyle={{ paddingBottom: 180 }}
+                    data={displayGames}
+                    numColumns={3}
+                    renderItem={({ item, index }) => <GuessingGamePreview
+                        game={item}
+                        index={index}
+                        navigation={navigation}
+                        showAdmin={showAdmin}
+                        showGuessMarkers={true}
+                    />}
+                    showsVerticalScrollIndicator={false}
+                    onEndReached={extendGuessingGames}
+                    onEndReachedThreshold={0.9}
+                />
+            </ScreenView>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    return (
-        <ScreenView topOffset={topOffset}>
-            <HeaderWithBackButton navigation={navigation} text={'all games'} />
-            { canShowAdminControls && <ShowAdminControlsButton /> }
-            <FlatList
-                contentContainerStyle={{ paddingBottom: 180 }}
-                data={displayGames}
-                numColumns={3}
-                renderItem={({ item, index }) => <GuessingGamePreview 
-                    game={item} 
-                    index={index} 
-                    navigation={navigation} 
-                    showAdmin={showAdmin} 
-                    showGuessMarkers={true}
-                /> }
-                showsVerticalScrollIndicator={false}
-                onEndReached={extendGuessingGames}
-                onEndReachedThreshold={0.9}
-            />
-        </ScreenView>
-    )
 }

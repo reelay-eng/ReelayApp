@@ -1,15 +1,15 @@
 import React, { useContext, useRef, useState } from 'react';
-import { 
-    Dimensions, 
-    KeyboardAvoidingView, 
-    Modal, 
-    Pressable, 
-    TouchableOpacity, 
+import {
+    Dimensions,
+    KeyboardAvoidingView,
+    Modal,
+    Pressable,
+    TouchableOpacity,
     View,
 } from 'react-native';
 
 import { AuthContext } from '../../context/AuthContext';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { logAmplitudeEventProd, firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../utils/EventLogger';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
@@ -54,92 +54,97 @@ const OptionText = styled(ReelayText.Body1)`
 
 const ICON_SIZE = 24;
 
-export default WatchlistItemDotMenu = ({ 
-    closeDrawer, 
+export default WatchlistItemDotMenu = ({
+    closeDrawer,
     navigation,
     onMoveToFront,
     onRemoveItem,
     watchlistItem,
 }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const authSession = useSelector(state => state.authSession);
-    const bottomOffset = useSafeAreaInsets().bottom;
-    const dispatch = useDispatch();
-    const titleObj = watchlistItem?.title;
+    try {
+        firebaseCrashlyticsLog('Watchlist item dot menu screen');
+        const { reelayDBUser } = useContext(AuthContext);
+        const authSession = useSelector(state => state.authSession);
+        const bottomOffset = useSafeAreaInsets().bottom;
+        const dispatch = useDispatch();
+        const titleObj = watchlistItem?.title;
 
-    const advanceToWatchTrailer = () => {
-        closeDrawer();
-        navigation.push("TitleTrailerScreen", {
-            trailerURI: watchlistItem?.title?.trailerURI,
-        });
+        const advanceToWatchTrailer = () => {
+            closeDrawer();
+            navigation.push("TitleTrailerScreen", {
+                trailerURI: watchlistItem?.title?.trailerURI,
+            });
 
-        logAmplitudeEventProd("watchTrailer", {
-            title: watchlistItem?.title?.display,
-            tmdbTitleID: watchlistItem?.title?.id,
-            source: "watchlist",
-        });
-    }    
+            logAmplitudeEventProd("watchTrailer", {
+                title: watchlistItem?.title?.display,
+                tmdbTitleID: watchlistItem?.title?.id,
+                source: "watchlist",
+            });
+        }
 
-    const moveToFront = async () => {
-        watchlistItem.lastMovedToFrontAt = moment().toISOString();
-        onMoveToFront(watchlistItem);
-        dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
-        closeDrawer();
+        const moveToFront = async () => {
+            watchlistItem.lastMovedToFrontAt = moment().toISOString();
+            onMoveToFront(watchlistItem);
+            dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+            closeDrawer();
 
-        const dbResult = await moveWatchlistItemToFront({ 
-            authSession, 
-            itemID: watchlistItem?.id, 
-            reqUserSub: reelayDBUser?.sub,
-        });
-        console.log('moved watchlist item to front: ', dbResult);
-    }
+            const dbResult = await moveWatchlistItemToFront({
+                authSession,
+                itemID: watchlistItem?.id,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            console.log('moved watchlist item to front: ', dbResult);
+        }
 
-    const removeFromWatchlist = async () => {
-        onRemoveItem(watchlistItem);
-        closeDrawer();
-        const removeResult = await removeFromMyWatchlist({ 
-            reqUserSub: reelayDBUser?.sub,
-            tmdbTitleID: titleObj?.id,
-            titleType: titleObj?.titleType,
-        });
+        const removeFromWatchlist = async () => {
+            onRemoveItem(watchlistItem);
+            closeDrawer();
+            const removeResult = await removeFromMyWatchlist({
+                reqUserSub: reelayDBUser?.sub,
+                tmdbTitleID: titleObj?.id,
+                titleType: titleObj?.titleType,
+            });
 
-        console.log('remove from watchlist result: ', removeResult);
-        logAmplitudeEventProd('removeItemFromWatchlist', {
-            username: reelayDBUser?.username,
-            title: titleObj?.display,
-            source: 'watchlist',
-        });    
-        onRefresh();
+            console.log('remove from watchlist result: ', removeResult);
+            logAmplitudeEventProd('removeItemFromWatchlist', {
+                username: reelayDBUser?.username,
+                title: titleObj?.display,
+                source: 'watchlist',
+            });
+            onRefresh();
 
-    }
+        }
 
-    const onRefresh = async () => {
-        const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-        dispatch({ type: 'setMyWatchlistItems', payload: [] });
-        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
-    }
+        const onRefresh = async () => {
+            const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
+            dispatch({ type: 'setMyWatchlistItems', payload: [] });
+            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+        }
 
-    const DotMenuOption = ({ icon, color='white', onPress, text }) => {
+        const DotMenuOption = ({ icon, color = 'white', onPress, text }) => {
+            return (
+                <OptionPressable onPress={onPress}>
+                    {icon && <FontAwesomeIcon icon={icon} color={color} size={ICON_SIZE} />}
+                    <OptionText color={color}>{text}</OptionText>
+                </OptionPressable>
+            );
+        }
+
         return (
-            <OptionPressable onPress={onPress}>
-                { icon && <FontAwesomeIcon icon={icon} color={color} size={ICON_SIZE} /> }
-                <OptionText color={color}>{text}</OptionText>
-            </OptionPressable>
+            <ModalView>
+                <Modal animationType='slide' transparent={true} visible={true}>
+                    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+                        <Backdrop onPress={closeDrawer} />
+                        <DrawerView bottomOffset={bottomOffset}>
+                            <DotMenuOption onPress={advanceToWatchTrailer} icon={faPlayCircle} text='watch trailer' />
+                            <DotMenuOption onPress={moveToFront} icon={faArrowUpShortWide} text='move to front' />
+                            <DotMenuOption onPress={removeFromWatchlist} color={ReelayColors.reelayRed} icon={faTrash} text='remove' />
+                        </DrawerView>
+                    </KeyboardAvoidingView>
+                </Modal>
+            </ModalView>
         );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    return (
-        <ModalView>
-            <Modal animationType='slide' transparent={true} visible={true}>
-            <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-                <Backdrop onPress={closeDrawer}/>
-                <DrawerView bottomOffset={bottomOffset}>
-                    <DotMenuOption onPress={advanceToWatchTrailer} icon={faPlayCircle} text='watch trailer' />
-                    <DotMenuOption onPress={moveToFront} icon={faArrowUpShortWide} text='move to front' />
-                    <DotMenuOption onPress={removeFromWatchlist} color={ReelayColors.reelayRed} icon={faTrash} text='remove' />
-                </DrawerView>
-                </KeyboardAvoidingView>
-            </Modal>
-        </ModalView>
-    );
 }

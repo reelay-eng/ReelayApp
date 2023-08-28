@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { GamesIconSVG, ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
 import { AuthContext } from '../../context/AuthContext';
+import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../../components/utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
 
@@ -75,97 +76,102 @@ const HeaderSpacer = styled(View)`
 `
 
 export default CreateScreen = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const dispatch = useDispatch();
-    const topOffset = useSafeAreaInsets().top;
+    try {
+        firebaseCrashlyticsLog('Create reelay screen');
+        const { reelayDBUser } = useContext(AuthContext);
+        const dispatch = useDispatch();
+        const topOffset = useSafeAreaInsets().top;
 
-    const canCreateGuessingGame = (reelayDBUser?.role === 'admin');
+        const canCreateGuessingGame = (reelayDBUser?.role === 'admin');
 
-    const numButtons = canCreateGuessingGame ? 3 : 2;
-    const numSpaces = numButtons + 2;
-    const squishButton = !canCreateGuessingGame;
+        const numButtons = canCreateGuessingGame ? 3 : 2;
+        const numSpaces = numButtons + 2;
+        const squishButton = !canCreateGuessingGame;
 
-    const allButtonWidth = width - (numSpaces * BUTTON_MARGIN_WIDTH);
-    const buttonWidth = allButtonWidth / numButtons;
-    const buttonHeight = (squishButton) ? (buttonWidth * 0.67) : buttonWidth;
+        const allButtonWidth = width - (numSpaces * BUTTON_MARGIN_WIDTH);
+        const buttonWidth = allButtonWidth / numButtons;
+        const buttonHeight = (squishButton) ? (buttonWidth * 0.67) : buttonWidth;
 
-    const Header = () => {
-        return (
-            <HeaderView topOffset={topOffset}>
-                <HeaderText>{'create'}</HeaderText>
-            </HeaderView>
-        )
-    }
-
-    const CreateGuessingGameButton = () => {
-        const advanceToCreateGuessingGame = () => {
-            navigation.push('SelectCorrectGuessScreen');
+        const Header = () => {
+            return (
+                <HeaderView topOffset={topOffset}>
+                    <HeaderText>{'create'}</HeaderText>
+                </HeaderView>
+            )
         }
+
+        const CreateGuessingGameButton = () => {
+            const advanceToCreateGuessingGame = () => {
+                navigation.push('SelectCorrectGuessScreen');
+            }
+            return (
+                <CreateOptionView>
+                    <CreateGuessingGamePressable
+                        onPress={advanceToCreateGuessingGame}
+                        height={buttonHeight}
+                        width={buttonWidth}
+                    >
+                        <GamesIconSVG />
+                    </CreateGuessingGamePressable>
+                    <CreateOptionText>{'game'}</CreateOptionText>
+                </CreateOptionView>
+            )
+        }
+
+        const CreateReelayButton = () => {
+            const advanceToCreateReelay = () => navigation.push('SelectTitleScreen');
+            return (
+                <CreateOptionView>
+                    <CreateReelayPressable
+                        onPress={advanceToCreateReelay}
+                        height={buttonHeight}
+                        width={buttonWidth}
+                    >
+                        <ReviewIconSVG />
+                    </CreateReelayPressable>
+                    <CreateOptionText>{'reelay'}</CreateOptionText>
+                </CreateOptionView>
+            )
+        }
+
+        const CreateTopicButton = () => {
+            const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
+            return (
+                <CreateOptionView>
+                    <CreateTopicPressable
+                        onPress={advanceToCreateTopic}
+                        height={buttonHeight}
+                        width={buttonWidth}
+                    >
+                        <TopicsIconSVG />
+                    </CreateTopicPressable>
+                    <CreateOptionText>{'topic'}</CreateOptionText>
+                </CreateOptionView>
+            )
+        }
+
+        useFocusEffect(() => {
+            dispatch({ type: 'setTabBarVisible', payload: true });
+        });
+
         return (
-            <CreateOptionView>
-                <CreateGuessingGamePressable 
-                    onPress={advanceToCreateGuessingGame}
-                    height={buttonHeight}
-                    width={buttonWidth}
-                >
-                    <GamesIconSVG />
-                </CreateGuessingGamePressable>
-                <CreateOptionText>{'game'}</CreateOptionText>
-            </CreateOptionView>
-        )
+            <CreateScreenView>
+                <Header />
+                <HeaderSpacer />
+                <CreateOptionsRowView>
+                    <CreateReelayButton />
+                    <CenterSpacer />
+                    <CreateTopicButton />
+                    {canCreateGuessingGame && (
+                        <Fragment>
+                            <CenterSpacer />
+                            <CreateGuessingGameButton />
+                        </Fragment>
+                    )}
+                </CreateOptionsRowView>
+            </CreateScreenView>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    const CreateReelayButton = () => {
-        const advanceToCreateReelay = () => navigation.push('SelectTitleScreen');
-        return (
-            <CreateOptionView>
-                <CreateReelayPressable 
-                    onPress={advanceToCreateReelay}
-                    height={buttonHeight}
-                    width={buttonWidth}
-                >
-                    <ReviewIconSVG />
-                </CreateReelayPressable>
-                <CreateOptionText>{'reelay'}</CreateOptionText>
-            </CreateOptionView>
-        )
-    }
-
-    const CreateTopicButton = () => {
-        const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
-        return (
-            <CreateOptionView>
-                <CreateTopicPressable 
-                    onPress={advanceToCreateTopic}
-                    height={buttonHeight}
-                    width={buttonWidth}
-                >
-                    <TopicsIconSVG />
-                </CreateTopicPressable>
-                <CreateOptionText>{'topic'}</CreateOptionText>
-            </CreateOptionView>
-        )
-    }
-
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: true });
-    });
-
-    return (
-        <CreateScreenView>
-            <Header />
-            <HeaderSpacer />
-            <CreateOptionsRowView>
-                <CreateReelayButton />
-                <CenterSpacer />
-                <CreateTopicButton />
-                { canCreateGuessingGame && (
-                    <Fragment>
-                        <CenterSpacer />
-                        <CreateGuessingGameButton />
-                    </Fragment>
-                )}
-            </CreateOptionsRowView>
-        </CreateScreenView>
-    );
 }

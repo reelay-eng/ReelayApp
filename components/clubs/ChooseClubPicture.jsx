@@ -13,7 +13,7 @@ import styled from "styled-components/native";
 import ReelayColors from "../../constants/ReelayColors";
 
 import * as ReelayText from "../global/Text";
-import { logAmplitudeEventProd } from "../utils/EventLogger";
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog, logAmplitudeEventProd } from "../utils/EventLogger";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
@@ -85,127 +85,137 @@ const Spacer = styled(View)`
 `
 
 export default ChooseClubPicture = ({ clubPicSourceRef }) => {
-	const [clubPicSource, setClubPicSource] = useState(null);
-	const [isEditingPhoto, setIsEditingPhoto] = useState(false);
-	const startEditPhoto = () => setIsEditingPhoto(true);
+	try {
+		firebaseCrashlyticsLog('Choose club picture');
+		const [clubPicSource, setClubPicSource] = useState(null);
+		const [isEditingPhoto, setIsEditingPhoto] = useState(false);
+		const startEditPhoto = () => setIsEditingPhoto(true);
 
-	const addPhotoPromptText = (clubPicSource) ? 'Edit Photo' : 'Add photo (optional)';
-	clubPicSourceRef.current = clubPicSource;
+		const addPhotoPromptText = (clubPicSource) ? 'Edit Photo' : 'Add photo (optional)';
+		clubPicSourceRef.current = clubPicSource;
 
-	const ClubPicturePreview = () => {
-		return (
-			<Pressable onPress={startEditPhoto}>
-				{ !clubPicSource && (
-					<DefaultClubImage colors={['#FF4848', '#038AFF']} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>
-						<FontAwesomeIcon icon={faCamera} color='white' size={30} />
-					</DefaultClubImage>
-				)}
-				{ clubPicSource && <ClubImage source={clubPicSource} /> }
-			</Pressable>
-		);
-	}
-    
-    return (
-		<React.Fragment>
-			<EditContainer>
-				<ClubPicturePreview />
+		const ClubPicturePreview = () => {
+			return (
 				<Pressable onPress={startEditPhoto}>
-					<AddPhotoText>{addPhotoPromptText}</AddPhotoText>
+					{!clubPicSource && (
+						<DefaultClubImage colors={['#FF4848', '#038AFF']} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>
+							<FontAwesomeIcon icon={faCamera} color='white' size={30} />
+						</DefaultClubImage>
+					)}
+					{clubPicSource && <ClubImage source={clubPicSource} />}
 				</Pressable>
-			</EditContainer>
-			{ isEditingPhoto && <EditingPhotoMenuModal
-				close={() => setIsEditingPhoto(false)}
-				setClubPicSource={setClubPicSource}
-				visible={isEditingPhoto}
-			/> }
-		</React.Fragment>
-	);
+			);
+		}
+
+		return (
+			<React.Fragment>
+				<EditContainer>
+					<ClubPicturePreview />
+					<Pressable onPress={startEditPhoto}>
+						<AddPhotoText>{addPhotoPromptText}</AddPhotoText>
+					</Pressable>
+				</EditContainer>
+				{isEditingPhoto && <EditingPhotoMenuModal
+					close={() => setIsEditingPhoto(false)}
+					setClubPicSource={setClubPicSource}
+					visible={isEditingPhoto}
+				/>}
+			</React.Fragment>
+		);
+	} catch (error) {
+		firebaseCrashlyticsError(error);
+	}
 };
 
 const EditingPhotoMenuModal = ({ visible, close, setClubPicSource }) => {
-	const { reelayDBUser } = useContext(AuthContext);
+	try {
+		firebaseCrashlyticsLog('Editing photo menu club screen');
+		const { reelayDBUser } = useContext(AuthContext);
 
-	const choosePhoto = async () => {
-		try {
-			const cameraRollStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
-			if (cameraRollStatus.status !== "granted") {
-				alert("Please enable your camera roll permissions to select a photo.");
-				return;
+		const choosePhoto = async () => {
+			try {
+				const cameraRollStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+				if (cameraRollStatus.status !== "granted") {
+					alert("Please enable your camera roll permissions to select a photo.");
+					return;
+				}
+				let result = await ImagePicker.launchImageLibraryAsync({
+					mediaTypes: "Images",
+					aspect: [4, 3],
+					quality: 1,
+				});
+				if (result.cancelled) return;
+				setClubPicSource(result);
+				close();
+			} catch (error) {
+				logAmplitudeEventProd('clubPicSelectPhotoError', {
+					username: reelayDBUser?.username,
+					error,
+				})
+				alert("Club photo selection failed. \nPlease try again.");
 			}
-			let result = await ImagePicker.launchImageLibraryAsync({
-				mediaTypes: "Images",
-				aspect: [4, 3],
-				quality: 1,
-			});
-			if (result.cancelled) return;
-			setClubPicSource(result);	
-			close();
-		} catch (error) {
-			logAmplitudeEventProd('clubPicSelectPhotoError', {
-				username: reelayDBUser?.username,
-				error,
-			})
-			alert("Club photo selection failed. \nPlease try again.");
-		}
-	};
+		};
 
-    const takePhoto = async () => {
-		try {
-			const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
-			if (cameraStatus.status !== "granted") {
-				alert("Please enable your camera permissions to take a photo.");
-				return;
+		const takePhoto = async () => {
+			try {
+				const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+				if (cameraStatus.status !== "granted") {
+					alert("Please enable your camera permissions to take a photo.");
+					return;
+				}
+				let result = await ImagePicker.launchCameraAsync({
+					mediaTypes: "Images",
+					aspect: [4, 3],
+				});
+				logAmplitudeEventProd("clubPicOpenedCamera", {
+					username: reelayDBUser?.username,
+				});
+				if (result.cancelled) return;
+				setClubPicSource(result);
+				close();
+			} catch (error) {
+				logAmplitudeEventProd('clubPicUserCameraError', {
+					username: reelayDBUser?.username,
+					error,
+				})
+				alert("Club photo selection failed. \nPlease try again.");
 			}
-			let result = await ImagePicker.launchCameraAsync({
-				mediaTypes: "Images",
-				aspect: [4, 3],
-			});
-			logAmplitudeEventProd("clubPicOpenedCamera", {
-				username: reelayDBUser?.username,
-			});
-			if (result.cancelled) return;
-			setClubPicSource(result);	
-			close();
-		} catch (error) {
-			logAmplitudeEventProd('clubPicUserCameraError', {
-				username: reelayDBUser?.username,
-				error,
-			})
-			alert("Club photo selection failed. \nPlease try again.");
+		};
+
+		const MenuOption = ({ onPress, children }) => {
+			return (
+				<MenuOptionComponent style={({ pressed }) => [
+					{ backgroundColor: pressed ? "#292929" : "#2D2D2D" },
+				]} onPress={onPress}>
+					{children}
+				</MenuOptionComponent>
+			)
 		}
-	};
-    
-    const MenuOption = ({onPress, children}) => {
-        return (
-            <MenuOptionComponent style={({ pressed }) => [
-				{ backgroundColor: pressed ? "#292929" : "#2D2D2D" },
-            ]} onPress={onPress}>
-                {children}
-            </MenuOptionComponent>
-        )
-    }
-    
-    return (
-		<ModalContainer>
-			<Modal animationType="slide" transparent={true} visible={visible}>
-				<Backdrop onPress={close} />
-				<MenuContainer>
-					<MenuOptionsContainer>
-						<MenuOption onPress={choosePhoto}>
-							<MenuOptionText>Choose Photo</MenuOptionText>
-						</MenuOption>
-						<MenuOption onPress={takePhoto}>
-							<MenuOptionText>Take Photo</MenuOptionText>
-						</MenuOption>
-					</MenuOptionsContainer>
-					<Spacer />
-					<MenuOptionsContainer>
-						<MenuOption onPress={close}>
-							<MenuOptionText>Cancel</MenuOptionText>
-						</MenuOption>
-					</MenuOptionsContainer>
-				</MenuContainer>
-			</Modal>
-		</ModalContainer>
-	);
+
+		return (
+			<ModalContainer>
+				<Modal animationType="slide" transparent={true} visible={visible}>
+					<Backdrop onPress={close} />
+					<MenuContainer>
+						<MenuOptionsContainer>
+							<MenuOption onPress={choosePhoto}>
+								<MenuOptionText>Choose Photo</MenuOptionText>
+							</MenuOption>
+							<MenuOption onPress={takePhoto}>
+								<MenuOptionText>Take Photo</MenuOptionText>
+							</MenuOption>
+						</MenuOptionsContainer>
+						<Spacer />
+						<MenuOptionsContainer>
+							<MenuOption onPress={close}>
+								<MenuOptionText>Cancel</MenuOptionText>
+							</MenuOption>
+						</MenuOptionsContainer>
+					</MenuContainer>
+				</Modal>
+			</ModalContainer>
+		);
+	} catch (error) {
+		firebaseCrashlyticsError(error);
+	}
 }

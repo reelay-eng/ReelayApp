@@ -1,7 +1,7 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
-import { logAmplitudeEventProd } from '../utils/EventLogger'
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog, logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
 import { useDispatch, useSelector } from 'react-redux';
@@ -108,205 +108,212 @@ const UnrevealedPosterView = styled(Pressable)`
 `
 
 export default GuessingGamePreview = ({ game, index, navigation, showAdmin = false, showGuessMarkers = false }) => {
-    const authSession = useSelector(state => state.authSession);
-    const dispatch = useDispatch();
-    const { reelayDBUser } = useContext(AuthContext);
+    try {
+        firebaseCrashlyticsLog('Guessing game preview');
+        const authSession = useSelector(state => state.authSession);
+        const dispatch = useDispatch();
+        const { reelayDBUser } = useContext(AuthContext);
 
-    const advanceToGuessingGame = ({ game, index, isPreview = false }) => {
-        const navOptions = {
-            feedPosition: index,
-            initialStackPos: 0,
-            isPreview,
-        }
-		navigation.push("GuessingGameFeedScreen", navOptions);
-	};
-
-    const getTimestampText = () => {
-        const now = moment();
-        const publishedAt = moment(game?.updatedAt);
-        const daysAgo = now.diff(publishedAt, 'days');
-        if (daysAgo === 0) return 'Today';
-        if (daysAgo === 1) return 'Yesterday';
-        // if (daysAgo < 7) return publishedAt.format('dddd');
-        return publishedAt.format('MMM DD');
-    }
-
-    const correctTitleObj = game?.correctTitleObj;
-    const hasCompletedGame = game?.hasCompletedGame;
-    const hasWonGame = game?.hasWonGame;
-    const hasLostGame = (hasCompletedGame && !hasWonGame);
-    const isGameCreator = (game?.creatorSub === reelayDBUser?.sub);
-    const isUnlocked = (correctTitleObj && (hasCompletedGame || isGameCreator));
-    const timestamp = getTimestampText();
-
-    const refreshGuessingGames = async () => {
-        const nextMyGuessingGames = await getGuessingGamesPublished({
-            authSession,
-            reqUserSub: reelayDBUser?.sub,
-            page: 0,
-        });
-        dispatch({ type: 'setHomeGuessingGames', payload: {
-            content: nextMyGuessingGames,
-            nextPage: 1,
-        }});
-    }
-
-    const tapOnPoster = () => {
-        advanceToGuessingGame({ game, index, isPreview: false });
-    }
-
-    const DeleteGameButton = () => {
-        const [deleting, setDeleting] = useState(false); 
-        const [confirming, setConfirming] = useState(false);
-        const canDeleteGame = (isGameCreator || reelayDBUser?.role === 'admin');
-
-        const deleteGame = async () => {
-            const deleteResult = await deleteGuessingGamePublished({
-                authSession,
-                reqUserSub: reelayDBUser?.sub,
-                topicID: game?.id,
-            });
-            console.log(deleteResult);
-            return deleteResult;
-        }
-    
-        const onPressDelete = async () => {
-            if (!confirming) {
-                setConfirming(true);
-                return;
+        const advanceToGuessingGame = ({ game, index, isPreview = false }) => {
+            const navOptions = {
+                feedPosition: index,
+                initialStackPos: 0,
+                isPreview,
             }
-            if (deleting) return;
-            setConfirming(false);
-            setDeleting(true);
-            await deleteGame();
-            await refreshGuessingGames();
-            setDeleting(false);
-        }
-
-        if (!canDeleteGame) return <View />
-
-        return (
-            <ResetGuessesButtonPressable color={ReelayColors.reelayRed} onPress={onPressDelete}>
-                { deleting && <ActivityIndicator /> }
-                { confirming && <ResetGuessesButtonText color={'white'}>{'Confirm delete'}</ResetGuessesButtonText> }
-                { (!confirming && !deleting) && <ResetGuessesButtonText color={'white'}>{'Delete game'}</ResetGuessesButtonText> }
-            </ResetGuessesButtonPressable>
-        );
-    }
-
-
-    const GuessMarkers = () => {
-        const myGuesses = game?.myGuesses ?? [];
-        const clueOrder = game?.details?.clueOrder ?? [];
-        const guessesLeft = (clueOrder?.length - myGuesses?.length);
-    
-        const getMarkerColor = (guess) => {
-            if (guess?.isCorrect) return ReelayColors?.reelayGreen;
-            return ReelayColors.reelayRed;
-        } 
-
-        const renderGuessMarker = (guess, index) => {
-            const isCorrect = guess?.isCorrect;
-            const color = getMarkerColor(guess);
-            return (
-                <GuessMarkerView key={index} 
-                    color={color}
-                    isCorrect={isCorrect} 
-                    isGuessed={true} 
-                    viewable={false} 
-                />
-            );
+            navigation.push("GuessingGameFeedScreen", navOptions);
         };
 
-        return (
-            <GuessMarkerRowView>
-                { myGuesses.map(renderGuessMarker) }
-                { (guessesLeft > 0 && !hasCompletedGame) && (
-                    <GuessMarkerView 
-                        key={'unanswered'} 
-                        color={'gray'} 
-                        isCorrect={false} 
-                        isGuessed={false} 
-                        viewable={false} 
-                    />
-                )}
-            </GuessMarkerRowView>
-        )
-    }
+        const getTimestampText = () => {
+            const now = moment();
+            const publishedAt = moment(game?.updatedAt);
+            const daysAgo = now.diff(publishedAt, 'days');
+            if (daysAgo === 0) return 'Today';
+            if (daysAgo === 1) return 'Yesterday';
+            // if (daysAgo < 7) return publishedAt.format('dddd');
+            return publishedAt.format('MMM DD');
+        }
 
-    const ResetButton = () => {
-        const [resetting, setResetting] = useState(false); 
-        const myGuesses = game?.myGuesses ?? [];
-        const canResetGuesses = (reelayDBUser?.role === 'admin' && myGuesses.length > 0);
+        const correctTitleObj = game?.correctTitleObj;
+        const hasCompletedGame = game?.hasCompletedGame;
+        const hasWonGame = game?.hasWonGame;
+        const hasLostGame = (hasCompletedGame && !hasWonGame);
+        const isGameCreator = (game?.creatorSub === reelayDBUser?.sub);
+        const isUnlocked = (correctTitleObj && (hasCompletedGame || isGameCreator));
+        const timestamp = getTimestampText();
 
-        const resetGuesses = async () => {
-            if (myGuesses?.length === 0) return;
-            const inviteCode = myGuesses[0].inviteCode;
-            const deleteResult = await deleteGuessingGameGuesses({
+        const refreshGuessingGames = async () => {
+            const nextMyGuessingGames = await getGuessingGamesPublished({
                 authSession,
                 reqUserSub: reelayDBUser?.sub,
-                inviteCode: inviteCode,
-                topicID: game?.id,
+                page: 0,
+            });
+            dispatch({
+                type: 'setHomeGuessingGames', payload: {
+                    content: nextMyGuessingGames,
+                    nextPage: 1,
+                }
             });
         }
 
-        const onPressReset = async () => {
-            if (resetting) return;
-            setResetting(true);
-            await resetGuesses();
-            await refreshGuessingGames();
-            setResetting(false);
+        const tapOnPoster = () => {
+            advanceToGuessingGame({ game, index, isPreview: false });
         }
 
-        if (!canResetGuesses) return <View />
+        const DeleteGameButton = () => {
+            const [deleting, setDeleting] = useState(false);
+            const [confirming, setConfirming] = useState(false);
+            const canDeleteGame = (isGameCreator || reelayDBUser?.role === 'admin');
+
+            const deleteGame = async () => {
+                const deleteResult = await deleteGuessingGamePublished({
+                    authSession,
+                    reqUserSub: reelayDBUser?.sub,
+                    topicID: game?.id,
+                });
+                console.log(deleteResult);
+                return deleteResult;
+            }
+
+            const onPressDelete = async () => {
+                if (!confirming) {
+                    setConfirming(true);
+                    return;
+                }
+                if (deleting) return;
+                setConfirming(false);
+                setDeleting(true);
+                await deleteGame();
+                await refreshGuessingGames();
+                setDeleting(false);
+            }
+
+            if (!canDeleteGame) return <View />
+
+            return (
+                <ResetGuessesButtonPressable color={ReelayColors.reelayRed} onPress={onPressDelete}>
+                    {deleting && <ActivityIndicator />}
+                    {confirming && <ResetGuessesButtonText color={'white'}>{'Confirm delete'}</ResetGuessesButtonText>}
+                    {(!confirming && !deleting) && <ResetGuessesButtonText color={'white'}>{'Delete game'}</ResetGuessesButtonText>}
+                </ResetGuessesButtonPressable>
+            );
+        }
+
+
+        const GuessMarkers = () => {
+            const myGuesses = game?.myGuesses ?? [];
+            const clueOrder = game?.details?.clueOrder ?? [];
+            const guessesLeft = (clueOrder?.length - myGuesses?.length);
+
+            const getMarkerColor = (guess) => {
+                if (guess?.isCorrect) return ReelayColors?.reelayGreen;
+                return ReelayColors.reelayRed;
+            }
+
+            const renderGuessMarker = (guess, index) => {
+                const isCorrect = guess?.isCorrect;
+                const color = getMarkerColor(guess);
+                return (
+                    <GuessMarkerView key={index}
+                        color={color}
+                        isCorrect={isCorrect}
+                        isGuessed={true}
+                        viewable={false}
+                    />
+                );
+            };
+
+            return (
+                <GuessMarkerRowView>
+                    {myGuesses.map(renderGuessMarker)}
+                    {(guessesLeft > 0 && !hasCompletedGame) && (
+                        <GuessMarkerView
+                            key={'unanswered'}
+                            color={'gray'}
+                            isCorrect={false}
+                            isGuessed={false}
+                            viewable={false}
+                        />
+                    )}
+                </GuessMarkerRowView>
+            )
+        }
+
+        const ResetButton = () => {
+            const [resetting, setResetting] = useState(false);
+            const myGuesses = game?.myGuesses ?? [];
+            const canResetGuesses = (reelayDBUser?.role === 'admin' && myGuesses.length > 0);
+
+            const resetGuesses = async () => {
+                if (myGuesses?.length === 0) return;
+                const inviteCode = myGuesses[0].inviteCode;
+                const deleteResult = await deleteGuessingGameGuesses({
+                    authSession,
+                    reqUserSub: reelayDBUser?.sub,
+                    inviteCode: inviteCode,
+                    topicID: game?.id,
+                });
+            }
+
+            const onPressReset = async () => {
+                if (resetting) return;
+                setResetting(true);
+                await resetGuesses();
+                await refreshGuessingGames();
+                setResetting(false);
+            }
+
+            if (!canResetGuesses) return <View />
+
+            return (
+                <ResetGuessesButtonPressable onPress={onPressReset}>
+                    {resetting && <ActivityIndicator />}
+                    {!resetting && <ResetGuessesButtonText>{'Reset guesses'}</ResetGuessesButtonText>}
+                </ResetGuessesButtonPressable>
+            );
+        }
+
+        const RevealedPoster = () => {
+            return (
+                <RevealedPosterView>
+                    <TitlePoster onPress={tapOnPoster} title={correctTitleObj} width={POSTER_WIDTH} />
+                    {hasWonGame && (
+                        <RevealedResultView>
+                            <FontAwesomeIcon icon={faCheckCircle} color={ReelayColors.reelayGreen} size={54} />
+                        </RevealedResultView>
+                    )}
+                    {hasLostGame && (
+                        <RevealedResultView hasWonGame={hasWonGame}>
+                            <FontAwesomeIcon icon={faXmarkCircle} color={ReelayColors.reelayRed} size={54} />
+                        </RevealedResultView>
+                    )}
+                </RevealedPosterView>
+            );
+        }
+
+        const UnrevealedPoster = () => {
+            return (
+                <UnrevealedPosterView border={true} onPress={tapOnPoster}>
+                    <UnrevealedPosterQuestionMark>?</UnrevealedPosterQuestionMark>
+                </UnrevealedPosterView>
+            );
+        }
 
         return (
-            <ResetGuessesButtonPressable onPress={onPressReset}>
-                { resetting && <ActivityIndicator /> }
-                { !resetting && <ResetGuessesButtonText>{'Reset guesses'}</ResetGuessesButtonText> }
-            </ResetGuessesButtonPressable>
-        );
-    }
-
-    const RevealedPoster = () => {
-        return (
-            <RevealedPosterView>
-                <TitlePoster onPress={tapOnPoster} title={correctTitleObj} width={POSTER_WIDTH} /> 
-                { hasWonGame && (
-                    <RevealedResultView>
-                        <FontAwesomeIcon icon={faCheckCircle} color={ReelayColors.reelayGreen} size={54} />
-                    </RevealedResultView>
-                )}
-                { hasLostGame && (
-                    <RevealedResultView hasWonGame={hasWonGame}>
-                        <FontAwesomeIcon icon={faXmarkCircle} color={ReelayColors.reelayRed} size={54} />
-                    </RevealedResultView>
-                )}
-            </RevealedPosterView>
-        );
-    }
-
-    const UnrevealedPoster = () => {
-        return (
-            <UnrevealedPosterView border={true} onPress={tapOnPoster}>
-                <UnrevealedPosterQuestionMark>?</UnrevealedPosterQuestionMark>
-            </UnrevealedPosterView>
-        );    
-    }    
-
-    return (
-        <GameElementView onPress={tapOnPoster}>
-            {/* <GameElementHeaderView>
+            <GameElementView onPress={tapOnPoster}>
+                {/* <GameElementHeaderView>
                 <TimestampText>{timestamp}</TimestampText>
             </GameElementHeaderView> */}
-            <PosterSpacer />
-            { isUnlocked && <RevealedPoster /> }
-            { !isUnlocked && <UnrevealedPoster /> }
-            <PosterSpacer />
-            { showGuessMarkers && <GuessMarkers /> }
-            { showAdmin && <ResetButton /> }
-            { showAdmin && <DeleteGameButton /> }
-        </GameElementView>
-    );
-    
+                <PosterSpacer />
+                {isUnlocked && <RevealedPoster />}
+                {!isUnlocked && <UnrevealedPoster />}
+                <PosterSpacer />
+                {showGuessMarkers && <GuessMarkers />}
+                {showAdmin && <ResetButton />}
+                {showAdmin && <DeleteGameButton />}
+            </GameElementView>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
+
 };

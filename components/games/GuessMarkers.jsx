@@ -4,6 +4,7 @@ import ReelayColors from "../../constants/ReelayColors";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 import styled from 'styled-components/native';
+import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from "../utils/EventLogger";
 
 const GuessMarkerView = styled(View)`
     align-items: center;
@@ -25,48 +26,53 @@ const GuessMarkerRowView = styled(View)`
 `
 
 export default GuessMarkers = ({ game }) => {
-    const gameDetails = game?.details;
-    const guessesLeft = (gameDetails?.clueOrder?.length - myGuesses?.length);
-    const myGuesses = game?.myGuesses ?? [];
+    try {
+        firebaseCrashlyticsLog('Guess markers');
+        const gameDetails = game?.details;
+        const guessesLeft = (gameDetails?.clueOrder?.length - myGuesses?.length);
+        const myGuesses = game?.myGuesses ?? [];
 
-    const findCorrectGuess = (nextGuess) => nextGuess?.isCorrect;
-    const gameOver = (guessesLeft === 0 || myGuesses.find(findCorrectGuess));
+        const findCorrectGuess = (nextGuess) => nextGuess?.isCorrect;
+        const gameOver = (guessesLeft === 0 || myGuesses.find(findCorrectGuess));
 
-    const getMarkerColor = (guess) => {
-        if (guess?.isCorrect) return ReelayColors?.reelayGreen;
-        return ReelayColors.reelayRed;
-    } 
+        const getMarkerColor = (guess) => {
+            if (guess?.isCorrect) return ReelayColors?.reelayGreen;
+            return ReelayColors.reelayRed;
+        }
 
-    const renderGuessMarker = (guess, index) => {
-        const isCorrect = guess?.isCorrect;
-        const icon = isCorrect ? faCheck : faXmark;
-        const color = getMarkerColor(guess);
-        return (
-            <GuessMarkerView key={index} 
-                color={color}
-                isCorrect={isCorrect} 
-                isGuessed={true} 
-            >
-                <FontAwesomeIcon icon={icon} color='white' size={18} />
-            </GuessMarkerView>
-        );
-    };
-
-    const unansweredColor = gameOver ? ReelayColors.reelayGreen : '#C8C8C8';
-
-    return (
-        <GuessMarkerRowView>
-            { myGuesses.map(renderGuessMarker) }
-            { (guessesLeft > 0 && !gameOver) && (
-                <GuessMarkerView 
-                    key={'unanswered'} 
-                    color={unansweredColor} 
-                    isCorrect={false} 
-                    isGuessed={false} 
-                    unanswered={true}
+        const renderGuessMarker = (guess, index) => {
+            const isCorrect = guess?.isCorrect;
+            const icon = isCorrect ? faCheck : faXmark;
+            const color = getMarkerColor(guess);
+            return (
+                <GuessMarkerView key={index}
+                    color={color}
+                    isCorrect={isCorrect}
+                    isGuessed={true}
                 >
+                    <FontAwesomeIcon icon={icon} color='white' size={18} />
                 </GuessMarkerView>
-            )}
-        </GuessMarkerRowView>
-    )
+            );
+        };
+
+        const unansweredColor = gameOver ? ReelayColors.reelayGreen : '#C8C8C8';
+
+        return (
+            <GuessMarkerRowView>
+                {myGuesses.map(renderGuessMarker)}
+                {(guessesLeft > 0 && !gameOver) && (
+                    <GuessMarkerView
+                        key={'unanswered'}
+                        color={unansweredColor}
+                        isCorrect={false}
+                        isGuessed={false}
+                        unanswered={true}
+                    >
+                    </GuessMarkerView>
+                )}
+            </GuessMarkerRowView>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }

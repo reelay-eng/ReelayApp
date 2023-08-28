@@ -14,7 +14,7 @@ import TopicsCarousel from '../../components/topics/TopicsCarousel';
 
 import { AuthContext } from '../../context/AuthContext';
 
-import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog, logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
 
 const ProfileScreenContainer = styled(SafeAreaView)`
@@ -30,100 +30,105 @@ const Spacer = styled(View)`
 `
 
 export default UserProfileScreen = ({ navigation, route }) => {
-    const { creator } = route.params;
-    const { sub, username } = creator; // these are the only fields you need to pass in
+    try {
+        firebaseCrashlyticsLog('User profile screen');
+        const { creator } = route.params;
+        const { sub, username } = creator; // these are the only fields you need to pass in
 
-    const [creatorInfo, setCreatorInfo] = useState({});
-    const [creatorStacks, setCreatorStacks] = useState([]);
-    const [creatorFollowers, setCreatorFollowers] = useState([]);
-    const [creatorFollowing, setCreatorFollowing] = useState([]);
-    const [streamingSubscriptions, setStreamingSubscriptions] = useState([]);
-    const [refreshing, setRefreshing] = useState(true);
+        const [creatorInfo, setCreatorInfo] = useState({});
+        const [creatorStacks, setCreatorStacks] = useState([]);
+        const [creatorFollowers, setCreatorFollowers] = useState([]);
+        const [creatorFollowing, setCreatorFollowing] = useState([]);
+        const [streamingSubscriptions, setStreamingSubscriptions] = useState([]);
+        const [refreshing, setRefreshing] = useState(true);
 
-    const { reelayDBUser } = useContext(AuthContext);
-	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
-    const creatorSub = sub ?? '';
+        const { reelayDBUser } = useContext(AuthContext);
+        const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+        const creatorSub = sub ?? '';
 
-    const loadCreatorInfo = async () => {
-        const creatorInfo = await getRegisteredUser(creatorSub);
-        setCreatorInfo(creatorInfo);
-    }
-
-    const loadCreatorStacks = async () => {
-        const nextCreatorStacks = await getStacksByCreator(creatorSub);
-        nextCreatorStacks.forEach(stack => stack.sort(sortReelays));
-
-        nextCreatorStacks.sort(sortStacks);
-        setCreatorStacks(nextCreatorStacks);
-    }
-
-    const loadFollows = async () => {
-        const [nextFollowers, nextFollowing] = await Promise.all([
-            getFollowers(creatorSub),
-            getFollowing(creatorSub),
-        ]);
-        setCreatorFollowers(nextFollowers);
-        setCreatorFollowing(nextFollowing);
-    };
-
-    const loadUserStreamingSubscriptions = async () => {
-        const subscriptions = await getStreamingSubscriptions(creator.sub);
-        setStreamingSubscriptions(subscriptions);
-    }
-
-    const onRefresh = async () => {
-        if (!refreshing) {
-            setRefreshing(true);
+        const loadCreatorInfo = async () => {
+            const creatorInfo = await getRegisteredUser(creatorSub);
+            setCreatorInfo(creatorInfo);
         }
 
-        if (creatorSub.length) {
-            await Promise.all([
-                loadCreatorInfo(),
-                loadCreatorStacks(),
-                loadFollows(),
-                loadUserStreamingSubscriptions(),
-            ])
+        const loadCreatorStacks = async () => {
+            const nextCreatorStacks = await getStacksByCreator(creatorSub);
+            nextCreatorStacks.forEach(stack => stack.sort(sortReelays));
+
+            nextCreatorStacks.sort(sortStacks);
+            setCreatorStacks(nextCreatorStacks);
         }
-        setRefreshing(false);
+
+        const loadFollows = async () => {
+            const [nextFollowers, nextFollowing] = await Promise.all([
+                getFollowers(creatorSub),
+                getFollowing(creatorSub),
+            ]);
+            setCreatorFollowers(nextFollowers);
+            setCreatorFollowing(nextFollowing);
+        };
+
+        const loadUserStreamingSubscriptions = async () => {
+            const subscriptions = await getStreamingSubscriptions(creator.sub);
+            setStreamingSubscriptions(subscriptions);
+        }
+
+        const onRefresh = async () => {
+            if (!refreshing) {
+                setRefreshing(true);
+            }
+
+            if (creatorSub.length) {
+                await Promise.all([
+                    loadCreatorInfo(),
+                    loadCreatorStacks(),
+                    loadFollows(),
+                    loadUserStreamingSubscriptions(),
+                ])
+            }
+            setRefreshing(false);
+        }
+
+        useEffect(() => {
+            onRefresh();
+            logAmplitudeEventProd('viewProfile', {
+                username: reelayDBUser?.username,
+                creatorName: username,
+            });
+        }, []);
+        const isMyProfile = (creatorSub === reelayDBUser?.sub);
+
+        const sortReelays = (reelay1, reelay2) => reelay2.postedDateTime - reelay1.postedDateTime;
+        const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;
+        const reelayCounter = (sum, nextStack) => sum + nextStack.length;
+        const reelayCount = creatorStacks.reduce(reelayCounter, 0);
+        const refreshControl = <RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />;
+
+        return (
+            <ProfileScreenContainer>
+                <ProfileTopBar creator={creator} navigation={navigation} />
+                <ProfileScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
+                    <ProfileHeaderAndInfo
+                        navigation={navigation}
+                        creator={{ ...creator, ...creatorInfo }}
+                        streamingSubscriptions={streamingSubscriptions}
+                        reelayCount={reelayCount}
+                        followers={creatorFollowers}
+                        following={creatorFollowing}
+                    />
+                    {!isMyProfile && <FollowButtonBar creator={creator} bar />}
+                    {/* <Spacer /> */}
+                    {/* <TopicsCarousel navigation={navigation} source='profile' creatorOnProfile={creator} /> */}
+                    {/* <Spacer /> */}
+                    <ProfilePosterGrid
+                        creatorStacks={creatorStacks}
+                        navigation={navigation}
+                    />
+                </ProfileScrollView>
+                {justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} />}
+            </ProfileScreenContainer>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    useEffect(() => {
-        onRefresh();
-        logAmplitudeEventProd('viewProfile', {
-            username: reelayDBUser?.username,
-            creatorName: username,
-        });    
-    }, []);
-    const isMyProfile = (creatorSub === reelayDBUser?.sub);
-
-    const sortReelays = (reelay1, reelay2) => reelay2.postedDateTime - reelay1.postedDateTime;
-    const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;
-    const reelayCounter = (sum, nextStack) => sum + nextStack.length;
-    const reelayCount = creatorStacks.reduce(reelayCounter, 0);
-    const refreshControl = <RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />;
-
-    return (
-        <ProfileScreenContainer>
-            <ProfileTopBar creator={creator} navigation={navigation} />
-            <ProfileScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
-                <ProfileHeaderAndInfo 
-                    navigation={navigation}
-                    creator={{ ...creator, ...creatorInfo }} 
-                    streamingSubscriptions={streamingSubscriptions}
-                    reelayCount={reelayCount}
-                    followers={creatorFollowers}
-                    following={creatorFollowing}
-                />
-                {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
-                {/* <Spacer /> */}
-                {/* <TopicsCarousel navigation={navigation} source='profile' creatorOnProfile={creator} /> */}
-                {/* <Spacer /> */}
-                <ProfilePosterGrid
-                    creatorStacks={creatorStacks}
-                    navigation={navigation}
-                />
-            </ProfileScrollView>
-            { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} />}
-        </ProfileScreenContainer>
-    );
 }

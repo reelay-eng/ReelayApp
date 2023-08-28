@@ -1,7 +1,7 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
-import { logAmplitudeEventProd } from '../utils/EventLogger'
+import { logAmplitudeEventProd, firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
 import { useDispatch, useSelector } from 'react-redux';
@@ -99,164 +99,169 @@ const StreakTrackerView = styled(View)`
 `
 
 export default GuessingGames = ({ navigation }) => {
-    const authSession = useSelector(state => state.authSession);
-    const dispatch = useDispatch();
-    const { reelayDBUser } = useContext(AuthContext);
-    const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
-    const displayGames = guessingGamesObj.content?.slice(0,7);
+    try {
+        firebaseCrashlyticsLog('Guessing games');
+        const authSession = useSelector(state => state.authSession);
+        const dispatch = useDispatch();
+        const { reelayDBUser } = useContext(AuthContext);
+        const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
+        const displayGames = guessingGamesObj.content?.slice(0, 7);
 
-    const advanceToAllGamesScreen = () => navigation.push('AllGamesScreen');
-    const advanceToGuessingGame = ({ game, index, isPreview = false }) => {
-        const navOptions = {
-            feedPosition: index,
-            initialStackPos: 0,
-            isPreview,
-        }
-		// navigation.push("SingleGuessingGameScreen", navOptions);
-		navigation.push("GuessingGameFeedScreen", navOptions);
-	};
-
-    const AllGamesButton = () => {
-        return (
-            <AllGamesButtonPressable onPress={advanceToAllGamesScreen}>
-                <FontAwesomeIcon icon={faCalendarDay} color='white' size={24} />
-            </AllGamesButtonPressable>
-        );
-    }
-
-    const StreakTracker = () => {
-        
-        const getGamesThisWeek = () => {
-            try {
-                const startOfMonday = moment().startOf('week');
-                const mondayGameIndex = displayGames.findIndex((nextGame) => {
-                    const nextGameCreatedAt = moment(nextGame?.createdAt);
-                    const mondayDateDiff = nextGameCreatedAt.diff(startOfMonday, 'days');
-                    return Math.abs(mondayDateDiff) < 1;
-                });
-
-                if (mondayGameIndex === -1) return [];
-                return displayGames.slice(0, mondayGameIndex).reverse() 
-            } catch (error) {
-                console.log('Get games this week error: ', error);
-                return [];
+        const advanceToAllGamesScreen = () => navigation.push('AllGamesScreen');
+        const advanceToGuessingGame = ({ game, index, isPreview = false }) => {
+            const navOptions = {
+                feedPosition: index,
+                initialStackPos: 0,
+                isPreview,
             }
-        }
+            // navigation.push("SingleGuessingGameScreen", navOptions);
+            navigation.push("GuessingGameFeedScreen", navOptions);
+        };
 
-        const getLockedDayLetters = (gamesThisWeek) => {
-            try {
-                return ['M','T','W','T','F','S','S'].slice(gamesThisWeek?.length);
-            } catch (error) {
-                return [];
-            }
-        }
-
-        const gamesThisWeek = getGamesThisWeek();
-        const lockedDayLetters = getLockedDayLetters(gamesThisWeek);
-
-        const StreakGamePublished = ({ game }) => {
-            const dayLetter = moment(game?.createdAt).format('dddd').charAt(0).toUpperCase();
-            const hasWonGame = game?.hasWonGame;
-            const hasCompletedGame = game?.hasCompletedGame;
-            const hasLostGame = (hasCompletedGame && !hasWonGame);
-
-            const getGameColor = () => {
-                if (hasWonGame) return ReelayColors.reelayGreen;
-                if (hasLostGame) return ReelayColors.reelayRed;
-                return 'gray';
-            }
-
-            const getGameIcon = () => {
-                if (hasWonGame) return <FontAwesomeIcon icon={faCheck} color='white' size={16} />;
-                return <View />;
-            }
-
+        const AllGamesButton = () => {
             return (
-                <StreakTrackerGameView>
-                    <StreakTrackerGameText>{dayLetter}</StreakTrackerGameText>
-                    <StreakGameMarker color={getGameColor()}>
-                        { getGameIcon() }
-                    </StreakGameMarker>
-                </StreakTrackerGameView>
-            )
-        }
-
-        const StreakGameUnpublished = ({ dayLetter }) => {
-            return (
-                <StreakTrackerGameView>
-                    <StreakTrackerGameText>{dayLetter}</StreakTrackerGameText>
-                    <StreamGameLockView>
-                        <FontAwesomeIcon icon={faLock} color='white' size={20} />
-                    </StreamGameLockView>
-                </StreakTrackerGameView>
-            )
-        }
-
-        return (
-            <StreakTrackerView>
-                {/* { gamesThisWeek.map(game => <StreakGamePublished key={game?.id} game={game} /> )} */}
-                { lockedDayLetters.map((dayLetter, index) => <StreakGameUnpublished key={`${dayLetter}-${index}`} dayLetter={dayLetter} /> )}
-            </StreakTrackerView>
-        )
-    }
-
-    const GuessingGamesCard = () => {
-        const firstUnplayedGameIndex = displayGames.findIndex(nextGame => !nextGame?.hasCompletedGame);
-        const firstUnplayedGame = (firstUnplayedGameIndex !== -1) 
-            ? displayGames[firstUnplayedGameIndex]
-            : null;
-        const renderGameElement = ({ item, index }) => {
-            const game = item;
-            return (
-                <GuessingGamePreview 
-                    key={index} 
-                    index={index} 
-                    game={game} 
-                    navigation={navigation} 
-                    showAdmin={false}
-                    showGuessMarkers={false}
-                />
+                <AllGamesButtonPressable onPress={advanceToAllGamesScreen}>
+                    <FontAwesomeIcon icon={faCalendarDay} color='white' size={24} />
+                </AllGamesButtonPressable>
             );
         }
 
-        const advanceToFirstUnplayedGame = () => {
-            advanceToGuessingGame({ game: firstUnplayedGame, index: firstUnplayedGameIndex, isPreview: false });
+        const StreakTracker = () => {
+
+            const getGamesThisWeek = () => {
+                try {
+                    const startOfMonday = moment().startOf('week');
+                    const mondayGameIndex = displayGames.findIndex((nextGame) => {
+                        const nextGameCreatedAt = moment(nextGame?.createdAt);
+                        const mondayDateDiff = nextGameCreatedAt.diff(startOfMonday, 'days');
+                        return Math.abs(mondayDateDiff) < 1;
+                    });
+
+                    if (mondayGameIndex === -1) return [];
+                    return displayGames.slice(0, mondayGameIndex).reverse()
+                } catch (error) {
+                    console.log('Get games this week error: ', error);
+                    return [];
+                }
+            }
+
+            const getLockedDayLetters = (gamesThisWeek) => {
+                try {
+                    return ['M', 'T', 'W', 'T', 'F', 'S', 'S'].slice(gamesThisWeek?.length);
+                } catch (error) {
+                    return [];
+                }
+            }
+
+            const gamesThisWeek = getGamesThisWeek();
+            const lockedDayLetters = getLockedDayLetters(gamesThisWeek);
+
+            const StreakGamePublished = ({ game }) => {
+                const dayLetter = moment(game?.createdAt).format('dddd').charAt(0).toUpperCase();
+                const hasWonGame = game?.hasWonGame;
+                const hasCompletedGame = game?.hasCompletedGame;
+                const hasLostGame = (hasCompletedGame && !hasWonGame);
+
+                const getGameColor = () => {
+                    if (hasWonGame) return ReelayColors.reelayGreen;
+                    if (hasLostGame) return ReelayColors.reelayRed;
+                    return 'gray';
+                }
+
+                const getGameIcon = () => {
+                    if (hasWonGame) return <FontAwesomeIcon icon={faCheck} color='white' size={16} />;
+                    return <View />;
+                }
+
+                return (
+                    <StreakTrackerGameView>
+                        <StreakTrackerGameText>{dayLetter}</StreakTrackerGameText>
+                        <StreakGameMarker color={getGameColor()}>
+                            {getGameIcon()}
+                        </StreakGameMarker>
+                    </StreakTrackerGameView>
+                )
+            }
+
+            const StreakGameUnpublished = ({ dayLetter }) => {
+                return (
+                    <StreakTrackerGameView>
+                        <StreakTrackerGameText>{dayLetter}</StreakTrackerGameText>
+                        <StreamGameLockView>
+                            <FontAwesomeIcon icon={faLock} color='white' size={20} />
+                        </StreamGameLockView>
+                    </StreakTrackerGameView>
+                )
+            }
+
+            return (
+                <StreakTrackerView>
+                    {/* { gamesThisWeek.map(game => <StreakGamePublished key={game?.id} game={game} /> )} */}
+                    {lockedDayLetters.map((dayLetter, index) => <StreakGameUnpublished key={`${dayLetter}-${index}`} dayLetter={dayLetter} />)}
+                </StreakTrackerView>
+            )
+        }
+
+        const GuessingGamesCard = () => {
+            const firstUnplayedGameIndex = displayGames.findIndex(nextGame => !nextGame?.hasCompletedGame);
+            const firstUnplayedGame = (firstUnplayedGameIndex !== -1)
+                ? displayGames[firstUnplayedGameIndex]
+                : null;
+            const renderGameElement = ({ item, index }) => {
+                const game = item;
+                return (
+                    <GuessingGamePreview
+                        key={index}
+                        index={index}
+                        game={game}
+                        navigation={navigation}
+                        showAdmin={false}
+                        showGuessMarkers={false}
+                    />
+                );
+            }
+
+            const advanceToFirstUnplayedGame = () => {
+                advanceToGuessingGame({ game: firstUnplayedGame, index: firstUnplayedGameIndex, isPreview: false });
+            }
+
+            return (
+                <CardPressable onPress={advanceToFirstUnplayedGame}>
+                    <HeaderView>
+                        <HeaderText size={18}>{'Guess the title'}</HeaderText>
+                        {firstUnplayedGame && (
+                            <ForwardPressable onPress={advanceToFirstUnplayedGame}>
+                                <FontAwesomeIcon icon={faChevronRight} color='white' size={16} />
+                            </ForwardPressable>
+                        )}
+                    </HeaderView>
+                    <FlatList
+                        ListHeaderComponent={<View style={{ width: 16 }} />}
+                        ListFooterComponent={<View style={{ width: 16 }} />}
+                        data={displayGames}
+                        renderItem={renderGameElement}
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false}
+                    />
+                    {/* <StreakTracker /> */}
+                </CardPressable>
+            );
+        }
+
+        if (displayGames?.length === 0) {
+            return <View />;
         }
 
         return (
-            <CardPressable onPress={advanceToFirstUnplayedGame}>
+            <GuessingGamesView>
                 <HeaderView>
-                    <HeaderText size={18}>{'Guess the title'}</HeaderText>
-                    {firstUnplayedGame && (
-                        <ForwardPressable onPress={advanceToFirstUnplayedGame}>
-                            <FontAwesomeIcon icon={faChevronRight} color='white' size={16} />
-                        </ForwardPressable>
-                    )}
+                    <HeaderText>{'Play the daily game'}</HeaderText>
+                    <AllGamesButton />
                 </HeaderView>
-                <FlatList
-                    ListHeaderComponent={<View style={{ width: 16 }} /> }
-                    ListFooterComponent={<View style={{ width: 16 }} /> }
-                    data={displayGames}
-                    renderItem={renderGameElement}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                />
-                {/* <StreakTracker /> */}
-            </CardPressable>
-        );
+                {displayGames?.length > 0 && <GuessingGamesCard />}
+            </GuessingGamesView>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    if (displayGames?.length === 0) {
-        return <View />;
-    }
-    
-    return (
-        <GuessingGamesView>
-            <HeaderView>
-                <HeaderText>{'Play the daily game'}</HeaderText>
-                <AllGamesButton />
-            </HeaderView>
-            { displayGames?.length > 0 && <GuessingGamesCard />}
-        </GuessingGamesView>
-    )
 };

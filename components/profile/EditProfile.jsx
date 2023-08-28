@@ -19,7 +19,7 @@ import styled from "styled-components/native";
 import ReelayColors from "../../constants/ReelayColors";
 import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
-import { logAmplitudeEventProd } from "../utils/EventLogger";
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog, logAmplitudeEventProd } from "../utils/EventLogger";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { showErrorToast, showMessageToast } from "../utils/toasts";
 import { cacheProfilePic } from "../../api/ReelayLocalImageCache";
@@ -111,128 +111,133 @@ const WebsiteInputContainer = styled(View)`
 `
 
 export default EditProfile = ({ navigation, refreshProfile }) => {
-	const isEditingProfile = useSelector(state => state.isEditingProfile);
-	const dispatch = useDispatch();
-	const { reelayDBUser } = useContext(AuthContext);
+	try {
+		firebaseCrashlyticsLog('Edit profile screen');
+		const isEditingProfile = useSelector(state => state.isEditingProfile);
+		const dispatch = useDispatch();
+		const { reelayDBUser } = useContext(AuthContext);
 
-	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
-	const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
-	const initFirstName = reelayDBUser.firstName ? reelayDBUser.firstName : "";
-	const initLastName = reelayDBUser.lastName ? reelayDBUser.lastName : "";
-	const initReferredBy = reelayDBUser.referredby ? reelayDBUser.referredby : "";
-  	const bioRef = useRef(initBio);
-  	const bioInputRef = useRef(null);
-  	const websiteRef = useRef(initWebsite);
-    const websiteInputRef = useRef(null);
-	const firstNameRef = useRef(initFirstName);
-	const firstNameInputRef = useRef(null);
-	const lastNameRef = useRef(initLastName);
-	const lastNameInputRef = useRef(null);
-	const referralRef = useRef(initReferredBy);
-	const referralInputRef = useRef(null);
+		const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
+		const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
+		const initFirstName = reelayDBUser.firstName ? reelayDBUser.firstName : "";
+		const initLastName = reelayDBUser.lastName ? reelayDBUser.lastName : "";
+		const initReferredBy = reelayDBUser.referredby ? reelayDBUser.referredby : "";
+		const bioRef = useRef(initBio);
+		const bioInputRef = useRef(null);
+		const websiteRef = useRef(initWebsite);
+		const websiteInputRef = useRef(null);
+		const firstNameRef = useRef(initFirstName);
+		const firstNameInputRef = useRef(null);
+		const lastNameRef = useRef(initLastName);
+		const lastNameInputRef = useRef(null);
+		const referralRef = useRef(initReferredBy);
+		const referralInputRef = useRef(null);
 
-	useFocusEffect(() => {
-		dispatch({ type: 'setTabBarVisible', payload: false });
-        return () => {
-			dispatch({ type: 'setTabBarVisible', payload: true });
-		}
-	});
+		useFocusEffect(() => {
+			dispatch({ type: 'setTabBarVisible', payload: false });
+			return () => {
+				dispatch({ type: 'setTabBarVisible', payload: true });
+			}
+		});
 
-    const doneFunc = async () => {
-		// save all information
+		const doneFunc = async () => {
+			// save all information
 
-		const canSignUp = await isUsernameValid(referralRef.current);
-		if(canSignUp){
-			if(referralRef.current == reelayDBUser?.username){
-				showErrorToast("You cannot refer yourself!")
-			}else{
-				const successfulySaved = await saveInfo();
-				if (successfulySaved) {
-					dispatch({ type: 'setIsEditingProfile', payload: false });
-		
-				} else{
-					showErrorToast("Info did not save successfully! Try again.")
+			const canSignUp = await isUsernameValid(referralRef.current);
+			if (canSignUp) {
+				if (referralRef.current == reelayDBUser?.username) {
+					showErrorToast("You cannot refer yourself!")
+				} else {
+					const successfulySaved = await saveInfo();
+					if (successfulySaved) {
+						dispatch({ type: 'setIsEditingProfile', payload: false });
+
+					} else {
+						showErrorToast("Info did not save successfully! Try again.")
+					}
 				}
 			}
+
+
 		}
-		
-		
-    }
 
-    const cancelFunc = () => {
-		bioRef.current = initBio;
-		websiteRef.current = initWebsite;
-		dispatch({ type: 'setIsEditingProfile', payload: false });
-    }
+		const cancelFunc = () => {
+			bioRef.current = initBio;
+			websiteRef.current = initWebsite;
+			dispatch({ type: 'setIsEditingProfile', payload: false });
+		}
 
-	const saveInfo = async () => {
-		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
-		const bioUpdatedSuccessfully = await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
+		const saveInfo = async () => {
+			reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
+			const bioUpdatedSuccessfully = await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
 
-		reelayDBUser.firstName = firstNameRef.current.trim() === "" ? null : firstNameRef.current;
-		const firstNameUpdatedSuccessfully = await updateUserFirstName(reelayDBUser.sub, reelayDBUser.firstName);
-		
-		reelayDBUser.lastName = lastNameRef.current.trim() === "" ? null : lastNameRef.current;
-		const lastNameUpdatedSuccessfully = await updateUserLastName(reelayDBUser.sub, reelayDBUser.lastName);
-		
-		reelayDBUser.referredby = referralRef.current.trim() === "" ? null : referralRef.current;
-		 const referralRefUpdated = await updateReferredBy(reelayDBUser.sub, reelayDBUser.referredby);
-			
-	
-		reelayDBUser.website = (websiteRef.current.trim() === '') 
-			? null 
-			: websiteRef.current;
-		const websiteUpdatedSuccessfully = await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
-		return (bioUpdatedSuccessfully && websiteUpdatedSuccessfully && firstNameUpdatedSuccessfully && lastNameUpdatedSuccessfully && referralRefUpdated);
+			reelayDBUser.firstName = firstNameRef.current.trim() === "" ? null : firstNameRef.current;
+			const firstNameUpdatedSuccessfully = await updateUserFirstName(reelayDBUser.sub, reelayDBUser.firstName);
+
+			reelayDBUser.lastName = lastNameRef.current.trim() === "" ? null : lastNameRef.current;
+			const lastNameUpdatedSuccessfully = await updateUserLastName(reelayDBUser.sub, reelayDBUser.lastName);
+
+			reelayDBUser.referredby = referralRef.current.trim() === "" ? null : referralRef.current;
+			const referralRefUpdated = await updateReferredBy(reelayDBUser.sub, reelayDBUser.referredby);
+
+
+			reelayDBUser.website = (websiteRef.current.trim() === '')
+				? null
+				: websiteRef.current;
+			const websiteUpdatedSuccessfully = await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
+			return (bioUpdatedSuccessfully && websiteUpdatedSuccessfully && firstNameUpdatedSuccessfully && lastNameUpdatedSuccessfully && referralRefUpdated);
+		}
+
+		const isUsernameValid = async (username) => {
+			const partialMatchingUsers = await searchUsers(username);
+			if (partialMatchingUsers?.error) {
+				return false;
+			}
+
+			const usernamesMatch = (userObj) => (userObj.username === username);
+			const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
+			if (fullMatchIndex === -1) {
+				showErrorToast("Referred user not found! Try again.")
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		return (
+			<ModalContainer>
+				<Modal style={{ zIndex: 0 }} animationType="slide" transparent={true} visible={isEditingProfile}>
+					<ScrollView>
+						<HeaderContainer>
+							<HeaderDoneCancel
+								withBar
+								onDone={doneFunc}
+								onCancel={cancelFunc}
+								text="Edit Profile"
+							/>
+						</HeaderContainer>
+						<EditUsername username={reelayDBUser.username} />
+						<EditProfilePicContainer onPress={Keyboard.dismiss}>
+							<EditProfileImage />
+						</EditProfilePicContainer>
+						<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+							<EditInfoContainer>
+								<EditBio bioRef={bioRef} bioInputRef={bioInputRef} />
+								<EditFirstName firstNameRef={firstNameRef} firstNameInputRef={firstNameInputRef} />
+								<EditLastName lastNameRef={lastNameRef} lastNameInputRef={lastNameInputRef} />
+								<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} />
+								{!initReferredBy || initReferredBy == null ?
+									<ReferralCode referralRef={referralRef} referralInputRef={referralInputRef} /> : null}
+							</EditInfoContainer>
+						</TouchableWithoutFeedback>
+					</ScrollView>
+					<Toast config={toastConfig} />
+				</Modal>
+			</ModalContainer>
+		);
+	} catch (error) {
+		firebaseCrashlyticsError(error);
 	}
-
-	const isUsernameValid = async (username) => {
-		const partialMatchingUsers = await searchUsers(username);
-		if (partialMatchingUsers?.error) {
-			return false;
-		}
-
-		const usernamesMatch = (userObj) => (userObj.username === username);
-		const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
-		if (fullMatchIndex === -1) {
-			showErrorToast("Referred user not found! Try again.")
-			return false;
-		}else{
-			return true;
-		}
-	}
-
-	return (
-		<ModalContainer>
-			<Modal style={{zIndex:0}} animationType="slide" transparent={true} visible={isEditingProfile}>
-				<ScrollView>
-					<HeaderContainer>
-						<HeaderDoneCancel
-							withBar
-							onDone={doneFunc}
-							onCancel={cancelFunc}
-							text="Edit Profile"
-						/>
-					</HeaderContainer>
-					<EditUsername username={reelayDBUser.username} />
-					<EditProfilePicContainer onPress={Keyboard.dismiss}>
-						<EditProfileImage />
-					</EditProfilePicContainer>
-					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-						<EditInfoContainer>
-							<EditBio bioRef={bioRef} bioInputRef={bioInputRef} />
-							<EditFirstName firstNameRef={firstNameRef} firstNameInputRef={firstNameInputRef} />
-							<EditLastName lastNameRef={lastNameRef} lastNameInputRef={lastNameInputRef} />
-							<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} />
-							{!initReferredBy || initReferredBy == null ?
-							<ReferralCode referralRef={referralRef} referralInputRef={referralInputRef} />:null}
-						</EditInfoContainer>
-					</TouchableWithoutFeedback>
-				</ScrollView>
-				<Toast config={toastConfig}/>
-			</Modal>
-		</ModalContainer>
-  );
 };
 
 const EditUsername = ({ username, editUsernameOnPress }) => {
@@ -240,12 +245,12 @@ const EditUsername = ({ username, editUsernameOnPress }) => {
 		<EditUsernameContainer>
 			<UsernameText> {`@${username} `} </UsernameText>
 		</EditUsernameContainer>
- 	)
+	)
 }
 
 const EditBio = ({ bioRef, bioInputRef }) => {
 	const changeInputText = (text) => {
-		bioRef.current=text;
+		bioRef.current = text;
 	};
 
 	return (
@@ -253,25 +258,25 @@ const EditBio = ({ bioRef, bioInputRef }) => {
 			<SectionTitleContainer>
 				<SectionTitleText>{"Bio"}</SectionTitleText>
 			</SectionTitleContainer>
-				<BioInputContainer>
-					<BioInput
-						autoComplete='none'
-						autoCapitalize="none"
-						ref={bioInputRef}
-						maxLength={250}
-						multiline
-						numberOfLines={4}
-						defaultValue={bioRef.current}
-						placeholder={"Who are you?"}
-						placeholderTextColor={"gray"}
-						onChangeText={changeInputText}
-						onPressOut={Keyboard.dismiss()}
-						returnKeyLabel="return"
-						returnKeyType="default"
-					/>
-				</BioInputContainer>
+			<BioInputContainer>
+				<BioInput
+					autoComplete='none'
+					autoCapitalize="none"
+					ref={bioInputRef}
+					maxLength={250}
+					multiline
+					numberOfLines={4}
+					defaultValue={bioRef.current}
+					placeholder={"Who are you?"}
+					placeholderTextColor={"gray"}
+					onChangeText={changeInputText}
+					onPressOut={Keyboard.dismiss()}
+					returnKeyLabel="return"
+					returnKeyType="default"
+				/>
+			</BioInputContainer>
 		</EditBioContainer>
-  );
+	);
 };
 
 const EditProfileImage = () => {
@@ -280,10 +285,10 @@ const EditProfileImage = () => {
 	const { reelayDBUser } = useContext(AuthContext);
 
 	const profilePictureURI = reelayDBUser?.profilePictureURI;
-	
+
 	const startEditPhoto = () => {
-        if (!isUploading) setIsEditingPhoto(true);
-    }
+		if (!isUploading) setIsEditingPhoto(true);
+	}
 	const Container = styled(View)`
 		width: 100%;
 		padding-top: 15px;
@@ -298,12 +303,12 @@ const EditProfileImage = () => {
         align-items: center;
 	`;
 	const ProfileText = styled(ReelayText.Body2Bold)`
-		color: ${({isUploading}) => isUploading ? "#4D4D4D" : "rgba(0, 165, 253, 1)"};
+		color: ${({ isUploading }) => isUploading ? "#4D4D4D" : "rgba(0, 165, 253, 1)"};
 		text-align: center;
 		padding: 5px;
 	`;
 
-    return (
+	return (
 		<Container>
 			<EditContainer>
 				<Pressable onPress={startEditPhoto}>
@@ -365,7 +370,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 	};
 
 	const handleImagePicked = async (pickerResult) => {
-        try {
+		try {
 			if (pickerResult.cancelled) {
 				return;
 			} else {
@@ -373,7 +378,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 				close();
 				const { cloudfrontPhotoURI } = await uploadProfilePhotoToS3(pickerResult.uri);
 				if (reelayDBUser?.profilePictureURI !== cloudfrontPhotoURI) {
-					updateProfilePic(reelayDBUser?.sub, cloudfrontPhotoURI);					
+					updateProfilePic(reelayDBUser?.sub, cloudfrontPhotoURI);
 				}
 				logAmplitudeEventProd('changedProfilePic', {
 					username: reelayDBUser?.username,
@@ -396,7 +401,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		}
 	};
 
-	const Next = async() =>{
+	const Next = async () => {
 		dispatch({ type: 'setIsEditingProfile', payload: false });
 
 		dispatch({ type: 'setCurrentAppLoadStage', payload: 2 });
@@ -411,7 +416,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		const compression = 1 // 0 is most compressed, 1 is not compressed
 		const resizeResult = await manipulateAsync(
 			photoURI,
-			[{ resize: {height: photoHeight} }],
+			[{ resize: { height: photoHeight } }],
 			{ compress: compression, base64: true }
 		);
 		return resizeResult;
@@ -460,13 +465,13 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 				Body: photoBuffer,
 			})
 		);
-		return {timestampedUploadResult, currentUploadResult};
+		return { timestampedUploadResult, currentUploadResult };
 	};
-    
-    const ModalContainer = styled(View)`
+
+	const ModalContainer = styled(View)`
 		position: absolute;
 	`;
-    const MenuContainer = styled(View)`
+	const MenuContainer = styled(View)`
         background: transparent;
         width: 100%;
         display: flex;
@@ -475,41 +480,41 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
         margin-top: auto;
         margin-bottom: 40px;
     `
-    const MenuOptionsContainer = styled(View)`
+	const MenuOptionsContainer = styled(View)`
         width: 90%;
         background-color: #2D2D2D;
         border-radius: 20px;
         display: flex;
         flex-direction: column;
     `
-    const MenuOption = ({onPress, children}) => {
-        const MenuOptionComponent = styled(Pressable)`
+	const MenuOption = ({ onPress, children }) => {
+		const MenuOptionComponent = styled(Pressable)`
 			width: 100%;
 			height: 60px;
 			justify-content: center;
 			align-items: center;
 			border-radius: 20px;
 		`;
-        return (
-            <MenuOptionComponent style={({ pressed }) => [
-								{ backgroundColor: pressed ? "#292929" : "#2D2D2D" },
-            ]} onPress={onPress}>
-                {children}
-            </MenuOptionComponent>
-        )
-    }
-    
-    const MenuOptionText = styled(ReelayText.H6)`
+		return (
+			<MenuOptionComponent style={({ pressed }) => [
+				{ backgroundColor: pressed ? "#292929" : "#2D2D2D" },
+			]} onPress={onPress}>
+				{children}
+			</MenuOptionComponent>
+		)
+	}
+
+	const MenuOptionText = styled(ReelayText.H6)`
         color: ${ReelayColors.reelayBlue};
         text-align: center;
     `
-    const Backdrop = styled(Pressable)`
+	const Backdrop = styled(Pressable)`
 		background-color: transparent;
 		height: 100%;
 		position: absolute;
 		width: 100%;
 	`;
-    return (
+	return (
 		<ModalContainer>
 			<Modal animationType="slide" transparent={true} visible={visible}>
 				<Backdrop onPress={close} />
