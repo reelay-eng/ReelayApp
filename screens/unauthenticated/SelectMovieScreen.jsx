@@ -16,7 +16,7 @@ import * as ReelayText from "../../components/global/Text";
 import { AuthContext } from "../../context/AuthContext";
 
 // Logging
-import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog, logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
 // API
 import { searchBothTitles, searchTitles, searchUsers } from "../../api/ReelayDBApi";
@@ -140,90 +140,100 @@ const ListUserText = styled(ReelayText.H6)`
     width:100%;
 `
 export default SelectMovieScreen = ({ navigation, route }) => {
-    const dispatch = useDispatch();
-    const { reelayDBUser } = useContext(AuthContext);
-    const addToWatchlist = true;
-    const addCustomWatchlist = true;
-    const listData = route?.params?.listData ?? {};
-    const fromList = route?.params?.fromList ?? false;
-    const initialSearchType = 'Film';
-    const Redirect = route?.params?.Redirect ?? 0;
-    const addCustomProfile = useSelector(state => state.addCustomProfile);
+    try {
+        firebaseCrashlyticsLog('Select movie screen');
+        const dispatch = useDispatch();
+        const { reelayDBUser } = useContext(AuthContext);
+        const addToWatchlist = true;
+        const addCustomWatchlist = true;
+        const listData = route?.params?.listData ?? {};
+        const fromList = route?.params?.fromList ?? false;
+        const initialSearchType = 'Film';
+        const Redirect = route?.params?.Redirect ?? 0;
+        const addCustomProfile = useSelector(state => state.addCustomProfile);
 
-    const skipp = async() =>{
-        // navigation.replace('HomeScreen')   
-        navigation.reset({
-            index: 0,
-            routes: [{name: 'HomeScreen'}],
-          }) 
+        const skipp = async () => {
+            // navigation.replace('HomeScreen')   
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'HomeScreen' }],
+            })
+        }
+
+        const AddMovie = () => {
+            navigation.navigate("SearchTitleScreen", { ListData: listData, fromListUpdate: true })
+
+        }
+        const goBack = () => { navigation.goBack(); }
+
+        useFocusEffect(() => {
+            dispatch({ type: 'setTabBarVisible', payload: false });
+        });
+        return (
+            <SearchScreenView>
+                <HeaderView>
+                    <BackButtonPressable onPress={goBack}>
+                        <Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
+                    </BackButtonPressable>
+                    <HeaderText>{""}</HeaderText>
+                    <Pressable onPress={() => fromList ? AddMovie() : skipp()} style={{ position: "absolute", right: 30 }}>
+                        <SkipText>{fromList ? "Add Movies" : "Skip"}</SkipText>
+                    </Pressable>
+                </HeaderView>
+                {/* <HeaderSkipBack onPressOverride={goBack} onSkip={skipp} navigation={navigation} text='' /> */}
+                <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist} addCustomWatchlist={addCustomWatchlist} fromList={fromList} listData={listData} />
+            </SearchScreenView>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    const AddMovie=()=>{
-        navigation.navigate("SearchTitleScreen",{ListData:listData, fromListUpdate:true})
-
-    }
-    const goBack = () => { navigation.goBack(); }
-
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-    });
-    return (
-		<SearchScreenView>
-			<HeaderView>
-				<BackButtonPressable onPress={goBack}>
-					<Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
-				</BackButtonPressable>
-				 <HeaderText>{""}</HeaderText> 
-				<Pressable onPress={()=>fromList ? AddMovie():skipp()} style={{position:"absolute",right:30}}>
-					<SkipText>{fromList ? "Add Movies":"Skip"}</SkipText>
-				</Pressable>
-			</HeaderView>
-            {/* <HeaderSkipBack onPressOverride={goBack} onSkip={skipp} navigation={navigation} text='' /> */}
-            <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist} addCustomWatchlist={addCustomWatchlist} fromList={fromList} listData={listData}/>
-		</SearchScreenView>
-	);
 };
 
-const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, addCustomWatchlist,fromList, listData }) => {
-    const dispatch = useDispatch();
-    const authSession = useSelector(state => state.authSession);
-    const { reelayDBUser } = useContext(AuthContext);
-    const [loading, setLoading] = useState(false);
-    const trendingMovieResults = useSelector(state => state.trendingMovieResults);
-    const customWatchData = useSelector(state => state.customWatchData);
+const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, addCustomWatchlist, fromList, listData }) => {
+    try {
+        firebaseCrashlyticsLog('Select movie search bar with results');
+        const dispatch = useDispatch();
+        const authSession = useSelector(state => state.authSession);
+        const { reelayDBUser } = useContext(AuthContext);
+        const [loading, setLoading] = useState(false);
+        const trendingMovieResults = useSelector(state => state.trendingMovieResults);
+        const customWatchData = useSelector(state => state.customWatchData);
 
 
-    return (
-        <React.Fragment>
-            {!fromList ? <HeaderTextLight>{"Lets record your first reelay.\n Choose a title to review"}</HeaderTextLight>:
-            <ListTextView>
-            <View style={{}}>
-                <ListTitleText numberOfLines={2}>{listData?.listName}</ListTitleText>
-                <ListUserText>by {listData?.creatorName}</ListUserText>
-            </View>
-            <FontAwesomeIcon icon={faShare} color='white' size={24} />
-            </ListTextView>} 
-            <ScrollView style={{}}>
+        return (
+            <React.Fragment>
+                {!fromList ? <HeaderTextLight>{"Lets record your first reelay.\n Choose a title to review"}</HeaderTextLight> :
+                    <ListTextView>
+                        <View style={{}}>
+                            <ListTitleText numberOfLines={2}>{listData?.listName}</ListTitleText>
+                            <ListUserText>by {listData?.creatorName}</ListUserText>
+                        </View>
+                        <FontAwesomeIcon icon={faShare} color='white' size={24} />
+                    </ListTextView>}
+                <ScrollView style={{}}>
 
-           {!fromList && <HomeWatchlistCardView >
+                    {!fromList && <HomeWatchlistCardView >
                         <HomeWatchlistCardFill />
                         <HomeWatchlistCardGradient colors={['rgba(255,255,255,0.65)', 'rgba(255,255,255,0)']} />
-                        <FanOfPosters titles={trendingMovieResults.map(item => item)} trending={true}/>
+                        <FanOfPosters titles={trendingMovieResults.map(item => item)} trending={true} />
                     </HomeWatchlistCardView>}
-                    <View style={{flexDirection:"row",flexWrap: 'wrap'}}>
-                        
-                    {customWatchData?.map( (item, ind) =>
+                    <View style={{ flexDirection: "row", flexWrap: 'wrap' }}>
+
+                        {customWatchData?.map((item, ind) =>
                             <WatchlistItemCardProfile
-                            key={ind}
-                            navigation={navigation}
-                            watchlistItem={item}
-                            Redirect={true}
-                            fromWatchlist={false}
-                            customData={true}
-                        />)}
-                        </View>
-                        </ScrollView>
-            { loading && <ActivityIndicator /> }
-        </React.Fragment>
-    )
+                                key={ind}
+                                navigation={navigation}
+                                watchlistItem={item}
+                                Redirect={true}
+                                fromWatchlist={false}
+                                customData={true}
+                            />)}
+                    </View>
+                </ScrollView>
+                {loading && <ActivityIndicator />}
+            </React.Fragment>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }

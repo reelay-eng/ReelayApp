@@ -14,7 +14,7 @@ import styled from "styled-components/native";
 import * as ReelayText from "../global/Text";
 import { HeaderWithBackButton } from "../global/Headers";
 import ReelayColors from '../../constants/ReelayColors';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog, logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { showErrorToast, showMessageToast } from "../utils/toasts";
@@ -87,24 +87,26 @@ export default EditAccount = ({ navigation }) => {
 
     return (
         <ViewContainer>
-            <HeaderWithBackButton navigation={navigation} text="edit account"/>
-            <EditAccountWrapper 
-                navigation={navigation} 
-                reelayDBUser={reelayDBUser} 
+            <HeaderWithBackButton navigation={navigation} text="edit account" />
+            <EditAccountWrapper
+                navigation={navigation}
+                reelayDBUser={reelayDBUser}
             />
         </ViewContainer>
     )
 }
 
 const EditAccountWrapper = ({ navigation, reelayDBUser }) => {
-    const EditAccountContainer = styled(Pressable)`
+    try {
+        firebaseCrashlyticsLog('Edit account wrapper section');
+        const EditAccountContainer = styled(Pressable)`
         width: 90%;
         height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
     `
-    const Divider = styled(View)`
+        const Divider = styled(View)`
         border-bottom-width: 1px;
         border-bottom-color: #2e2e2e;
         border-style: solid;
@@ -114,78 +116,81 @@ const EditAccountWrapper = ({ navigation, reelayDBUser }) => {
         margin-bottom: 15px;
     `
 
-	const initUsername = reelayDBUser.username;
-	const usernameRef = useRef(initUsername);
-	const usernameInputRef = useRef(null);
-	const currentFocus = useRef("");
-    const [savingInfo, setSavingInfo] = useState(false);
+        const initUsername = reelayDBUser.username;
+        const usernameRef = useRef(initUsername);
+        const usernameInputRef = useRef(null);
+        const currentFocus = useRef("");
+        const [savingInfo, setSavingInfo] = useState(false);
 
-    const isUsernameValid = async (username) => {
-        const usernameHasValidForm = checkUsername(username);
+        const isUsernameValid = async (username) => {
+            const usernameHasValidForm = checkUsername(username);
 
-        if (!usernameHasValidForm) {
-            console.log('Usernames must be between 4 and 16 characters, alphanumeric. Separators .+_- are okay');
-            showErrorToast('Invalid username');
-            return false;
+            if (!usernameHasValidForm) {
+                console.log('Usernames must be between 4 and 16 characters, alphanumeric. Separators .+_- are okay');
+                showErrorToast('Invalid username');
+                return false;
+            }
+            const partialMatchingUsers = await searchUsers(username);
+            if (partialMatchingUsers?.error) {
+                return false;
+            }
+
+            const usernamesMatch = (userObj) => (userObj.username === username);
+            const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
+            if (fullMatchIndex === -1) {
+                return true;
+            } else if (username !== reelayDBUser.username) {
+                console.log('That username is already taken');
+                showErrorToast('That username is already taken');
+                return false;
+            }
         }
-        const partialMatchingUsers = await searchUsers(username);
-        if (partialMatchingUsers?.error) {
-            return false;
-        }
 
-        const usernamesMatch = (userObj) => (userObj.username === username);
-        const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
-        if (fullMatchIndex === -1) {
-            return true;
-        } else if (username!==reelayDBUser.username) {
-            console.log('That username is already taken');
-            showErrorToast('That username is already taken');
-            return false;
-        }
-    }
-
-    const saveInfo = async () => {
-        setSavingInfo(true);
-        const usernameIsValid = await isUsernameValid(usernameRef.current.trim());
-		if (usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
-			const usernameUpdatedSuccessfully = await updateUsername(reelayDBUser.sub, usernameRef.current.trim());
-			if (!usernameUpdatedSuccessfully) {
+        const saveInfo = async () => {
+            setSavingInfo(true);
+            const usernameIsValid = await isUsernameValid(usernameRef.current.trim());
+            if (usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
+                const usernameUpdatedSuccessfully = await updateUsername(reelayDBUser.sub, usernameRef.current.trim());
+                if (!usernameUpdatedSuccessfully) {
+                    setSavingInfo(false);
+                    return false;
+                }
+                logAmplitudeEventProd('changedUsername', {
+                    userSub: reelayDBUser.sub,
+                    oldUsername: reelayDBUser.username,
+                    newUsername: usernameRef.current.trim(),
+                });
+                reelayDBUser.username = usernameRef.current.trim();
+                reelayDBUser.referralcode = usernameRef.current.trim();
                 setSavingInfo(false);
-				return false;
-			}
-            logAmplitudeEventProd('changedUsername', {
-                userSub: reelayDBUser.sub,
-                oldUsername: reelayDBUser.username,
-                newUsername: usernameRef.current.trim(),
-            });
-			reelayDBUser.username = usernameRef.current.trim();
-			reelayDBUser.referralcode = usernameRef.current.trim();
+                navigation.goBack();
+            } else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
+                setSavingInfo(false);
+                return false;
+            }
+            showMessageToast("Account information saved!")
             setSavingInfo(false);
-            navigation.goBack();
-		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
-            setSavingInfo(false);
-			return false;
-		}
-        showMessageToast("Account information saved!")
-        setSavingInfo(false);
-        return true;
-    }
-    const cancelOnPress = () => {
-        navigation.pop();
-    }
+            return true;
+        }
+        const cancelOnPress = () => {
+            navigation.pop();
+        }
 
-    return (
-        <EditAccountContainer onPress={Keyboard.dismiss}>
-            <Divider />
-            <AlignmentContainer>
-                <EditUsername usernameRef={usernameRef} usernameInputRef={usernameInputRef} currentFocus={currentFocus} />
-            </AlignmentContainer>
-            <BottomButtonsContainer>
-                <SaveButton saveInfo={saveInfo} savingInfo={savingInfo} />
-                <CancelButton cancelOnPress={cancelOnPress} />
-            </BottomButtonsContainer>
-        </EditAccountContainer>
-    )
+        return (
+            <EditAccountContainer onPress={Keyboard.dismiss}>
+                <Divider />
+                <AlignmentContainer>
+                    <EditUsername usernameRef={usernameRef} usernameInputRef={usernameInputRef} currentFocus={currentFocus} />
+                </AlignmentContainer>
+                <BottomButtonsContainer>
+                    <SaveButton saveInfo={saveInfo} savingInfo={savingInfo} />
+                    <CancelButton cancelOnPress={cancelOnPress} />
+                </BottomButtonsContainer>
+            </EditAccountContainer>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }
 
 
@@ -201,16 +206,16 @@ const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
         size: 20,
     };
 
-	const changeInputText = async (text) => {
-		usernameRef.current=text;
-	};
+    const changeInputText = async (text) => {
+        usernameRef.current = text;
+    };
 
-	const usernameOnPress = () => {
-		usernameInputRef.current.focus(); 
-		currentFocus.current='username';
-	}
+    const usernameOnPress = () => {
+        usernameInputRef.current.focus();
+        currentFocus.current = 'username';
+    }
 
-	return (
+    return (
         <>
             <SectionTitleContainer>
                 <SectionTitleText>{"Username"}</SectionTitleText>
@@ -232,7 +237,7 @@ const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
                     onPressOut={Keyboard.dismiss()}
                     returnKeyLabel="return"
                     returnKeyType="default"
-                />  
+                />
             </InputContainer>
 
             <UsernameInstructionContainer>
@@ -241,10 +246,10 @@ const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
                 </UsernameInstructionText>
             </UsernameInstructionContainer>
         </>
-  );
+    );
 };
 
-const SaveButton = ({saveInfo, savingInfo}) => {
+const SaveButton = ({ saveInfo, savingInfo }) => {
     return (
         <SaveInfoButtonContainer>
             <Button
@@ -259,7 +264,7 @@ const SaveButton = ({saveInfo, savingInfo}) => {
     )
 }
 
-const CancelButton = ({cancelOnPress}) => {
+const CancelButton = ({ cancelOnPress }) => {
     return (
         <SaveInfoButtonContainer>
             <Button

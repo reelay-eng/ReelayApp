@@ -6,7 +6,7 @@ import FollowButton from '../global/FollowButton';
 import * as ReelayText from '../../components/global/Text';
 
 import { AuthContext } from "../../context/AuthContext";
-import { logAmplitudeEventProd } from "../utils/EventLogger";
+import { logAmplitudeEventProd, firebaseCrashlyticsLog, firebaseCrashlyticsError } from "../utils/EventLogger";
 
 const PressableContainer = styled(Pressable)`
     display: flex;
@@ -51,54 +51,59 @@ export default UserSearchResultItem = ({
     result,
     navigation
 }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const searchedUser = result;
-    const profilePictureURI = searchedUser.profilePictureURI;
+    try {
+        firebaseCrashlyticsLog('Profile - User search result item');
+        const { reelayDBUser } = useContext(AuthContext);
+        const searchedUser = result;
+        const profilePictureURI = searchedUser.profilePictureURI;
 
-    const username = searchedUser.username;
-    const userSub = searchedUser.sub; // sub is the user's unique id
+        const username = searchedUser.username;
+        const userSub = searchedUser.sub; // sub is the user's unique id
 
-    const followButtonCreatorObj = {
-        sub: userSub,
-        username: username,
+        const followButtonCreatorObj = {
+            sub: userSub,
+            username: username,
+        }
+
+        const selectResult = () => {
+            navigation.push("UserProfileScreen", { creator: searchedUser });
+            logAmplitudeEventProd('selectSearchResult', {
+                username: reelayDBUser?.username,
+                selectedUsername: searchedUser.username,
+                source: 'search',
+            });
+        };
+
+        const myUserSub = reelayDBUser.sub;
+        const isMyProfile = myUserSub === userSub;
+
+        return (
+            <PressableContainer onPress={selectResult}>
+                <RowContainer>
+                    <ProfilePictureContainer>
+                        {profilePictureURI && (
+                            <ProfilePicture
+                                source={{ uri: profilePictureURI }}
+                                PlaceholderContent={<ActivityIndicator />}
+                            />
+                        )}
+                        {!profilePictureURI && (
+                            <ProfilePicture source={require("../../assets/icons/reelay-icon-with-dog-black.png")} />
+                        )}
+                    </ProfilePictureContainer>
+                    <UsernameContainer>
+                        <UsernameText>{username}</UsernameText>
+                    </UsernameContainer>
+
+                    {!isMyProfile && (
+                        <FollowButtonFlexContainer>
+                            <FollowButton creator={followButtonCreatorObj} />
+                        </FollowButtonFlexContainer>
+                    )}
+                </RowContainer>
+            </PressableContainer>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    const selectResult = () => {
-        navigation.push("UserProfileScreen", { creator: searchedUser });
-        logAmplitudeEventProd('selectSearchResult', {
-            username: reelayDBUser?.username,
-            selectedUsername: searchedUser.username,
-            source: 'search',
-        }); 
-    };
-
-    const myUserSub = reelayDBUser.sub;
-    const isMyProfile = myUserSub === userSub;
-
-    return (
-		<PressableContainer onPress={selectResult}>
-			<RowContainer>
-				<ProfilePictureContainer>
-					{profilePictureURI && (
-						<ProfilePicture
-							source={{ uri: profilePictureURI }}
-							PlaceholderContent={<ActivityIndicator />}
-						/>
-					)}
-					{!profilePictureURI && (
-						<ProfilePicture source={require("../../assets/icons/reelay-icon-with-dog-black.png")} />
-					)}
-				</ProfilePictureContainer>
-				<UsernameContainer>
-					<UsernameText>{username}</UsernameText>
-				</UsernameContainer>
-
-				{ !isMyProfile && (
-                    <FollowButtonFlexContainer>
-					    <FollowButton creator={followButtonCreatorObj} />
-				    </FollowButtonFlexContainer>
-                )}
-			</RowContainer>
-		</PressableContainer>
-	);
 };

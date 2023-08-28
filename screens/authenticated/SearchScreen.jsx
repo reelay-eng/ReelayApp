@@ -15,7 +15,7 @@ import SuggestedTitlesGrid from "../../components/search/SuggestedTitlesGrid";
 import { AuthContext } from "../../context/AuthContext";
 
 // Logging
-import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
+import { logAmplitudeEventProd, firebaseCrashlyticsError, firebaseCrashlyticsLog } from "../../components/utils/EventLogger";
 
 // API
 import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
@@ -51,60 +51,65 @@ const TopBarView = styled(View)`
 `
 
 export default SearchScreen = ({ navigation, route }) => {
-    const dispatch = useDispatch();
-    const { reelayDBUser } = useContext(AuthContext);
-    const addToWatchlist = route?.params?.addToWatchlist ?? false;
-    const addCustomWatchlist = route?.params?.addCustomWatchlist ?? false;
-    const checkMark = route?.params?.checkMark ?? false;
-    const initialSearchType = route?.params?.initialSearchType ?? 'Film';
-    const Redirect = route?.params?.Redirect ?? 0;
+    try {
+        firebaseCrashlyticsLog('Search screen mounted');
+        const dispatch = useDispatch();
+        const { reelayDBUser } = useContext(AuthContext);
+        const addToWatchlist = route?.params?.addToWatchlist ?? false;
+        const addCustomWatchlist = route?.params?.addCustomWatchlist ?? false;
+        const checkMark = route?.params?.checkMark ?? false;
+        const initialSearchType = route?.params?.initialSearchType ?? 'Film';
+        const Redirect = route?.params?.Redirect ?? 0;
 
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
-    const addCustomProfile = useSelector(state => state.addCustomProfile);
+        const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+        const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
+        const addCustomProfile = useSelector(state => state.addCustomProfile);
 
-    const goBack = () => {
-        if (addToWatchlist) {
-            if(Redirect == 0){
-            navigation.navigate('MyWatchlistScreen', {
-                myWatchlistItems,
-                myWatchlistRecs, 
-                Redirect
-            });
-        }else{
-            navigation.navigate('WatchlistScreen', {
-                myWatchlistItems,
-                myWatchlistRecs, 
-                Redirect
-            });
+        const goBack = () => {
+            if (addToWatchlist) {
+                if (Redirect == 0) {
+                    navigation.navigate('MyWatchlistScreen', {
+                        myWatchlistItems,
+                        myWatchlistRecs,
+                        Redirect
+                    });
+                } else {
+                    navigation.navigate('WatchlistScreen', {
+                        myWatchlistItems,
+                        myWatchlistRecs,
+                        Redirect
+                    });
+                }
+            } else {
+                navigation.goBack();
+            }
         }
-        } else {
-            navigation.goBack();
+
+        const callMultiple = async () => {
+            const addToMyCustomlists = await addToMyCustomlist({
+                reqUserSub: reelayDBUser?.sub,
+                titleData: addCustomProfile
+            });
+            goBack();
+            const getItems = await getCustomItems(reelayDBUser?.sub);
+            dispatch({ type: 'setCustomWatchData', payload: getItems });
         }
-    }
 
-    const callMultiple = async() =>{
-        const addToMyCustomlists = await addToMyCustomlist({
-            reqUserSub: reelayDBUser?.sub,
-            titleData: addCustomProfile
-        });
-        goBack();
-        const getItems = await getCustomItems(reelayDBUser?.sub);
-        dispatch({ type: 'setCustomWatchData', payload: getItems });
+        return (
+            <SearchScreenView>
+                <HeaderWithBackButton
+                    onPressOverride={goBack}
+                    navigation={navigation}
+                    checkMark={checkMark}
+                    onDone={callMultiple}
+                    text={addToWatchlist ? 'add to watchlist' : addCustomWatchlist ? 'add to custom' : 'search'}
+                />
+                <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist} addCustomWatchlist={addCustomWatchlist} />
+            </SearchScreenView>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    return (
-		<SearchScreenView>
-			<HeaderWithBackButton 
-                onPressOverride={goBack}
-                navigation={navigation} 
-                checkMark={checkMark}
-                onDone={callMultiple}
-                text={addToWatchlist ? 'add to watchlist' :addCustomWatchlist ? 'add to custom': 'search'} 
-            />
-            <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist} addCustomWatchlist={addCustomWatchlist}/>
-		</SearchScreenView>
-	);
 };
 
 const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, addCustomWatchlist }) => {
@@ -115,12 +120,12 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
 
     const myFollowing = useSelector(state => state.myFollowing);
     const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
-    const allSearchOptions = isGuestUser 
-        ? ['Film', 'TV', 'Users'] 
+    const allSearchOptions = isGuestUser
+        ? ['Film', 'TV', 'Users']
         // : ['Film', 'TV', 'Chats', 'Users']
         : ['Film', 'TV', 'Users']
     const tabOptions = addToWatchlist || addCustomWatchlist
-    ? ['Film', 'TV'] 
+        ? ['Film', 'TV']
         : allSearchOptions;
 
     const [searchText, setSearchText] = useState("");
@@ -156,8 +161,8 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
     });
 
     const sortUserResults = (userA, userB) => {
-        if (userA.username === reelayDBUser.username)   return -1;
-        if (userB.username === reelayDBUser.username)   return 1;
+        if (userA.username === reelayDBUser.username) return -1;
+        if (userB.username === reelayDBUser.username) return 1;
 
         const matchUserA = (followObj) => (userA.username === followObj.creatorName);
         const matchUserB = (followObj) => (userB.username === followObj.creatorName);
@@ -171,12 +176,13 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
     }
 
     const updateSearch = async (newSearchText, searchType, counter) => {
-        if (searchTextEmpty) {            
+        if (searchTextEmpty) {
             setSearchResults([]);
             return;
         }
 
         try {
+            firebaseCrashlyticsLog('Updated search screen')
             setLoading(true);
             let annotatedResults;
             if (searchType === "Film") {
@@ -187,11 +193,11 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
                 annotatedResults = await searchUsers(newSearchText);
                 annotatedResults = annotatedResults.sort(sortUserResults);
             } else if (searchType === "Chats") {
-                annotatedResults = await searchPublicClubs({ 
+                annotatedResults = await searchPublicClubs({
                     authSession,
                     page: 0,
-                    reqUserSub: reelayDBUser?.sub, 
-                    searchText: newSearchText 
+                    reqUserSub: reelayDBUser?.sub,
+                    searchText: newSearchText
                 });
             }
 
@@ -202,10 +208,11 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
                     searchText: newSearchText,
                     searchType: searchType,
                     source: 'search',
-                });        
+                });
             }
         } catch (error) {
             console.log(error);
+            firebaseCrashlyticsError(error)
         }
     };
 
@@ -218,7 +225,7 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
     const SearchResults = () => {
         return (
             <Fragment>
-                { (selectedType === "Film" || selectedType === "TV") && (
+                {(selectedType === "Film" || selectedType === "TV") && (
                     <TitleSearchResults
                         navigation={navigation}
                         searchResults={searchResults}
@@ -276,27 +283,26 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist, a
                     borderRadius={4}
                     searchText={searchText}
                     updateSearchText={updateSearchText}
-                    placeholderText={`Find ${
-                        selectedType === "Film"
-                            ? "films"
+                    placeholderText={`Find ${selectedType === "Film"
+                        ? "films"
                         : selectedType === "TV"
                             ? "TV shows"
-                        : selectedType === "Chats"
-                            ? "chats on Reelay"
-                        : "people on Reelay"
-                    }`}
+                            : selectedType === "Chats"
+                                ? "chats on Reelay"
+                                : "people on Reelay"
+                        }`}
                 />
             </SearchBarView>
-            { !loading && !showSuggestions && <SearchResults /> }
-            { !loading && showSuggestions && !addToWatchlist && (
-                <SuggestedTitlesGrid 
-                    navigation={navigation} 
+            {!loading && !showSuggestions && <SearchResults />}
+            {!loading && showSuggestions && !addToWatchlist && (
+                <SuggestedTitlesGrid
+                    navigation={navigation}
                     selectedType={selectedType}
                     source='search'
                     addCustomWatchlist={addCustomWatchlist}
-                /> 
+                />
             )}
-            { loading && <ActivityIndicator /> }
+            {loading && <ActivityIndicator />}
         </React.Fragment>
     )
 }

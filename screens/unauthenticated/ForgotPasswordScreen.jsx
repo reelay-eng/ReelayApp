@@ -12,13 +12,13 @@ import BackButton from '../../components/utils/BackButton';
 import { KeyboardHidingBlackContainer } from './SignInScreen';
 import ReelayColors from '../../constants/ReelayColors';
 
-import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog, logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { getInputUsername } from '../../components/utils/usernameOrEmail';
 import { getUserByUsername } from '../../api/ReelayDBApi';
 
 export default ForgotPasswordScreen = ({ navigation }) => {
 
-    const AuthInput = styled(Input)`
+	const AuthInput = styled(Input)`
 		color: white;
 		font-family: Outfit-Regular;
 		font-size: 16px;
@@ -68,84 +68,89 @@ export default ForgotPasswordScreen = ({ navigation }) => {
 		height: 56px;
 	`;
 
-    const EmailInput = () => {
-        const [inputText, setInputText] = useState("");
-		const [error, setError] = useState("");
-		const [sending, setSending] = useState(false);
+	const EmailInput = () => {
+		try {
+			firebaseCrashlyticsLog('Forgot password screen');
+			const [inputText, setInputText] = useState("");
+			const [error, setError] = useState("");
+			const [sending, setSending] = useState(false);
 
-        const changeInputText = (text) => {
-			setInputText(text);
-            if (!!error.length) {
-				setError("");
+			const changeInputText = (text) => {
+				setInputText(text);
+				if (!!error.length) {
+					setError("");
+				}
+			};
+
+			const handleBadEmail = async () => {
+				setError("Invalid username or email.");
+				logAmplitudeEventProd('signInFailedBadEmail', {
+					email: inputText,
+				});
 			}
-		};
 
-        const handleBadEmail = async () => {
-            setError("Invalid username or email.");
-            logAmplitudeEventProd('signInFailedBadEmail', {
-                email: inputText,
-            });
-        }
+			const sendForgotPasswordEmail = async () => {
+				const username = await getInputUsername(inputText);
+				if (!username.length) {
+					handleBadEmail();
+					return;
+				}
 
-        const sendForgotPasswordEmail = async () => {
-            const username = await getInputUsername(inputText);
-            if (!username.length) {
-                handleBadEmail();
-                return;
-            }
+				try {
+					const creator = await getUserByUsername(username);
 
-			try {
-                const creator = await getUserByUsername(username);
-
-				setSending(true);
-				const forgotPasswordResult = await Auth.forgotPassword(creator.originalUsername);
-				setSending(false);
-                navigation.push('ForgotPasswordSubmitScreen', {
-                    username: username
-                });
-				console.log("Forgot Password", forgotPasswordResult);
-				logAmplitudeEventProd('forgotPasswordEmailSent', {
-					username: username,
-					inputText: inputText,
+					setSending(true);
+					const forgotPasswordResult = await Auth.forgotPassword(creator.originalUsername);
+					setSending(false);
+					navigation.push('ForgotPasswordSubmitScreen', {
+						username: username
 					});
-            } catch (error) {
-				setError("Something went wrong. Double-check and try again.");
-				setSending(false);
-				
-            }
-        }
-        
-        return (
-			<AlignmentContainer>
-				<InputContainer>
-					<AuthInput
-						autoCapitalize="none"
-						autoComplete="email"
-						containerStyle={AuthInputContainerStyle}
-						leftIcon={AuthInputUsernameIconStyle}
-						placeholder={"Enter username or email"}
-						errorMessage={!!error.length && error}
-						onChangeText={changeInputText}
-						rightIcon={!!error.length ? AuthInputWarningIconStyle : null}
-						textContextType='emailAddress'
-						value={inputText}
-					/>
-					<CTAButtonContainer>
-						<Button
-							text={sending ? "Sending..." : "Send me a reset link"}
-							onPress={sendForgotPasswordEmail}
-							disabled={!!error.length || sending}
-							backgroundColor={ReelayColors.reelayBlue}
-							fontColor="white"
-							borderRadius="26px"
-						/>
-					</CTAButtonContainer>
-				</InputContainer>
-			</AlignmentContainer>
-		);
-    }
+					console.log("Forgot Password", forgotPasswordResult);
+					logAmplitudeEventProd('forgotPasswordEmailSent', {
+						username: username,
+						inputText: inputText,
+					});
+				} catch (error) {
+					setError("Something went wrong. Double-check and try again.");
+					setSending(false);
 
-    const TopBar = () => {
+				}
+			}
+
+			return (
+				<AlignmentContainer>
+					<InputContainer>
+						<AuthInput
+							autoCapitalize="none"
+							autoComplete="email"
+							containerStyle={AuthInputContainerStyle}
+							leftIcon={AuthInputUsernameIconStyle}
+							placeholder={"Enter username or email"}
+							errorMessage={!!error.length && error}
+							onChangeText={changeInputText}
+							rightIcon={!!error.length ? AuthInputWarningIconStyle : null}
+							textContextType='emailAddress'
+							value={inputText}
+						/>
+						<CTAButtonContainer>
+							<Button
+								text={sending ? "Sending..." : "Send me a reset link"}
+								onPress={sendForgotPasswordEmail}
+								disabled={!!error.length || sending}
+								backgroundColor={ReelayColors.reelayBlue}
+								fontColor="white"
+								borderRadius="26px"
+							/>
+						</CTAButtonContainer>
+					</InputContainer>
+				</AlignmentContainer>
+			);
+		} catch (error) {
+			firebaseCrashlyticsError(error);
+		}
+	}
+
+	const TopBar = () => {
 		const Container = styled(View)`
 			width: 100%;
 			height: 20%;
@@ -190,12 +195,12 @@ export default ForgotPasswordScreen = ({ navigation }) => {
 		);
 	};
 
-    return (
-        <KeyboardHidingBlackContainer>
-            <TopBar />
-            <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
-                <EmailInput />
-            </KeyboardAvoidingView>
-        </KeyboardHidingBlackContainer>
-    );
+	return (
+		<KeyboardHidingBlackContainer>
+			<TopBar />
+			<KeyboardAvoidingView behavior='padding' style={{ flex: 1 }}>
+				<EmailInput />
+			</KeyboardAvoidingView>
+		</KeyboardHidingBlackContainer>
+	);
 }

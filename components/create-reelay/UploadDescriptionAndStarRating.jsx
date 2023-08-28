@@ -7,6 +7,7 @@ import * as ReelayText from '../global/Text';
 import StarRating from '../global/StarRating';
 import TextInputWithMentions from '../feed/TextInputWithMentions';
 import styled from 'styled-components/native';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
 
@@ -53,79 +54,88 @@ const StarRatingContainer = styled(View)`
 `
 
 export default UploadDescriptionAndStarRating = ({ showStarRating = true, starCountRef, descriptionRef }) => {
-    const [renderCount, setRenderCount] = useState(0);
+    try {
+        firebaseCrashlyticsLog('Upload ratings');
+        const [renderCount, setRenderCount] = useState(0);
 
-    const onStarRatingPress = (rating) => {
-        starCountRef.current = rating;
-        setRenderCount(renderCount + 1);
-    }
-    const onClearRatingPress = () => {
-        starCountRef.current = 0;
-        setRenderCount(renderCount + 1);
-    }
+        const onStarRatingPress = (rating) => {
+            starCountRef.current = rating;
+            setRenderCount(renderCount + 1);
+        }
+        const onClearRatingPress = () => {
+            starCountRef.current = 0;
+            setRenderCount(renderCount + 1);
+        }
 
-    const StarRatingLine = () => {
-        const ClearRatingButton = () => {
+        const StarRatingLine = () => {
+            const ClearRatingButton = () => {
+                return (
+                    <ClearRatingContainer onPress={onClearRatingPress}>
+                        <ClearRatingText>{"Clear"}</ClearRatingText>
+                    </ClearRatingContainer>
+                );
+            }
+
             return (
-                <ClearRatingContainer onPress={onClearRatingPress}>
-                    <ClearRatingText>{"Clear"}</ClearRatingText>
-                </ClearRatingContainer>                        
+                <Fragment>
+                    {(starCountRef.current === 0) && <RatingText>{"Want to rate it?"}</RatingText>}
+                    <StarRatingContainer>
+                        <StarRating
+                            disabled={false}
+                            numStars={starCountRef.current}
+                            onStarRatingPress={onStarRatingPress}
+                            rating={starCountRef.current}
+                            starSize={30}
+                            starStyle={{ paddingRight: 8 }}
+                        />
+                        {(starCountRef.current > 0) && <ClearRatingButton />}
+                    </StarRatingContainer>
+                </Fragment>
             );
         }
 
         return (
-            <Fragment>
-                { (starCountRef.current === 0) && <RatingText>{"Want to rate it?"}</RatingText> }
-                <StarRatingContainer>
-                    <StarRating 
-                        disabled={false}
-                        numStars={starCountRef.current}
-                        onStarRatingPress={onStarRatingPress}
-                        rating={starCountRef.current}
-                        starSize={30}
-                        starStyle={{ paddingRight: 8 }}
-                    />
-                    { (starCountRef.current > 0) && <ClearRatingButton /> }
-                </StarRatingContainer>
-            </Fragment>
+            <InfoContainer>
+                {showStarRating && <StarRatingLine />}
+                <EditDescription descriptionRef={descriptionRef} />
+            </InfoContainer>
         );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    return (
-        <InfoContainer>
-            { showStarRating && <StarRatingLine /> }
-            <EditDescription descriptionRef={descriptionRef} />
-        </InfoContainer>
-    );
 }
 
 const EditDescription = ({ descriptionRef }) => {
-    const descriptionInputRef = useRef(null);
-    const [inputText, setInputText] = useState('');
-    const changeInputTextWithRef = (text) => {
-        setInputText(text);
-        descriptionRef.current = text;
-    };
+    try {
+        firebaseCrashlyticsLog('Edit description screen');
+        const descriptionInputRef = useRef(null);
+        const [inputText, setInputText] = useState('');
+        const changeInputTextWithRef = (text) => {
+            setInputText(text);
+            descriptionRef.current = text;
+        };
 
-    const DESCRIPTION_INPUT_WIDTH = width - 24;
+        const DESCRIPTION_INPUT_WIDTH = width - 24;
 
 
-    return (
-        <View style={{width: '100%', flexDirection: 'row', justifyContent: 'center'}}>
-        <Pressable 
-            style={{ width: DESCRIPTION_INPUT_WIDTH }}
-            onPress={() => descriptionInputRef.current.focus()}>
-            <DescriptionInputContainer>
-                <TextInputWithMentions 
-                    commentText={inputText}
-                    setCommentText={changeInputTextWithRef}
-                    inputRef={descriptionInputRef}
-                    placeholder='Add a description, tag people...'
-                    boxWidth={DESCRIPTION_INPUT_WIDTH}
-                />
-            </DescriptionInputContainer>
-        </Pressable>
-        </View>
-    );
-};
-
+        return (
+            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center' }}>
+                <Pressable
+                    style={{ width: DESCRIPTION_INPUT_WIDTH }}
+                    onPress={() => descriptionInputRef.current.focus()}>
+                    <DescriptionInputContainer>
+                        <TextInputWithMentions
+                            commentText={inputText}
+                            setCommentText={changeInputTextWithRef}
+                            inputRef={descriptionInputRef}
+                            placeholder='Add a description, tag people...'
+                            boxWidth={DESCRIPTION_INPUT_WIDTH}
+                        />
+                    </DescriptionInputContainer>
+                </Pressable>
+            </View>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
+}

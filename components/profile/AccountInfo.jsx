@@ -13,8 +13,9 @@ import { registerPushTokenForUser } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { deregisterSocialAuthSession } from '../../api/ReelayUserApi';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../utils/EventLogger';
 
-export const AccountInfo = ({navigation}) => {
+export const AccountInfo = ({ navigation }) => {
     const ViewContainer = styled(SafeAreaView)`
         color: white;
         height: 100%;
@@ -42,32 +43,32 @@ export const AccountInfo = ({navigation}) => {
     });
 
     return (
-		<ViewContainer>
-			<HeaderWithBackButton navigation={navigation} text='manage account' />
-			<SettingsContainer>
-				<TopSettings>
+        <ViewContainer>
+            <HeaderWithBackButton navigation={navigation} text='manage account' />
+            <SettingsContainer>
+                <TopSettings>
                     <AccountSettingEntry
-						text="Edit Account"
-						onPress={() => {
-							navigation.push("EditAccountScreen");
-						}}
-					/>
+                        text="Edit Account"
+                        onPress={() => {
+                            navigation.push("EditAccountScreen");
+                        }}
+                    />
                     <AccountSettingEntry
-						text="Delete Account"
-						onPress={() => {
-							navigation.push("DeleteAccountScreen");
-						}}
-					/>
-				</TopSettings>
-				<BottomSettings>
-				</BottomSettings>
-			</SettingsContainer>
+                        text="Delete Account"
+                        onPress={() => {
+                            navigation.push("DeleteAccountScreen");
+                        }}
+                    />
+                </TopSettings>
+                <BottomSettings>
+                </BottomSettings>
+            </SettingsContainer>
             <Logout />
-		</ViewContainer>
-	);
+        </ViewContainer>
+    );
 }
 
-const AccountSettingEntry = ({text, onPress}) => {
+const AccountSettingEntry = ({ text, onPress }) => {
     const Container = styled(Pressable)`
         display: flex;
         flex-direction: row;
@@ -93,20 +94,20 @@ const AccountSettingEntry = ({text, onPress}) => {
         margin-top: 3px;
     `
     return (
-		<Container onPress={onPress}>
-			<AccountSettingEntryWrapper>
-				<AccountSettingEntryIconTextContainer>
-					<AccountSettingEntryText>{text}</AccountSettingEntryText>
-				</AccountSettingEntryIconTextContainer>
-				<Icon type="ionicon" name="chevron-forward-outline" color={"#FFFFFF"} size={24} />
-			</AccountSettingEntryWrapper>
-		</Container>
-	);
+        <Container onPress={onPress}>
+            <AccountSettingEntryWrapper>
+                <AccountSettingEntryIconTextContainer>
+                    <AccountSettingEntryText>{text}</AccountSettingEntryText>
+                </AccountSettingEntryIconTextContainer>
+                <Icon type="ionicon" name="chevron-forward-outline" color={"#FFFFFF"} size={24} />
+            </AccountSettingEntryWrapper>
+        </Container>
+    );
 }
 
 const Logout = () => {
-    const { 
-        reelayDBUser, 
+    const {
+        reelayDBUser,
         reelayDBUserID,
         setReelayDBUserID,
     } = useContext(AuthContext);
@@ -116,31 +117,33 @@ const Logout = () => {
     const signOut = async () => {
         // todo: confirm sign out
         try {
+            firebaseCrashlyticsLog('Profile signout');
             logAmplitudeEventProd('signOut', {
                 username: reelayDBUser?.username,
                 email: reelayDBUser?.email,
             });
-    
+
             dispatch({ type: 'setSignedIn', payload: false });
             dispatch({ type: 'setListData', payload: [] });
             if (authSession?.method === 'cognito') {
                 const signOutResult = await Auth.signOut();
-                console.log("1",signOutResult);
+                console.log("1", signOutResult);
             } else {
                 const signOutResult = await deregisterSocialAuthSession({
                     authSession,
                     reelayDBUserID,
                 });
-                console.log("2",signOutResult);
+                console.log("2", signOutResult);
             }
 
-            await registerPushTokenForUser(reelayDBUserID, null); 
+            await registerPushTokenForUser(reelayDBUserID, null);
             dispatch({ type: 'clearAuthSession', payload: {} });
             setReelayDBUserID(null);
             // todo: deregister cognito user
-            console.log("3",signOutResult);
+            console.log("3", signOutResult);
         } catch (error) {
             console.log(error);
+            firebaseCrashlyticsError(error);
         }
     }
 
@@ -159,10 +162,10 @@ const Logout = () => {
     `
 
     return (
-		<LogoutContainer>
-			<LogoutButtonContainer>
-				<BWButton onPress={signOut} text={"Log Out"} />
-			</LogoutButtonContainer>
-		</LogoutContainer>
-	);
+        <LogoutContainer>
+            <LogoutButtonContainer>
+                <BWButton onPress={signOut} text={"Log Out"} />
+            </LogoutButtonContainer>
+        </LogoutContainer>
+    );
 }

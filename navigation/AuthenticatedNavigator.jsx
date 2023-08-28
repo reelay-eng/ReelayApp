@@ -11,20 +11,21 @@ import { useSelector } from "react-redux";
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, SafeAreaView, View } from 'react-native';
 
-import { 
-	HomeTabNavigator, 
-	FeedTabNavigator, 
-	CreateReelayTabNavigator, 
-	ProfileTabNavigator, 
+import {
+	HomeTabNavigator,
+	FeedTabNavigator,
+	CreateReelayTabNavigator,
+	ProfileTabNavigator,
 	ClubsTabNavigator,
 	DecisionTabNavigator
 } from './BottomTabs';
 
 import { CameraPlusIconSVG, ChatsTabIconSVG } from '../components/global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircleUser,faTelevision, faCompass, faHouse, faUsers, faVideo,faUserCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCircleUser, faTelevision, faCompass, faHouse, faUsers, faVideo, faUserCheck } from '@fortawesome/free-solid-svg-icons';
 import CreateTabDrawer from '../screens/authenticated/CreateTabDrawer';
- 
+import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../components/utils/EventLogger';
+
 const BottomTab = createBottomTabNavigator();
 const TAB_BAR_ACTIVE_OPACITY = 1;
 const TAB_BAR_INACTIVE_OPACITY = 0.8;
@@ -54,55 +55,57 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 `
 
 export default AuthenticatedNavigator = () => {
-	const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
-	const navigationRef = useRef(null);
-	const hasUnseenReelays = useSelector(state => state.discoverHasUnseenReelays);
-	const tabBarVisible = useSelector((state) => state.tabBarVisible);
-    const s = StyleSheet.create({
-		gradient: {
-			flex: 1,
-			height: "100%",
-			width: "100%",
-			borderWidth: 0,
-		},
-	});
-    return (
-		<BottomTab.Navigator
-			initialRouteName="Home"
-			screenOptions={{
-				tabBarActiveTintColor: `#rgba(255, 255, 255, ${TAB_BAR_ACTIVE_OPACITY})`,
-				tabBarInactiveTintColor: `#rgba(255, 255, 255, ${TAB_BAR_INACTIVE_OPACITY})`,
-				tabBarShowLabel: true,
-				tabBarLabelStyle: {
-					fontFamily: "Outfit-Medium",
-					fontSize: 12,
-					fontStyle: "normal",
-					lineHeight: 16,
-					letterSpacing: 0.4,
-					textAlign: "left",
-					marginTop: -3,
-				},
-				headerShown: false,
-				tabBarStyle: {
-					justifyContent: 'flex-end',
-					position: "absolute",
-					borderTopWidth: 0,
-					display: tabBarVisible ? "flex" : "none",
-					elevation: 0,
-					paddingLeft: 10,
-					paddingRight: 10,
-				},
-				tabBarBackground: () => (
-					<LinearGradient
-						colors={["transparent", ReelayColors.reelayBlack]}
-						locations={[0.25, 1]}
-						style={[StyleSheet.absoluteFill, s.gradient]}
-					/>
-				),
-				lazy: false,
-			}}
-		>
-			{/* <BottomTab.Screen
+	try {
+		firebaseCrashlyticsLog('Bottom tab navigation');
+		const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
+		const navigationRef = useRef(null);
+		const hasUnseenReelays = useSelector(state => state.discoverHasUnseenReelays);
+		const tabBarVisible = useSelector((state) => state.tabBarVisible);
+		const s = StyleSheet.create({
+			gradient: {
+				flex: 1,
+				height: "100%",
+				width: "100%",
+				borderWidth: 0,
+			},
+		});
+		return (
+			<BottomTab.Navigator
+				initialRouteName="Home"
+				screenOptions={{
+					tabBarActiveTintColor: `#rgba(255, 255, 255, ${TAB_BAR_ACTIVE_OPACITY})`,
+					tabBarInactiveTintColor: `#rgba(255, 255, 255, ${TAB_BAR_INACTIVE_OPACITY})`,
+					tabBarShowLabel: true,
+					tabBarLabelStyle: {
+						fontFamily: "Outfit-Medium",
+						fontSize: 12,
+						fontStyle: "normal",
+						lineHeight: 16,
+						letterSpacing: 0.4,
+						textAlign: "left",
+						marginTop: -3,
+					},
+					headerShown: false,
+					tabBarStyle: {
+						justifyContent: 'flex-end',
+						position: "absolute",
+						borderTopWidth: 0,
+						display: tabBarVisible ? "flex" : "none",
+						elevation: 0,
+						paddingLeft: 10,
+						paddingRight: 10,
+					},
+					tabBarBackground: () => (
+						<LinearGradient
+							colors={["transparent", ReelayColors.reelayBlack]}
+							locations={[0.25, 1]}
+							style={[StyleSheet.absoluteFill, s.gradient]}
+						/>
+					),
+					lazy: false,
+				}}
+			>
+				{/* <BottomTab.Screen
 				name="Home"
 				component={FeedTabNavigator}
 				options={{
@@ -114,47 +117,47 @@ export default AuthenticatedNavigator = () => {
 					),
 				}}
 			/> */}
-			<BottomTab.Screen
-				name="Discover"
-				component={HomeTabNavigator}//FeedTabNavigator}
-				options={{
-					tabBarIcon: ({ focused }) => (
-						<View>
-							<IconFocusView focused={focused}>
-								<FontAwesomeIcon icon={faCompass} size={24} color={focused ? 'white' : '#D4D4D4'} />
-								{ focused && <IconFocusIndicator /> }
-							</IconFocusView>
-							{/* { hasUnseenReelays && <UnreadIconIndicator /> } */}
-						</View>
-					),
-				}}
-			/>
-			<BottomTab.Screen
-				name="Create"
-				component={CreateReelayTabNavigator}
-				// listeners={({ navigation }) => ({
-				// 	tabPress: (event) => {
-				// 		event.preventDefault();
-				// 		navigationRef.current = navigation;
-				// 		setCreateDrawerOpen(true);
-				// 	}
-				// })}
-				options={{
-					tabBarIcon: ({ focused }) => (
-						<Fragment>
-							{/* { createDrawerOpen && (
+				<BottomTab.Screen
+					name="Discover"
+					component={HomeTabNavigator}//FeedTabNavigator}
+					options={{
+						tabBarIcon: ({ focused }) => (
+							<View>
+								<IconFocusView focused={focused}>
+									<FontAwesomeIcon icon={faCompass} size={24} color={focused ? 'white' : '#D4D4D4'} />
+									{focused && <IconFocusIndicator />}
+								</IconFocusView>
+								{/* { hasUnseenReelays && <UnreadIconIndicator /> } */}
+							</View>
+						),
+					}}
+				/>
+				<BottomTab.Screen
+					name="Create"
+					component={CreateReelayTabNavigator}
+					// listeners={({ navigation }) => ({
+					// 	tabPress: (event) => {
+					// 		event.preventDefault();
+					// 		navigationRef.current = navigation;
+					// 		setCreateDrawerOpen(true);
+					// 	}
+					// })}
+					options={{
+						tabBarIcon: ({ focused }) => (
+							<Fragment>
+								{/* { createDrawerOpen && (
 								<CreateTabDrawer navigation={navigationRef?.current} closeDrawer={() => setCreateDrawerOpen(false)} />
 							)} */}
-							<IconFocusView focused={focused}>
-								<CameraPlusIconSVG size={24} color={focused ? 'white' : '#D4D4D4'}/>
-								{/* <FontAwesomeIcon icon={faVideo} size={28} color={focused ? 'white' : '#D4D4D4'} /> */}
-								{ focused && <IconFocusIndicator /> }
-							</IconFocusView>
-						</Fragment>
-					),
-				}}
-			/>
-			{/* <BottomTab.Screen
+								<IconFocusView focused={focused}>
+									<CameraPlusIconSVG size={24} color={focused ? 'white' : '#D4D4D4'} />
+									{/* <FontAwesomeIcon icon={faVideo} size={28} color={focused ? 'white' : '#D4D4D4'} /> */}
+									{focused && <IconFocusIndicator />}
+								</IconFocusView>
+							</Fragment>
+						),
+					}}
+				/>
+				{/* <BottomTab.Screen
 				// name="Chats"
 				name="Decide"
 				component={DecisionTabNavigator}
@@ -167,7 +170,7 @@ export default AuthenticatedNavigator = () => {
 					),
 				}}
 			/> */}
-			{/* <BottomTab.Screen
+				{/* <BottomTab.Screen
 				name="Profile"
 				component={ProfileTabNavigator}
 				options={{
@@ -179,18 +182,21 @@ export default AuthenticatedNavigator = () => {
 					),
 				}}
 			/> */}
-			<BottomTab.Screen
-				name="Watch"
-				component={ProfileTabNavigator}
-				options={{
-					tabBarIcon: ({ focused }) => (
-						<IconFocusView focused={focused}>
-							<FontAwesomeIcon icon={faTelevision} color={focused ? 'white' : '#D4D4D4'} size={24} />
-							{ focused && <IconFocusIndicator /> }
-						</IconFocusView>
-					),
-				}}
-			/>
-		</BottomTab.Navigator>
-	);
+				<BottomTab.Screen
+					name="Watch"
+					component={ProfileTabNavigator}
+					options={{
+						tabBarIcon: ({ focused }) => (
+							<IconFocusView focused={focused}>
+								<FontAwesomeIcon icon={faTelevision} color={focused ? 'white' : '#D4D4D4'} size={24} />
+								{focused && <IconFocusIndicator />}
+							</IconFocusView>
+						),
+					}}
+				/>
+			</BottomTab.Navigator>
+		);
+	} catch (error) {
+		firebaseCrashlyticsError(error);
+	}
 }

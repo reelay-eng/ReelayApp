@@ -8,11 +8,11 @@ import ReelayColors from '../../constants/ReelayColors';
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 
-import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { logAmplitudeEventProd, firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 
 export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Reelay' }) => {
-    const { 
+    const {
         reelayDBUser,
         setReelayDBUserID,
     } = useContext(AuthContext);
@@ -70,11 +70,12 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
 
     const goToSignUp = async () => {
         try {
+            firebaseCrashlyticsLog('SignUp screen mounted');
             logAmplitudeEventProd('guestGoToSignUp', {
                 username: reelayDBUser?.username,
                 email: reelayDBUser?.email,
             });
-    
+
             const signOutResult = await Auth.signOut();
             dispatch({ type: 'setSignedIn', payload: false });
             dispatch({ type: 'clearAuthSession', payload: {} });
@@ -84,6 +85,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
             console.log(signOutResult);
         } catch (error) {
             console.log(error);
+            firebaseCrashlyticsError(error);
         }
     }
 

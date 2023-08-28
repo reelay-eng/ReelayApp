@@ -13,6 +13,7 @@ import Autolink from 'react-native-autolink';
 import { showSuccessToast } from '../utils/toasts';
 import { useDispatch, useSelector } from 'react-redux';
 import ChatMessage3DotDrawer from './ChatMessage3DotDrawer';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog } from '../utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
 
@@ -31,7 +32,7 @@ const ChatMessageView = styled(View)`
     flex-direction: row;
     margin-top: 8px;
     margin-bottom: 8px;
-    width: ${width-32}px;
+    width: ${width - 32}px;
 `
 const ChatMessageOuterView = styled(View)`
     padding-left: 16px;
@@ -100,108 +101,118 @@ const DotMenuButton = ({ message, navigation, socketRef }) => {
     return (
         <DotMenuButtonView onPress={openDrawer}>
             <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
-            { dotMenuVisible && <ChatMessage3DotDrawer message={message} navigation={navigation} socketRef={socketRef} /> }
+            {dotMenuVisible && <ChatMessage3DotDrawer message={message} navigation={navigation} socketRef={socketRef} />}
         </DotMenuButtonView>
     );
 }
 
 const MessageTextWithMentions = ({ message, navigation }) => {
-    const linkStyle = { color: ReelayColors.reelayBlue };
-    const mentionFollowType = {
-        trigger: '@',
-        textStyle: MentionTextStyle
-    };
+    try {
+        firebaseCrashlyticsLog('Message text with mentions');
+        const linkStyle = { color: ReelayColors.reelayBlue };
+        const mentionFollowType = {
+            trigger: '@',
+            textStyle: MentionTextStyle
+        };
 
-    const messagePartsWithMentions = parseValue(message.text, [mentionFollowType]);
-    const isMention = (part) => (part.partType && isMentionPartType(part.partType));
-    var messageText = '';
+        const messagePartsWithMentions = parseValue(message.text, [mentionFollowType]);
+        const isMention = (part) => (part.partType && isMentionPartType(part.partType));
+        var messageText = '';
 
-    const advanceToMentionProfile = (mentionData) => {
-        const mentionUser = {
-            sub: mentionData.id,
-            username: mentionData.name,
+        const advanceToMentionProfile = (mentionData) => {
+            const mentionUser = {
+                sub: mentionData.id,
+                username: mentionData.name,
+            }
+            navigation.push('UserProfileScreen', { creator: mentionUser });
         }
-        navigation.push('UserProfileScreen', { creator: mentionUser });
-    }
 
-    const renderMessagePart = (messagePart, index) => {
-        messageText += messagePart.text;
+        const renderMessagePart = (messagePart, index) => {
+            messageText += messagePart.text;
 
-        // adding a space in front of mentions at the start of the message
-        // fixes an alignment issue: without it, the mention element moves off
-        // the baseline. i haven't figured it out yet, so apologies for the hack
-        if (isMention(messagePart)) {
-            const alignmentHackText = (index === 0) ? ' ' : '';
+            // adding a space in front of mentions at the start of the message
+            // fixes an alignment issue: without it, the mention element moves off
+            // the baseline. i haven't figured it out yet, so apologies for the hack
+            if (isMention(messagePart)) {
+                const alignmentHackText = (index === 0) ? ' ' : '';
+                return (
+                    <Fragment key={index}>
+                        <MessageTextPortion text={alignmentHackText} linkStyle={linkStyle} url />
+                        <MentionButton onPress={() => advanceToMentionProfile(messagePart.data)}>
+                            <Text style={[MentionTextStyle]}>{messagePart.text}</Text>
+                        </MentionButton>
+                    </Fragment>
+                );
+            }
+
             return (
-                <Fragment key={index}>
-                    <MessageTextPortion text={alignmentHackText} linkStyle={linkStyle} url />
-                    <MentionButton onPress={() => advanceToMentionProfile(messagePart.data)}>
-                        <Text style={[MentionTextStyle]}>{messagePart.text}</Text>
-                    </MentionButton>
-                </Fragment>
+                <MessageTextPortion key={index} text={messagePart.text} linkStyle={linkStyle} url />
             );
         }
 
-        return (
-            <MessageTextPortion key={index} text={messagePart.text} linkStyle={linkStyle} url />
-        );
-    } 
-    
-    const copyToClipboard = () => {
-        Clipboard.setStringAsync(messageText).then(onFulfilled => {
-            showSuccessToast('Message successfully copied!')
-        });
-    }
+        const copyToClipboard = () => {
+            Clipboard.setStringAsync(messageText).then(onFulfilled => {
+                showSuccessToast('Message successfully copied!')
+            });
+        }
 
-    return (
-        <React.Fragment>
-            <Pressable onLongPress={copyToClipboard}>
-                <MessageTextStyled>
-                    { messagePartsWithMentions.parts.map(renderMessagePart) }
-                </MessageTextStyled>
-            </Pressable>
-        </React.Fragment>
-    )
+        return (
+            <React.Fragment>
+                <Pressable onLongPress={copyToClipboard}>
+                    <MessageTextStyled>
+                        {messagePartsWithMentions.parts.map(renderMessagePart)}
+                    </MessageTextStyled>
+                </Pressable>
+            </React.Fragment>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }
 
 export default ClubChatMessage = ({ loadChatMessageHistory, message, navigation, socketRef }) => {
-    const timestampString = moment(message?.createdAt).format("hh:mm A");
-    const author = { 
-        username: message?.username,
-        sub: message?.userSub,
-    }
-
-    const ChatMessageBody = () => {
-        return (
-            <ChatMessageBodyView>
-                <OverlineView>
-                    <AuthorText>{author?.username}</AuthorText>
-                    <TopRowSpacer />
-                    <TimestampText>{timestampString}</TimestampText>
-                </OverlineView>
-                <MessageTextView>
-                    <MessageTextWithMentions message={message} navigation={navigation} />
-                </MessageTextView>
-            </ChatMessageBodyView>
-        );
-    }
-
-    useEffect(() => {
-        if (message?.isOldestMessage) {
-            console.log('rendering oldest message: ', message.text); 
-            loadChatMessageHistory();
+    try {
+        firebaseCrashlyticsLog('Club chat message');
+        const timestampString = moment(message?.createdAt).format("hh:mm A");
+        const author = {
+            username: message?.username,
+            sub: message?.userSub,
         }
-    }, []);
 
-    return (
-        <ChatMessageOuterView>
-            <ChatMessageView>
-                <ProfilePictureView>
-                    <ProfilePicture user={author} size={32} />
-                </ProfilePictureView>
-                <ChatMessageBody />
-                <DotMenuButton message={message} navigation={navigation} socketRef={socketRef} />
-            </ChatMessageView>
-        </ChatMessageOuterView>
-    );
+        const ChatMessageBody = () => {
+            return (
+                <ChatMessageBodyView>
+                    <OverlineView>
+                        <AuthorText>{author?.username}</AuthorText>
+                        <TopRowSpacer />
+                        <TimestampText>{timestampString}</TimestampText>
+                    </OverlineView>
+                    <MessageTextView>
+                        <MessageTextWithMentions message={message} navigation={navigation} />
+                    </MessageTextView>
+                </ChatMessageBodyView>
+            );
+        }
+
+        useEffect(() => {
+            if (message?.isOldestMessage) {
+                console.log('rendering oldest message: ', message.text);
+                loadChatMessageHistory();
+            }
+        }, []);
+
+        return (
+            <ChatMessageOuterView>
+                <ChatMessageView>
+                    <ProfilePictureView>
+                        <ProfilePicture user={author} size={32} />
+                    </ProfilePictureView>
+                    <ChatMessageBody />
+                    <DotMenuButton message={message} navigation={navigation} socketRef={socketRef} />
+                </ChatMessageView>
+            </ChatMessageOuterView>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }

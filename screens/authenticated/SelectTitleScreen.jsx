@@ -20,6 +20,7 @@ import { TopicsBannerIconSVG } from '../../components/global/SVGs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EmptyTitleObject } from '../../api/TMDbApi';
 import * as Haptics from 'expo-haptics';
+import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../../components/utils/EventLogger';
 
 const { width } = Dimensions.get('window');
 
@@ -86,147 +87,152 @@ const TopicTitleText = styled(ReelayText.H6)`
     margin-right: 16px;
 `
 export default SelectTitleScreen = ({ navigation, route }) => {
-    const [loading, setLoading] = useState(false);
-    const [searchText, setSearchText] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [searchType, setSearchType] = useState('Film');
-    const searchTextEmpty = (!searchText || searchText === undefined || searchText === '');
+    try {
+        firebaseCrashlyticsLog('Select title screen mounted');
+        const [loading, setLoading] = useState(false);
+        const [searchText, setSearchText] = useState('');
+        const [searchResults, setSearchResults] = useState([]);
+        const [searchType, setSearchType] = useState('Film');
+        const searchTextEmpty = (!searchText || searchText === undefined || searchText === '');
 
-    /**
-     * Topic obj requires two elements only: { id, title }
-     */
+        /**
+         * Topic obj requires two elements only: { id, title }
+         */
 
-    const clubID = route?.params?.clubID;
-    const topic = route?.params?.topic;
-    const updateCounter = useRef(0);
+        const clubID = route?.params?.clubID;
+        const topic = route?.params?.topic;
+        const updateCounter = useRef(0);
 
-    const { reelayDBUser } = useContext(AuthContext);
-	const dispatch = useDispatch();
+        const { reelayDBUser } = useContext(AuthContext);
+        const dispatch = useDispatch();
 
-    if (reelayDBUser?.username === 'be_our_guest') {
-        return <JustShowMeSignupPage navigation={navigation} headerText={'Make a Reelay'} />
-    }
-
-    const TopicSkipButton = () => {
-        const topOffset = useSafeAreaInsets().top;
-
-        const skipToCameraScreen = () => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            navigation.push('ReelayCameraScreen', { 
-                titleObj: EmptyTitleObject, 
-                venue: '', 
-                topicID: topic?.id, 
-                clubID,
-            });    
-        };
-        return (
-            <TopicSkipPressable onPress={skipToCameraScreen} topOffset={topOffset}>
-                <TopicSkipText>{'Skip'}</TopicSkipText>
-            </TopicSkipPressable>
-        )
-    }
-
-    const TopicLabel = () => {
-        return (
-            <TopicTitleContainer>
-                <TopicsBannerIconSVG />
-                <TopicTitleText numberOfLines={2}>{topic?.title}</TopicTitleText>
-            </TopicTitleContainer>
-        );
-    }
-
-    const updateSearch = async (newSearchText, searchType, counter) => {
-        if (!newSearchText || newSearchText === undefined || newSearchText === '') {
-            setSearchResults([]);
-            return;
+        if (reelayDBUser?.username === 'be_our_guest') {
+            return <JustShowMeSignupPage navigation={navigation} headerText={'Make a Reelay'} />
         }
 
-        try {
-            setLoading(true);
-            if (searchType === 'Film') {
-                const annotatedResults = await searchTitles(newSearchText, false);
-                if (counter === updateCounter.current) {
-                    setSearchResults(annotatedResults);
-                }
-            } else {
-                const annotatedResults = await searchTitles(newSearchText, true);
-                if (counter === updateCounter.current) {
-                    setSearchResults(annotatedResults);
-                }
+        const TopicSkipButton = () => {
+            const topOffset = useSafeAreaInsets().top;
+
+            const skipToCameraScreen = () => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                navigation.push('ReelayCameraScreen', {
+                    titleObj: EmptyTitleObject,
+                    venue: '',
+                    topicID: topic?.id,
+                    clubID,
+                });
+            };
+            return (
+                <TopicSkipPressable onPress={skipToCameraScreen} topOffset={topOffset}>
+                    <TopicSkipText>{'Skip'}</TopicSkipText>
+                </TopicSkipPressable>
+            )
+        }
+
+        const TopicLabel = () => {
+            return (
+                <TopicTitleContainer>
+                    <TopicsBannerIconSVG />
+                    <TopicTitleText numberOfLines={2}>{topic?.title}</TopicTitleText>
+                </TopicTitleContainer>
+            );
+        }
+
+        const updateSearch = async (newSearchText, searchType, counter) => {
+            if (!newSearchText || newSearchText === undefined || newSearchText === '') {
+                setSearchResults([]);
+                return;
             }
-        } catch (error) {
-            console.log(error);
+
+            try {
+                setLoading(true);
+                if (searchType === 'Film') {
+                    const annotatedResults = await searchTitles(newSearchText, false);
+                    if (counter === updateCounter.current) {
+                        setSearchResults(annotatedResults);
+                    }
+                } else {
+                    const annotatedResults = await searchTitles(newSearchText, true);
+                    if (counter === updateCounter.current) {
+                        setSearchResults(annotatedResults);
+                    }
+                }
+            } catch (error) {
+                console.log(error);
+            }
         }
+
+        useFocusEffect(() => {
+            dispatch({ type: 'setTabBarVisible', payload: true });
+        })
+
+        useEffect(() => {
+            logAmplitudeEventProd('openSelectTitleScreen', { searchText, searchType });
+        }, []);
+
+        useEffect(() => {
+            updateCounter.current += 1;
+            const nextUpdateCounter = updateCounter.current;
+            setTimeout(() => {
+                updateSearch(searchText, searchType, nextUpdateCounter);
+            }, 200);
+        }, [searchText, searchType]);
+
+        useEffect(() => {
+            setLoading(false);
+        }, [searchResults]);
+
+        return (
+            <SafeAreaView style={{ backgroundColor: "black", alignItems: 'center', height: "100%", width: "100%" }}>
+                <TopBarContainer>
+                    {!topic && <HeaderWithBackButton navigation={navigation} text={"what did you see?"} />}
+                    {topic && <HeaderWithBackButton navigation={navigation} text={"add a reelay"} />}
+                    {topic && <TopicLabel />}
+                    {topic && <TopicSkipButton />}
+                </TopBarContainer>
+                <SelectorBarContainer>
+                    <ToggleSelector
+                        options={["Film", "TV"]}
+                        selectedOption={searchType}
+                        onSelect={(type) => {
+                            setSearchType(type);
+                        }}
+                    />
+                </SelectorBarContainer>
+                <SearchBarContainer>
+                    <SearchField
+                        backgroundColor="#232425"
+                        border={false}
+                        searchText={searchText}
+                        updateSearchText={setSearchText}
+                        borderRadius={4}
+                        placeholderText={(searchType === 'TV') ? "Search TV shows..." : "Search films..."}
+                    />
+                </SearchBarContainer>
+                {loading && <ActivityIndicator />}
+                {!loading && searchTextEmpty && (
+                    <SuggestedTitlesGrid
+                        navigation={navigation}
+                        selectedType={searchType}
+                        source='create'
+                        clubID={clubID ?? null}
+                        topicID={topic?.id ?? null}
+                    />
+                )}
+                {!loading && !searchTextEmpty && (
+                    <TitleSearchResults
+                        navigation={navigation}
+                        searchResults={searchResults}
+                        searchText={searchText}
+                        isSeries={(searchType === 'TV')}
+                        source={"create"}
+                        clubID={clubID ?? null}
+                        topicID={topic?.id ?? null}
+                    />
+                )}
+            </SafeAreaView>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: true }); 
-    })
-
-    useEffect(() => {
-        logAmplitudeEventProd('openSelectTitleScreen', { searchText, searchType });
-    }, []);
-
-    useEffect(() => {
-        updateCounter.current += 1;
-        const nextUpdateCounter = updateCounter.current;
-        setTimeout(() => {
-            updateSearch(searchText, searchType, nextUpdateCounter);
-        }, 200);
-    }, [searchText, searchType]);
-
-    useEffect(() => {
-        setLoading(false);
-    }, [searchResults]);
-
-    return (
-		<SafeAreaView style={{ backgroundColor: "black", alignItems: 'center', height: "100%", width: "100%" }}>
-			<TopBarContainer>
-                { !topic && <HeaderWithBackButton navigation={navigation} text={"what did you see?"} /> }
-                { topic && <HeaderWithBackButton navigation={navigation} text={"add a reelay"} /> }
-                { topic && <TopicLabel /> }
-                { topic && <TopicSkipButton /> }
-			</TopBarContainer>
-            <SelectorBarContainer>
-                <ToggleSelector
-                    options={["Film", "TV"]}
-                    selectedOption={searchType}
-                    onSelect={(type) => {
-                        setSearchType(type);
-                    }}
-                />
-            </SelectorBarContainer>
-            <SearchBarContainer>
-				<SearchField
-                    backgroundColor="#232425"
-                    border={false}                
-					searchText={searchText}
-                    updateSearchText={setSearchText}
-                    borderRadius={4}
-					placeholderText={(searchType === 'TV') ? "Search TV shows..." : "Search films..."}
-				/>
-			</SearchBarContainer>
-            { loading && <ActivityIndicator /> }
-            { !loading && searchTextEmpty && (
-                <SuggestedTitlesGrid
-                    navigation={navigation}
-                    selectedType={searchType}
-                    source='create'
-                    clubID={clubID ?? null}
-                    topicID={topic?.id ?? null}
-                />
-            )}
-            { !loading && !searchTextEmpty && (
-                <TitleSearchResults
-                    navigation={navigation}
-                    searchResults={searchResults}
-                    searchText={searchText}
-                    isSeries={(searchType === 'TV')}
-                    source={"create"}
-                    clubID={clubID ?? null}
-                    topicID={topic?.id ?? null}
-                />
-            )}
-		</SafeAreaView>
-	);
 };

@@ -171,7 +171,7 @@ function App() {
         }catch(error){
             firebaseCrashlyticsError(error);
         }
-        
+
         if (reelayDBUserID && authSession?.accessToken) loadMyProfile(reelayDBUserID);//b3a93275-50f8-42be-a4d5-374d118cee8f
     }, [reelayDBUserID, authSession]);
 
@@ -400,12 +400,14 @@ function App() {
                 }),
             });
             dispatch({ type: 'setS3Client', payload: newS3Client });
+            firebaseCrashlyticsLog("S3Client_mounted")
         } catch (error) {
             console.log('Could not initialize S3 client');
             console.log(error);
             logAmplitudeEventProd('s3InitializeError', {
                 error: error.message,
             });
+            firebaseCrashlyticsError(error)
         }
     }
 
@@ -591,8 +593,10 @@ function App() {
                     devicePushToken: devicePushToken,
                 });
             }    
+            firebaseCrashlyticsLog("Push notification registered");
         } catch (error) {
             console.log(error);
+            firebaseCrashlyticsError(error);
         }
     }
 

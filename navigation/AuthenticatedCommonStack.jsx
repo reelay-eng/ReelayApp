@@ -55,68 +55,74 @@ import ReferShareScreen from '../screens/authenticated/ReferShareScreen';
 import SearchTitleScreen from '../screens/unauthenticated/SearchScreen';
 import SelectMovieScreen from '../screens/unauthenticated/SelectMovieScreen';
 import ListMovieScreen from '../components/lists/ListMovieScreen';
+import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../components/utils/EventLogger';
 
 export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
-    const CommonStack = createStackNavigator();
-    const commonOptions = { headerShown: false };
+    try {
+        firebaseCrashlyticsLog('Authenticated common stack');
+        const CommonStack = createStackNavigator();
+        const commonOptions = { headerShown: false };
 
-    return (
-        <CommonStack.Navigator initialRouteName={initialRouteName} detachInactiveScreens={false}>
-            { children }
-            <CommonStack.Screen name='AllGamesScreen' component={AllGamesScreen} options={commonOptions} />
-            <CommonStack.Screen name='ClubJoinFromLinkScreen' component={ClubJoinFromLinkScreen} options={commonOptions} />
-            <CommonStack.Screen name='ClubActivityScreen' component={ClubActivityScreen} options={commonOptions} />
-            <CommonStack.Screen name='ClubAcceptInviteScreen' component={ClubAcceptInviteScreen} options={commonOptions} />
-            <CommonStack.Screen name='ClubAddTitleScreen' component={ClubAddTitleScreen} options={commonOptions} />
-            <CommonStack.Screen name='ClubFeedScreen' component={ClubFeedScreen} options={commonOptions} />
-            <CommonStack.Screen name='ClubInfoScreen' component={ClubInfoScreen} options={commonOptions} />
-            <CommonStack.Screen name='ClubMediaScreen' component={ClubMediaScreen} options={commonOptions} />
-            <CommonStack.Screen name='ClubStainedGlassScreen' component={ClubStainedGlassScreen} options={commonOptions} />
-            <CommonStack.Screen name='CreateClubScreen' component={CreateClubScreen} options={commonOptions} />
-            <CommonStack.Screen name='CreateClubPart2Screen' component={CreateClubPart2Screen} options={commonOptions} />
-            <CommonStack.Screen name='CreateClubPart3Screen' component={CreateClubPart3Screen} options={commonOptions} />
-            <CommonStack.Screen name='CreateGuessingGameScreen' component={CreateGuessingGameScreen} options={commonOptions} />
-            <CommonStack.Screen name='CreateGuessingGameCluesScreen' component={CreateGuessingGameCluesScreen} options={commonOptions} />
-            <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
-            <CommonStack.Screen name='CreateListScreen' component={CreateListScreen} options={commonOptions} />
-            <CommonStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
-            <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
-            <CommonStack.Screen name='GuessingGameFeedScreen' component={GuessingGameFeedScreen} options={commonOptions} />
-            <CommonStack.Screen name='InstaStoryClubScreen' component={InstaStoryClubScreen} options={commonOptions} />
-            <CommonStack.Screen name='InstaStoryGuessingGameScreen' component={InstaStoryGuessingGameScreen} options={commonOptions} />
-            <CommonStack.Screen name='InstaStoryReelayScreen' component={InstaStoryReelayScreen} options={commonOptions} />
-            <CommonStack.Screen name="NotificationScreen" component={NotificationScreen} options={commonOptions} />
-            <CommonStack.Screen name='PinAnnouncementScreen' component={PinAnnouncementScreen} options={commonOptions} />
-            <CommonStack.Screen name='ProfileFeedScreen' component={ProfileFeedScreen} options={commonOptions} />
-            <CommonStack.Screen name='ReportedChatMessagesScreen' component={ReportedChatMessagesScreen} options={commonOptions} />
-			<CommonStack.Screen name='ReportedReelaysFeedScreen' component={ReportedReelaysFeedScreen} options={commonOptions} />
-            <CommonStack.Screen name='ReportedTopicsFeedScreen' component={ReportedTopicsFeedScreen} options={commonOptions} />
-            <CommonStack.Screen name='ReportIssueScreen' component={ReportIssueScreen} options={commonOptions} />
-            <CommonStack.Screen name='ReelayListScreen' component={ReelayListScreen} options={commonOptions} />
-            <CommonStack.Screen name='SearchScreen' component={SearchScreen} options={commonOptions} />
-            <CommonStack.Screen name='SeeAllTitleReactionsScreen' component={SeeAllTitleReactionsScreen} options={commonOptions} />
-            <CommonStack.Screen name='SelectCorrectGuessScreen' component={SelectCorrectGuessScreen} options={commonOptions} />
-            <CommonStack.Screen name='SingleGuessingGameScreen' component={SingleGuessingGameScreen} options={commonOptions} />
-            <CommonStack.Screen name='SingleReelayScreen' component={SingleReelayScreen} options={commonOptions} />
-            <CommonStack.Screen name='SingleTopicScreen' component={SingleTopicScreen} options={commonOptions} />
-            <CommonStack.Screen name='TitleDetailScreen' component={TitleDetailScreen} options={commonOptions} />
-            <CommonStack.Screen name='TitleFeedScreen' component={TitleFeedScreen} options={commonOptions} />
-            <CommonStack.Screen name='TitleTrailerScreen' component={TitleTrailerScreen} options={commonOptions} />
-            <CommonStack.Screen name='TopicsFeedScreen' component={TopicsFeedScreen} options={commonOptions} />
-			<CommonStack.Screen name='TopicsListScreen' component={TopicsListScreen} options={commonOptions} />
-            <CommonStack.Screen name='UserProfileScreen' component={UserProfileScreen} options={commonOptions} />
-            <CommonStack.Screen name='UserProfileFromLinkScreen' component={UserProfileFromLinkScreen} options={commonOptions} />
-            <CommonStack.Screen name='UserFollowScreen' component={UserFollowScreen} options={commonOptions} />
-            <CommonStack.Screen name='SelectTitleScreen' component={SelectTitleScreen} options={commonOptions} />
-            <CommonStack.Screen name='VenueSelectScreen' component={VenueSelectScreen} options={commonOptions} />
-            <CommonStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen} options={commonOptions} />
-            <CommonStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen} options={commonOptions} />
-            <CommonStack.Screen name='WatchlistScreen' component={WatchlistScreen} options={commonOptions} />
-            <CommonStack.Screen name='MyClubsScreen' component={MyClubsScreen} options={commonOptions} />
-            <CommonStack.Screen name='ReferShareScreen' component={ReferShareScreen} options={commonOptions} />
-            <CommonStack.Screen name="SearchTitleScreen" component={SearchTitleScreen} options={commonOptions} />
-            <CommonStack.Screen name="SelectMovieScreen" component={SelectMovieScreen} options={commonOptions} />
-            <CommonStack.Screen name="ListMovieScreen" component={ListMovieScreen} options={commonOptions} />
-        </CommonStack.Navigator>
-    );
+        return (
+            <CommonStack.Navigator initialRouteName={initialRouteName} detachInactiveScreens={false}>
+                {children}
+                <CommonStack.Screen name='AllGamesScreen' component={AllGamesScreen} options={commonOptions} />
+                <CommonStack.Screen name='ClubJoinFromLinkScreen' component={ClubJoinFromLinkScreen} options={commonOptions} />
+                <CommonStack.Screen name='ClubActivityScreen' component={ClubActivityScreen} options={commonOptions} />
+                <CommonStack.Screen name='ClubAcceptInviteScreen' component={ClubAcceptInviteScreen} options={commonOptions} />
+                <CommonStack.Screen name='ClubAddTitleScreen' component={ClubAddTitleScreen} options={commonOptions} />
+                <CommonStack.Screen name='ClubFeedScreen' component={ClubFeedScreen} options={commonOptions} />
+                <CommonStack.Screen name='ClubInfoScreen' component={ClubInfoScreen} options={commonOptions} />
+                <CommonStack.Screen name='ClubMediaScreen' component={ClubMediaScreen} options={commonOptions} />
+                <CommonStack.Screen name='ClubStainedGlassScreen' component={ClubStainedGlassScreen} options={commonOptions} />
+                <CommonStack.Screen name='CreateClubScreen' component={CreateClubScreen} options={commonOptions} />
+                <CommonStack.Screen name='CreateClubPart2Screen' component={CreateClubPart2Screen} options={commonOptions} />
+                <CommonStack.Screen name='CreateClubPart3Screen' component={CreateClubPart3Screen} options={commonOptions} />
+                <CommonStack.Screen name='CreateGuessingGameScreen' component={CreateGuessingGameScreen} options={commonOptions} />
+                <CommonStack.Screen name='CreateGuessingGameCluesScreen' component={CreateGuessingGameCluesScreen} options={commonOptions} />
+                <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
+                <CommonStack.Screen name='CreateListScreen' component={CreateListScreen} options={commonOptions} />
+                <CommonStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
+                <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
+                <CommonStack.Screen name='GuessingGameFeedScreen' component={GuessingGameFeedScreen} options={commonOptions} />
+                <CommonStack.Screen name='InstaStoryClubScreen' component={InstaStoryClubScreen} options={commonOptions} />
+                <CommonStack.Screen name='InstaStoryGuessingGameScreen' component={InstaStoryGuessingGameScreen} options={commonOptions} />
+                <CommonStack.Screen name='InstaStoryReelayScreen' component={InstaStoryReelayScreen} options={commonOptions} />
+                <CommonStack.Screen name="NotificationScreen" component={NotificationScreen} options={commonOptions} />
+                <CommonStack.Screen name='PinAnnouncementScreen' component={PinAnnouncementScreen} options={commonOptions} />
+                <CommonStack.Screen name='ProfileFeedScreen' component={ProfileFeedScreen} options={commonOptions} />
+                <CommonStack.Screen name='ReportedChatMessagesScreen' component={ReportedChatMessagesScreen} options={commonOptions} />
+                <CommonStack.Screen name='ReportedReelaysFeedScreen' component={ReportedReelaysFeedScreen} options={commonOptions} />
+                <CommonStack.Screen name='ReportedTopicsFeedScreen' component={ReportedTopicsFeedScreen} options={commonOptions} />
+                <CommonStack.Screen name='ReportIssueScreen' component={ReportIssueScreen} options={commonOptions} />
+                <CommonStack.Screen name='ReelayListScreen' component={ReelayListScreen} options={commonOptions} />
+                <CommonStack.Screen name='SearchScreen' component={SearchScreen} options={commonOptions} />
+                <CommonStack.Screen name='SeeAllTitleReactionsScreen' component={SeeAllTitleReactionsScreen} options={commonOptions} />
+                <CommonStack.Screen name='SelectCorrectGuessScreen' component={SelectCorrectGuessScreen} options={commonOptions} />
+                <CommonStack.Screen name='SingleGuessingGameScreen' component={SingleGuessingGameScreen} options={commonOptions} />
+                <CommonStack.Screen name='SingleReelayScreen' component={SingleReelayScreen} options={commonOptions} />
+                <CommonStack.Screen name='SingleTopicScreen' component={SingleTopicScreen} options={commonOptions} />
+                <CommonStack.Screen name='TitleDetailScreen' component={TitleDetailScreen} options={commonOptions} />
+                <CommonStack.Screen name='TitleFeedScreen' component={TitleFeedScreen} options={commonOptions} />
+                <CommonStack.Screen name='TitleTrailerScreen' component={TitleTrailerScreen} options={commonOptions} />
+                <CommonStack.Screen name='TopicsFeedScreen' component={TopicsFeedScreen} options={commonOptions} />
+                <CommonStack.Screen name='TopicsListScreen' component={TopicsListScreen} options={commonOptions} />
+                <CommonStack.Screen name='UserProfileScreen' component={UserProfileScreen} options={commonOptions} />
+                <CommonStack.Screen name='UserProfileFromLinkScreen' component={UserProfileFromLinkScreen} options={commonOptions} />
+                <CommonStack.Screen name='UserFollowScreen' component={UserFollowScreen} options={commonOptions} />
+                <CommonStack.Screen name='SelectTitleScreen' component={SelectTitleScreen} options={commonOptions} />
+                <CommonStack.Screen name='VenueSelectScreen' component={VenueSelectScreen} options={commonOptions} />
+                <CommonStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen} options={commonOptions} />
+                <CommonStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen} options={commonOptions} />
+                <CommonStack.Screen name='WatchlistScreen' component={WatchlistScreen} options={commonOptions} />
+                <CommonStack.Screen name='MyClubsScreen' component={MyClubsScreen} options={commonOptions} />
+                <CommonStack.Screen name='ReferShareScreen' component={ReferShareScreen} options={commonOptions} />
+                <CommonStack.Screen name="SearchTitleScreen" component={SearchTitleScreen} options={commonOptions} />
+                <CommonStack.Screen name="SelectMovieScreen" component={SelectMovieScreen} options={commonOptions} />
+                <CommonStack.Screen name="ListMovieScreen" component={ListMovieScreen} options={commonOptions} />
+            </CommonStack.Navigator>
+        );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }

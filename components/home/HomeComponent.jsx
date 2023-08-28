@@ -25,6 +25,7 @@ import GuessingGames from './GuessingGames';
 import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
 import HomeWatchlistCard from './HomeWatchlistCard';
 import SectionDiscover from './SectionDiscover';
+import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../utils/EventLogger';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -47,104 +48,116 @@ const Spacer = styled(View)`
 `
 
 const HomeComponent = ({ navigation }) => {
-    const dispatch = useDispatch();
-    const { reelayDBUser } = useContext(AuthContext);
-    const authSession = useSelector(state => state.authSession);
-    const scrollRef = useRef(null);
-    const showWatchlistCard = (reelayDBUser?.username !== 'be_our_guest');
+    try {
+        firebaseCrashlyticsLog("Home Component Mounted - Navigation")
+        const dispatch = useDispatch();
+        const { reelayDBUser } = useContext(AuthContext);
+        const authSession = useSelector(state => state.authSession);
+        const scrollRef = useRef(null);
+        const showWatchlistCard = (reelayDBUser?.username !== 'be_our_guest');
 
-    const [selectedTab, setSelectedTab] = useState('discover');
-    const tabOptions = ['discover', 'my stuff'];
-    
-    // useFocusEffect(() => {
-    //     const unsubscribe = navigation.getParent().addListener('tabPress', e => {
-    //         e.preventDefault();
-    //         if (scrollRef.current) {
-    //             scrollRef.current.scrollTo({ y: 0, animated: false });
-    //             onRefresh();
-    //         }
-    //     });
-    //     return () => unsubscribe();
-    // })
+        const [selectedTab, setSelectedTab] = useState('discover');
+        const tabOptions = ['discover', 'my stuff'];
 
-    const onRefresh = async () => {
-        setRefreshing(true);
-        const reqUserSub = reelayDBUser?.sub;
-        const [
-            latestAnnouncement,
-            myHomeContent,
-            myNotifications,
-        ] = await Promise.all([
-            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getHomeContent({ authSession, reqUserSub }),
-            getAllMyNotifications(reelayDBUser?.sub),
-        ]);
+        // useFocusEffect(() => {
+        //     const unsubscribe = navigation.getParent().addListener('tabPress', e => {
+        //         e.preventDefault();
+        //         if (scrollRef.current) {
+        //             scrollRef.current.scrollTo({ y: 0, animated: false });
+        //             onRefresh();
+        //         }
+        //     });
+        //     return () => unsubscribe();
+        // })
 
-        const myFollowing = myHomeContent?.profile?.myFollowing;
-        const myStreamingSubscriptions = myHomeContent?.profile?.myStreamingSubscriptions;
-        
-        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
-        dispatch({ type: 'setMyNotifications', payload: myNotifications });
-        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
-        dispatch({ type: 'setMyFollowing', payload: myFollowing });
-        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        const onRefresh = async () => {
+            setRefreshing(true);
+            const reqUserSub = reelayDBUser?.sub;
+            const [
+                latestAnnouncement,
+                myHomeContent,
+                myNotifications,
+            ] = await Promise.all([
+                getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
+                getHomeContent({ authSession, reqUserSub }),
+                getAllMyNotifications(reelayDBUser?.sub),
+            ]);
 
-        setRefreshing(false);
+            const myFollowing = myHomeContent?.profile?.myFollowing;
+            const myStreamingSubscriptions = myHomeContent?.profile?.myStreamingSubscriptions;
 
-        // deferred load
-        const [
-            homeFollowingFeed,
-            homeGuessingGames,
-            homeInTheatersFeed,
-            homeOnStreamingFeed,
-            homeTopOfTheWeekFeed,
-        ] = await Promise.all([
-            getFeed({ authSession, feedSource: 'following', reqUserSub, page: 0 }),
-            getGuessingGamesPublished({ authSession, reqUserSub, page: 0 }),
-            getFeed({ authSession, feedSource: 'theaters', reqUserSub, page: 0 }),
-            getFeed({ authSession, feedSource: 'streaming', reqUserSub, page: 0 }),
-            getFeed({ authSession, feedSource: 'trending', reqUserSub, page: 0 }),
-        ]);
+            dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
+            dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
+            dispatch({ type: 'setMyNotifications', payload: myNotifications });
+            dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+            dispatch({ type: 'setMyFollowing', payload: myFollowing });
+            dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
 
-        dispatch({ type: 'setHomeFollowingFeed', payload: {
-            content: homeFollowingFeed,
-            nextPage: 1,
-        }});
-        dispatch({ type: 'setHomeGuessingGames', payload: {
-            content: homeGuessingGames,
-            nextPage: 1,
-        }})
-        dispatch({ type: 'setHomeInTheatersFeed', payload: {
-            content: homeInTheatersFeed,
-            nextPage: 1,
-        }});
-        dispatch({ type: 'setHomeOnStreamingFeed', payload: {
-            content: homeOnStreamingFeed,
-            nextPage: 1,
-        }});
-        dispatch({ type: 'setHomeTopOfTheWeekFeed', payload: {
-            content: homeTopOfTheWeekFeed,
-            nextPage: 1,
-        }});
-    }
+            setRefreshing(false);
 
-    const [refreshing, setRefreshing] = useState(false);
-    const refreshControl = <RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />;
+            // deferred load
+            const [
+                homeFollowingFeed,
+                homeGuessingGames,
+                homeInTheatersFeed,
+                homeOnStreamingFeed,
+                homeTopOfTheWeekFeed,
+            ] = await Promise.all([
+                getFeed({ authSession, feedSource: 'following', reqUserSub, page: 0 }),
+                getGuessingGamesPublished({ authSession, reqUserSub, page: 0 }),
+                getFeed({ authSession, feedSource: 'theaters', reqUserSub, page: 0 }),
+                getFeed({ authSession, feedSource: 'streaming', reqUserSub, page: 0 }),
+                getFeed({ authSession, feedSource: 'trending', reqUserSub, page: 0 }),
+            ]);
 
-    return (
-        <HomeContainer selectedTab={selectedTab}>
-            <SafeAreaView>
-                <HomeHeader 
-                    navigation={navigation} 
-                    selectedTab={selectedTab} 
-                    setSelectedTab={setSelectedTab} 
-                    tabOptions={tabOptions} 
-                />
-            </SafeAreaView>
+            dispatch({
+                type: 'setHomeFollowingFeed', payload: {
+                    content: homeFollowingFeed,
+                    nextPage: 1,
+                }
+            });
+            dispatch({
+                type: 'setHomeGuessingGames', payload: {
+                    content: homeGuessingGames,
+                    nextPage: 1,
+                }
+            })
+            dispatch({
+                type: 'setHomeInTheatersFeed', payload: {
+                    content: homeInTheatersFeed,
+                    nextPage: 1,
+                }
+            });
+            dispatch({
+                type: 'setHomeOnStreamingFeed', payload: {
+                    content: homeOnStreamingFeed,
+                    nextPage: 1,
+                }
+            });
+            dispatch({
+                type: 'setHomeTopOfTheWeekFeed', payload: {
+                    content: homeTopOfTheWeekFeed,
+                    nextPage: 1,
+                }
+            });
+        }
 
-            {/* <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}> */}
-            <SectionDiscover key={1} navigation={navigation} refreshControl={refreshControl}/>
+        const [refreshing, setRefreshing] = useState(false);
+        const refreshControl = <RefreshControl tintColor={"#fff"} refreshing={refreshing} onRefresh={onRefresh} />;
+
+        return (
+            <HomeContainer selectedTab={selectedTab}>
+                <SafeAreaView>
+                    <HomeHeader
+                        navigation={navigation}
+                        selectedTab={selectedTab}
+                        setSelectedTab={setSelectedTab}
+                        tabOptions={tabOptions}
+                    />
+                </SafeAreaView>
+
+                {/* <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}> */}
+                <SectionDiscover key={1} navigation={navigation} refreshControl={refreshControl} />
                 {/* <AnnouncementsAndNotices navigation={navigation} /> */}
                 {/* { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> } */}
                 {/* <GuessingGames navigation={navigation} /> // Hidden 1.08.04*/}
@@ -155,15 +168,18 @@ const HomeComponent = ({ navigation }) => {
                 {/* <OnStreaming navigation={navigation} source='discover' /> // Hidden 1.08.04 */}
                 {/* <DiscoverSearch navigation={navigation} /> */}
                 <Spacer />
-            {/* </ScrollContainer> */}
-            <BottomBar 
-                colors={["transparent", "#000000"]} 
-                locations={[0.05, 0.95]}
-                end={{ x: 0.5, y: 1}}
-            />
-            <NoticesAndAnnouncements navigation={navigation}/>
-        </HomeContainer>
-    )
+                {/* </ScrollContainer> */}
+                <BottomBar
+                    colors={["transparent", "#000000"]}
+                    locations={[0.05, 0.95]}
+                    end={{ x: 0.5, y: 1 }}
+                />
+                <NoticesAndAnnouncements navigation={navigation} />
+            </HomeContainer>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error)
+    }
 }
 
 const NoticesAndAnnouncements = ({ navigation }) => {
@@ -188,9 +204,9 @@ const NoticesAndAnnouncements = ({ navigation }) => {
     }, [showTabBar]))
     return (
         <React.Fragment>
-            { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
-            { showNoticeAsOverlay && <NoticeOverlay navigation={navigation} /> }
-            { showAppUpdatePopup && <AppUpdateOverlay />}   
+            {justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} />}
+            {showNoticeAsOverlay && <NoticeOverlay navigation={navigation} />}
+            {showAppUpdatePopup && <AppUpdateOverlay />}
         </React.Fragment>
     )
 }

@@ -16,7 +16,7 @@ import { GamesIconSVG } from '../../components/global/SVGs';
 import BackButton from '../../components/utils/BackButton';
 import { compositeReviewForInstagramStories } from '../../api/FFmpegApi';
 import { showMessageToast } from '../../components/utils/toasts';
-import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { firebaseCrashlyticsError, firebaseCrashlyticsLog, logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import GuessMarkers from '../../components/games/GuessMarkers';
 
@@ -131,234 +131,239 @@ const EmptyTitlePoster = () => {
 }
 
 export default InstaStoryGuessingGameScreen = ({ navigation, route }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const capturedBackplateURI = useRef(null);
-    const capturedOverlayURI = useRef(null);
-    const localReelayVideoURI = useRef(null);
-    const progressRef = useRef('downloading');
+    try {
+        firebaseCrashlyticsLog('Insta story guessing game screen');
+        const { reelayDBUser } = useContext(AuthContext);
+        const capturedBackplateURI = useRef(null);
+        const capturedOverlayURI = useRef(null);
+        const localReelayVideoURI = useRef(null);
+        const progressRef = useRef('downloading');
 
-    const dispatch = useDispatch();
-    const game = route?.params?.game;
-    const reelay = game?.reelays?.[0];
+        const dispatch = useDispatch();
+        const game = route?.params?.game;
+        const reelay = game?.reelays?.[0];
 
-    const url = route?.params?.url;
+        const url = route?.params?.url;
 
-    const backplateRef = useRef(null);
-    const overlayRef = useRef(null);
-    const topOffset = useSafeAreaInsets().top;
+        const backplateRef = useRef(null);
+        const overlayRef = useRef(null);
+        const topOffset = useSafeAreaInsets().top;
 
-    const PIXEL_RATIO = PixelRatio.get();
-    const backplateLayoutHeight = INSTA_STORY_HEIGHT / PIXEL_RATIO;
-    const backplateLayoutWidth = INSTA_STORY_WIDTH / PIXEL_RATIO;
-    const videoLayoutHeight = VIDEO_PLAYER_HEIGHT / PIXEL_RATIO; 
-    const videoLayoutWidth = VIDEO_PLAYER_WIDTH / PIXEL_RATIO; 
+        const PIXEL_RATIO = PixelRatio.get();
+        const backplateLayoutHeight = INSTA_STORY_HEIGHT / PIXEL_RATIO;
+        const backplateLayoutWidth = INSTA_STORY_WIDTH / PIXEL_RATIO;
+        const videoLayoutHeight = VIDEO_PLAYER_HEIGHT / PIXEL_RATIO;
+        const videoLayoutWidth = VIDEO_PLAYER_WIDTH / PIXEL_RATIO;
 
-    const downloadReelayVideo = async () => {
-        const videoDir = cacheDirectory + 'vid';
-        const dirInfo = await getInfoAsync(videoDir);
-        if (!dirInfo.exists) {
-            console.log("Image directory doesn't exist, creating...");
-            await makeDirectoryAsync(videoDir, { intermediates: true });
-        }
-
-        const localVideoURI = videoDir + '/' + reelay?.sub;
-        const localVideo = await downloadAsync(reelay?.content?.videoURI, localVideoURI);
-        localReelayVideoURI.current = localVideo?.uri;
-    }
-
-    const shareToInstagram = async () => {
-        if (!CAN_USE_RN_SHARE) return;
-        const inputURIs = {
-            backplateURI: capturedBackplateURI.current.replace('/private', 'file:///'),
-            overlayURI: capturedOverlayURI.current.replace('/private', 'file:///'),
-            videoURI: localReelayVideoURI.current,
-        }
-
-        const offsets = {
-            top: (backplateLayoutHeight - videoLayoutHeight) * (PIXEL_RATIO / 2),
-            left:  (backplateLayoutWidth - videoLayoutWidth) * (PIXEL_RATIO / 2),
-        }
-        
-        const videoRes = {
-            height: VIDEO_PLAYER_HEIGHT,
-            width: VIDEO_PLAYER_WIDTH,
-        }
-
-        progressRef.current = 'compositing';
-        const compositeVideoURI = await compositeReviewForInstagramStories({
-            inputURIs, offsets, videoRes
-        });
-
-        progressRef.current = 'sharing';
-        Clipboard.setStringAsync(url).then(() => {
-            showMessageToast('Reelay link copied to clipboard');
-            setTimeout(async () => {
-                const RN_SHARE = require('react-native-share');
-                const shareResult = await RN_SHARE.default.shareSingle({
-                    attributionURL: url,
-                    backgroundVideo: compositeVideoURI,
-                    url: url,
-                    social: RN_SHARE.Social.InstagramStories,
-                    type: 'video/mp4',
-                });
-                console.log('share result: ', shareResult);
-                navigation.goBack();        
-            }, 1000);
-        });
-        
-        logAmplitudeEventProd('shareGuessingGameToInstaComplete', {
-            title: reelay?.display?.title,
-            creator: reelay?.creator?.username,
-            sharedBy: reelayDBUser?.username
-        });
-    }
-
-    const ProgressIndicator = () => {
-        const bottomOffset = useSafeAreaInsets().bottom;
-        const [progress, setProgress] = useState(progressRef.current);
-        const getProgressText = () => {
-            if (progress === 'downloading') return 'Downloading reelay...';
-            if (progress === 'compositing') return 'Converting reelay to story...';
-            return 'Sharing to Instagram...';
-        }
-        useEffect(() => {
-            const progressInterval = setInterval(() => {
-                if (progressRef.current !== progress) {
-                    setProgress(progressRef.current);
-                }
-            }, 250);    
-        }, [progress]);
-
-        return (
-            <ProgressView bottomOffset={bottomOffset}>
-                <ProgressText>{getProgressText()}</ProgressText>
-                <ActivityIndicator />
-            </ProgressView>
-        );
-    }
-
-    const StoryBackplate = () => {
-        const onImageLoad = useCallback(() => {
-            console.log('backplate loaded')
-            backplateRef.current.capture().then(uri => {
-                console.log('backplate ref uri: ', uri);
-                capturedBackplateURI.current = uri;
-            })
-        }, []);
-
-        return (
-            <StoryBackplateView 
-                height={backplateLayoutHeight} 
-                ref={backplateRef}
-                width={backplateLayoutWidth
-            }>
-                <StoryBackplateImage 
-                    onLoad={onImageLoad}
-                    height={'100%'} 
-                    source={InstaStoryBackground} 
-                    width={'100%'}
-                />
-                <StoryHeaderInfo />
-            </StoryBackplateView>
-        );
-    }
-
-    const StoryVideoOverlay = () => {
-        const onCapture = useCallback(uri => {
-            capturedOverlayURI.current = uri;
-        }, []);
-
-        let scorecardText = 'My guesses';
-        if (game?.myGuesses?.length === 1) {
-            scorecardText = 'First try!';
-        };
-
-        return (
-            <StoryVideoOverlayView 
-                captureMode='mount'
-                onCapture={onCapture}
-                height={videoLayoutHeight} 
-                width={videoLayoutWidth}
-            >
-                <EmptyTitlePoster />
-                <ScorecardView>
-                    <ScorecardText>{scorecardText}</ScorecardText>
-                    <GuessMarkers game={game} />
-                </ScorecardView>
-            </StoryVideoOverlayView>
-        );
-    }
-
-    const StoryHeaderInfo = () => {
-        return (
-            <StoryHeaderInfoView topOffset={topOffset}>
-                <GamesIconSVG />
-                <TitleText numberOfLines={2}>{game?.title}</TitleText>
-            </StoryHeaderInfoView>
-        );    
-    }
-
-    const StoryVideo = () => {
-        const storyVideoStyle = {
-            borderRadius: 16,
-            top: ((backplateLayoutHeight - videoLayoutHeight) / 2),
-            left: (backplateLayoutWidth - videoLayoutWidth) / 2,
-            height: videoLayoutHeight, 
-            width: videoLayoutWidth,
-            position: 'absolute',
-        }
-        return (
-            <StoryBackplateView height={backplateLayoutHeight} width={backplateLayoutWidth}>
-                <Video
-                    isLooping={true}
-                    isMuted={false}
-                    resizeMode='cover'
-                    shouldPlay={true}
-                    source={{ uri: reelay?.content?.videoURI }}
-                    style={storyVideoStyle}
-                    useNativeControls={false}
-                    volume={1.0}    
-                />
-            </StoryBackplateView>
-        );
-    }
-
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-    });
-
-    useEffect(() => {
-        const captureRefInterval = setInterval(() => {
-            if (capturedBackplateURI.current && 
-                capturedOverlayURI.current && 
-                localReelayVideoURI.current
-            ) {
-                console.log('sharing to insta starting...');
-                clearInterval(captureRefInterval);
-                shareToInstagram();
+        const downloadReelayVideo = async () => {
+            const videoDir = cacheDirectory + 'vid';
+            const dirInfo = await getInfoAsync(videoDir);
+            if (!dirInfo.exists) {
+                console.log("Image directory doesn't exist, creating...");
+                await makeDirectoryAsync(videoDir, { intermediates: true });
             }
-        }, 250);
-        downloadReelayVideo();
-        logAmplitudeEventProd('shareReelayToInstaStarted', {
-            title: reelay?.display?.title,
-            creator: reelay?.creator?.username,
-            sharedBy: reelayDBUser?.username
-        });
-        return () => clearInterval(captureRefInterval);
-    }, []);
 
-    return (
-        <ScreenView>
-            <LoadingView>
-                <ActivityIndicator />
-            </LoadingView>
-            <StoryBackplate />
-            <StoryVideo />
-            <StoryVideoOverlay />
-            <HeaderView topOffset={topOffset}>
-                <BackButton navigation={navigation} text={'insta story'} />
-            </HeaderView>
-            <ProgressIndicator />
-        </ScreenView>
-    )
+            const localVideoURI = videoDir + '/' + reelay?.sub;
+            const localVideo = await downloadAsync(reelay?.content?.videoURI, localVideoURI);
+            localReelayVideoURI.current = localVideo?.uri;
+        }
+
+        const shareToInstagram = async () => {
+            if (!CAN_USE_RN_SHARE) return;
+            const inputURIs = {
+                backplateURI: capturedBackplateURI.current.replace('/private', 'file:///'),
+                overlayURI: capturedOverlayURI.current.replace('/private', 'file:///'),
+                videoURI: localReelayVideoURI.current,
+            }
+
+            const offsets = {
+                top: (backplateLayoutHeight - videoLayoutHeight) * (PIXEL_RATIO / 2),
+                left: (backplateLayoutWidth - videoLayoutWidth) * (PIXEL_RATIO / 2),
+            }
+
+            const videoRes = {
+                height: VIDEO_PLAYER_HEIGHT,
+                width: VIDEO_PLAYER_WIDTH,
+            }
+
+            progressRef.current = 'compositing';
+            const compositeVideoURI = await compositeReviewForInstagramStories({
+                inputURIs, offsets, videoRes
+            });
+
+            progressRef.current = 'sharing';
+            Clipboard.setStringAsync(url).then(() => {
+                showMessageToast('Reelay link copied to clipboard');
+                setTimeout(async () => {
+                    const RN_SHARE = require('react-native-share');
+                    const shareResult = await RN_SHARE.default.shareSingle({
+                        attributionURL: url,
+                        backgroundVideo: compositeVideoURI,
+                        url: url,
+                        social: RN_SHARE.Social.InstagramStories,
+                        type: 'video/mp4',
+                    });
+                    console.log('share result: ', shareResult);
+                    navigation.goBack();
+                }, 1000);
+            });
+
+            logAmplitudeEventProd('shareGuessingGameToInstaComplete', {
+                title: reelay?.display?.title,
+                creator: reelay?.creator?.username,
+                sharedBy: reelayDBUser?.username
+            });
+        }
+
+        const ProgressIndicator = () => {
+            const bottomOffset = useSafeAreaInsets().bottom;
+            const [progress, setProgress] = useState(progressRef.current);
+            const getProgressText = () => {
+                if (progress === 'downloading') return 'Downloading reelay...';
+                if (progress === 'compositing') return 'Converting reelay to story...';
+                return 'Sharing to Instagram...';
+            }
+            useEffect(() => {
+                const progressInterval = setInterval(() => {
+                    if (progressRef.current !== progress) {
+                        setProgress(progressRef.current);
+                    }
+                }, 250);
+            }, [progress]);
+
+            return (
+                <ProgressView bottomOffset={bottomOffset}>
+                    <ProgressText>{getProgressText()}</ProgressText>
+                    <ActivityIndicator />
+                </ProgressView>
+            );
+        }
+
+        const StoryBackplate = () => {
+            const onImageLoad = useCallback(() => {
+                console.log('backplate loaded')
+                backplateRef.current.capture().then(uri => {
+                    console.log('backplate ref uri: ', uri);
+                    capturedBackplateURI.current = uri;
+                })
+            }, []);
+
+            return (
+                <StoryBackplateView
+                    height={backplateLayoutHeight}
+                    ref={backplateRef}
+                    width={backplateLayoutWidth
+                    }>
+                    <StoryBackplateImage
+                        onLoad={onImageLoad}
+                        height={'100%'}
+                        source={InstaStoryBackground}
+                        width={'100%'}
+                    />
+                    <StoryHeaderInfo />
+                </StoryBackplateView>
+            );
+        }
+
+        const StoryVideoOverlay = () => {
+            const onCapture = useCallback(uri => {
+                capturedOverlayURI.current = uri;
+            }, []);
+
+            let scorecardText = 'My guesses';
+            if (game?.myGuesses?.length === 1) {
+                scorecardText = 'First try!';
+            };
+
+            return (
+                <StoryVideoOverlayView
+                    captureMode='mount'
+                    onCapture={onCapture}
+                    height={videoLayoutHeight}
+                    width={videoLayoutWidth}
+                >
+                    <EmptyTitlePoster />
+                    <ScorecardView>
+                        <ScorecardText>{scorecardText}</ScorecardText>
+                        <GuessMarkers game={game} />
+                    </ScorecardView>
+                </StoryVideoOverlayView>
+            );
+        }
+
+        const StoryHeaderInfo = () => {
+            return (
+                <StoryHeaderInfoView topOffset={topOffset}>
+                    <GamesIconSVG />
+                    <TitleText numberOfLines={2}>{game?.title}</TitleText>
+                </StoryHeaderInfoView>
+            );
+        }
+
+        const StoryVideo = () => {
+            const storyVideoStyle = {
+                borderRadius: 16,
+                top: ((backplateLayoutHeight - videoLayoutHeight) / 2),
+                left: (backplateLayoutWidth - videoLayoutWidth) / 2,
+                height: videoLayoutHeight,
+                width: videoLayoutWidth,
+                position: 'absolute',
+            }
+            return (
+                <StoryBackplateView height={backplateLayoutHeight} width={backplateLayoutWidth}>
+                    <Video
+                        isLooping={true}
+                        isMuted={false}
+                        resizeMode='cover'
+                        shouldPlay={true}
+                        source={{ uri: reelay?.content?.videoURI }}
+                        style={storyVideoStyle}
+                        useNativeControls={false}
+                        volume={1.0}
+                    />
+                </StoryBackplateView>
+            );
+        }
+
+        useFocusEffect(() => {
+            dispatch({ type: 'setTabBarVisible', payload: false });
+        });
+
+        useEffect(() => {
+            const captureRefInterval = setInterval(() => {
+                if (capturedBackplateURI.current &&
+                    capturedOverlayURI.current &&
+                    localReelayVideoURI.current
+                ) {
+                    console.log('sharing to insta starting...');
+                    clearInterval(captureRefInterval);
+                    shareToInstagram();
+                }
+            }, 250);
+            downloadReelayVideo();
+            logAmplitudeEventProd('shareReelayToInstaStarted', {
+                title: reelay?.display?.title,
+                creator: reelay?.creator?.username,
+                sharedBy: reelayDBUser?.username
+            });
+            return () => clearInterval(captureRefInterval);
+        }, []);
+
+        return (
+            <ScreenView>
+                <LoadingView>
+                    <ActivityIndicator />
+                </LoadingView>
+                <StoryBackplate />
+                <StoryVideo />
+                <StoryVideoOverlay />
+                <HeaderView topOffset={topOffset}>
+                    <BackButton navigation={navigation} text={'insta story'} />
+                </HeaderView>
+                <ProgressIndicator />
+            </ScreenView>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }

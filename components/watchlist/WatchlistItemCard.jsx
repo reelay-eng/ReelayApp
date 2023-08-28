@@ -5,14 +5,14 @@ import TitlePoster from '../global/TitlePoster';
 import MarkSeenButton from './MarkSeenButton';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { logAmplitudeEventProd, firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../utils/EventLogger';
 import WatchlistItemDotMenu from './WatchlistItemDotMenu';
 import MarkedSeenModal from './MarkedSeenModal';
 import * as ReelayText from '../global/Text';
 import { useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
 import { LinearGradient } from 'expo-linear-gradient';
- 
+
 const { height, width } = Dimensions.get('window');
 const CARD_SIDE_MARGIN = 6;
 const MAX_EMOJI_BADGE_COUNT = 3;
@@ -75,105 +75,110 @@ const WatchlistCardView = styled(Pressable)`
     width: ${WATCHLIST_CARD_WIDTH}px;
 `
 
-const WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistItem,Redirect }) => {
-    const matchWatchlistItem = item => item?.id === watchlistItem?.id;
-    const getWatchlistItem = state => state.myWatchlistItems.find(matchWatchlistItem);
-    const nextWatchlistItem = useSelector(getWatchlistItem);
+const WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistItem, Redirect }) => {
+    try {
+        firebaseCrashlyticsLog('WatchList Item Card');
+        const matchWatchlistItem = item => item?.id === watchlistItem?.id;
+        const getWatchlistItem = state => state.myWatchlistItems.find(matchWatchlistItem);
+        const nextWatchlistItem = useSelector(getWatchlistItem);
 
-    const advanceToTitleDetailScreen = () => navigation.push('TitleDetailScreen', { 
-        titleObj: watchlistItem.title,
-        fromWatchlist: true,
-        Redirect:Redirect
-    });
+        const advanceToTitleDetailScreen = () => navigation.push('TitleDetailScreen', {
+            titleObj: watchlistItem.title,
+            fromWatchlist: true,
+            Redirect: Redirect
+        });
 
-    const [drawerVisible, setDrawerVisible] = useState(false);
-    const [showMarkedSeenModal, setShowMarkedSeenModal] = useState(false);
-    const closeDrawer = () => setDrawerVisible(false);
+        const [drawerVisible, setDrawerVisible] = useState(false);
+        const [showMarkedSeenModal, setShowMarkedSeenModal] = useState(false);
+        const closeDrawer = () => setDrawerVisible(false);
 
-    const getDisplayEmojis = (reactEmojis = watchlistItem?.reactEmojis) => {
-        const displayEmojis = [];
-        for (let ii = 0; ii < reactEmojis.length; ii += 2) {
-            const emoji = reactEmojis.charAt(ii) + reactEmojis.charAt(ii + 1);
-            displayEmojis.push(emoji);
+        const getDisplayEmojis = (reactEmojis = watchlistItem?.reactEmojis) => {
+            const displayEmojis = [];
+            for (let ii = 0; ii < reactEmojis.length; ii += 2) {
+                const emoji = reactEmojis.charAt(ii) + reactEmojis.charAt(ii + 1);
+                displayEmojis.push(emoji);
+            }
+            return displayEmojis;
         }
-        return displayEmojis;
-    }
 
-    const [displayEmojis, setDisplayEmojis] = useState(getDisplayEmojis());
-    const showReactEmojis = displayEmojis?.length > 0;
+        const [displayEmojis, setDisplayEmojis] = useState(getDisplayEmojis());
+        const showReactEmojis = displayEmojis?.length > 0;
 
-    const onMarkedSeen = () => {
-        setShowMarkedSeenModal(true);
-    }
+        const onMarkedSeen = () => {
+            setShowMarkedSeenModal(true);
+        }
 
-    useEffect(() => {
-        setDisplayEmojis(getDisplayEmojis(nextWatchlistItem?.reactEmojis));
-    }, [nextWatchlistItem]);
+        useEffect(() => {
+            setDisplayEmojis(getDisplayEmojis(nextWatchlistItem?.reactEmojis));
+        }, [nextWatchlistItem]);
 
-    const DotMenuButton = () => {
-        return (
-            <DotMenuPressable activeOpacity={0.7} onPress={() => setDrawerVisible(true)}>
-                <DotMenuGradient colors={['transparent', ReelayColors.reelayBlack]} start={{x: 0, y: 1}} end={{x: 0, y: -0.5}} />
-                <FontAwesomeIcon icon={faEllipsis} color='white' size={20} />
-                <Spacer />
-            </DotMenuPressable>
-        );
-    }
-
-    const EmojiBadgeRow = () => {
-        const renderEmojiBadge = (emoji) => {
+        const DotMenuButton = () => {
             return (
-                <EmojiBadgeView key={emoji}>
-                    <EmojiBadgeText>{emoji}</EmojiBadgeText>
-                </EmojiBadgeView>
+                <DotMenuPressable activeOpacity={0.7} onPress={() => setDrawerVisible(true)}>
+                    <DotMenuGradient colors={['transparent', ReelayColors.reelayBlack]} start={{ x: 0, y: 1 }} end={{ x: 0, y: -0.5 }} />
+                    <FontAwesomeIcon icon={faEllipsis} color='white' size={20} />
+                    <Spacer />
+                </DotMenuPressable>
+            );
+        }
+
+        const EmojiBadgeRow = () => {
+            const renderEmojiBadge = (emoji) => {
+                return (
+                    <EmojiBadgeView key={emoji}>
+                        <EmojiBadgeText>{emoji}</EmojiBadgeText>
+                    </EmojiBadgeView>
+                );
+            }
+
+            return (
+                <EmojiBadgeRowView>
+                    {displayEmojis.map(renderEmojiBadge)}
+                </EmojiBadgeRowView>
+            )
+        }
+
+        const MarkSeen = () => {
+            return (
+                <MarkSeenRow>
+                    <MarkSeenButton
+                        onMarkedSeen={onMarkedSeen}
+                        showText={true}
+                        size={36}
+                        watchlistItem={watchlistItem}
+                    />
+                </MarkSeenRow>
             );
         }
 
         return (
-            <EmojiBadgeRowView>
-                { displayEmojis.map(renderEmojiBadge)}
-            </EmojiBadgeRowView>
-        )
-    }
-
-    const MarkSeen = () => {
-        return (
-            <MarkSeenRow>
-                <MarkSeenButton 
-                    onMarkedSeen={onMarkedSeen}
-                    showText={true} 
-                    size={36}
-                    watchlistItem={watchlistItem} 
-                />
-            </MarkSeenRow>
+            <WatchlistCardView onPress={advanceToTitleDetailScreen}>
+                <TitlePoster title={watchlistItem.title} width={WATCHLIST_CARD_WIDTH} />
+                <DotMenuButton />
+                {showReactEmojis && <EmojiBadgeRow />}
+                {!showReactEmojis && <MarkSeen />}
+                {drawerVisible && (
+                    <WatchlistItemDotMenu
+                        closeDrawer={closeDrawer}
+                        navigation={navigation}
+                        onMoveToFront={onMoveToFront}
+                        onRemoveItem={onRemoveItem}
+                        watchlistItem={watchlistItem}
+                    />
+                )}
+                {showMarkedSeenModal && (
+                    <MarkedSeenModal
+                        closeModal={() => setShowMarkedSeenModal(false)}
+                        navigation={navigation}
+                        setCardDisplayEmojis={setDisplayEmojis}
+                        watchlistItem={watchlistItem}
+                    />
+                )}
+            </WatchlistCardView>
         );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    return (
-        <WatchlistCardView onPress={advanceToTitleDetailScreen}>
-            <TitlePoster title={watchlistItem.title} width={WATCHLIST_CARD_WIDTH} />
-            <DotMenuButton />
-            { showReactEmojis && <EmojiBadgeRow /> }
-            { !showReactEmojis && <MarkSeen /> }
-            { drawerVisible &&  (
-                <WatchlistItemDotMenu 
-                    closeDrawer={closeDrawer} 
-                    navigation={navigation} 
-                    onMoveToFront={onMoveToFront}
-                    onRemoveItem={onRemoveItem}
-                    watchlistItem={watchlistItem}
-                />
-            )}
-            { showMarkedSeenModal && (
-                <MarkedSeenModal 
-                    closeModal={() => setShowMarkedSeenModal(false)} 
-                    navigation={navigation} 
-                    setCardDisplayEmojis={setDisplayEmojis}
-                    watchlistItem={watchlistItem} 
-                />
-            )}
-        </WatchlistCardView>
-    );
 }
 
 export default memo(WatchlistItemCard, (prevProps, nextProps) => true);

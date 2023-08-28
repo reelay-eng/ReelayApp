@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { 
-    ActivityIndicator, 
-    FlatList, 
-    Keyboard, 
-    TouchableOpacity, 
-    TouchableWithoutFeedback, 
+import {
+    ActivityIndicator,
+    FlatList,
+    Keyboard,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
     View,
 } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
@@ -18,7 +18,7 @@ import { ToggleSelector } from '../../components/global/Buttons';
 
 import styled from 'styled-components/native';
 import { searchTitles } from '../../api/ReelayDBApi';
-import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { logAmplitudeEventProd, firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../../components/utils/EventLogger';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useFocusEffect } from '@react-navigation/native';
 import { getMyDraftGuessingGames } from '../../api/GuessingGameApi';
@@ -103,161 +103,166 @@ const TopBarContainer = styled(View)`
 `
 
 export default SelectCorrectGuessScreen = ({ navigation, route }) => {
-    const authSession = useSelector(state => state.authSession);
-    const { reelayDBUser } = useContext(AuthContext);
-    const [draftGuessingGames, setDraftGuessingGames] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [searchText, setSearchText] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [searchType, setSearchType] = useState('Film');
-    const searchTextEmpty = (!searchText || searchText === undefined || searchText === '');
-    const topOffset = useSafeAreaInsets().top;
+    try {
+        firebaseCrashlyticsLog('Select correct guess screen');
+        const authSession = useSelector(state => state.authSession);
+        const { reelayDBUser } = useContext(AuthContext);
+        const [draftGuessingGames, setDraftGuessingGames] = useState([]);
+        const [loading, setLoading] = useState(false);
+        const [searchText, setSearchText] = useState('');
+        const [searchResults, setSearchResults] = useState([]);
+        const [searchType, setSearchType] = useState('Film');
+        const searchTextEmpty = (!searchText || searchText === undefined || searchText === '');
+        const topOffset = useSafeAreaInsets().top;
 
-    /**
-     * Topic obj requires two elements only: { id, title }
-     */
+        /**
+         * Topic obj requires two elements only: { id, title }
+         */
 
-    const clubID = route?.params?.clubID;
-    const hasDraftGuessingGames = (draftGuessingGames.length > 0);
-    const showDraftGuessingGames = !!(!loading && searchTextEmpty && hasDraftGuessingGames);
-    const updateCounter = useRef(0);
+        const clubID = route?.params?.clubID;
+        const hasDraftGuessingGames = (draftGuessingGames.length > 0);
+        const showDraftGuessingGames = !!(!loading && searchTextEmpty && hasDraftGuessingGames);
+        const updateCounter = useRef(0);
 
-	const dispatch = useDispatch();
+        const dispatch = useDispatch();
 
-    if (reelayDBUser?.username === 'be_our_guest') {
-        return <JustShowMeSignupPage navigation={navigation} headerText={'Make a Reelay'} />
-    }
-
-    const loadDraftGuessingGames = async () => {
-        const draftGuessingGames = await getMyDraftGuessingGames({
-            authSession,
-            reqUserSub: reelayDBUser?.sub,
-        });
-        if (!draftGuessingGames?.error) {
-            setDraftGuessingGames(draftGuessingGames);
-        }
-    }
-
-    const updateSearch = async (newSearchText, searchType, counter) => {
-        if (!newSearchText || newSearchText === undefined || newSearchText === '') {
-            setSearchResults([]);
-            return;
+        if (reelayDBUser?.username === 'be_our_guest') {
+            return <JustShowMeSignupPage navigation={navigation} headerText={'Make a Reelay'} />
         }
 
-        try {
-            setLoading(true);
-            if (searchType === 'Film') {
-                const annotatedResults = await searchTitles(newSearchText, false);
-                if (counter === updateCounter.current) {
-                    setSearchResults(annotatedResults);
-                }
-            } else {
-                const annotatedResults = await searchTitles(newSearchText, true);
-                if (counter === updateCounter.current) {
-                    setSearchResults(annotatedResults);
-                }
+        const loadDraftGuessingGames = async () => {
+            const draftGuessingGames = await getMyDraftGuessingGames({
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            if (!draftGuessingGames?.error) {
+                setDraftGuessingGames(draftGuessingGames);
             }
-        } catch (error) {
-            console.log(error);
         }
-    }
 
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false }); 
-    })
-
-    useEffect(() => {
-        updateCounter.current += 1;
-        const nextUpdateCounter = updateCounter.current;
-        setTimeout(() => {
-            updateSearch(searchText, searchType, nextUpdateCounter);
-        }, 200);
-    }, [searchText, searchType]);
-
-    useEffect(() => {
-        setLoading(false);
-    }, [searchResults]);
-
-    useEffect(() => {
-        loadDraftGuessingGames();
-    }, []);
-
-    const DraftGuessingGames = () => {
-        const gamesPlural = (draftGuessingGames.length > 1) ? 's' : '';
-        const headerText = `You have ${draftGuessingGames.length} draft guessing game${gamesPlural}`;
-        const DraftGameRow = ({ item }) => {
-            const game = item;
-            const advanceToClueBuilderScreen = () => {
-                navigation.push('CreateGuessingGameCluesScreen', { game });
+        const updateSearch = async (newSearchText, searchType, counter) => {
+            if (!newSearchText || newSearchText === undefined || newSearchText === '') {
+                setSearchResults([]);
+                return;
             }
+
+            try {
+                setLoading(true);
+                if (searchType === 'Film') {
+                    const annotatedResults = await searchTitles(newSearchText, false);
+                    if (counter === updateCounter.current) {
+                        setSearchResults(annotatedResults);
+                    }
+                } else {
+                    const annotatedResults = await searchTitles(newSearchText, true);
+                    if (counter === updateCounter.current) {
+                        setSearchResults(annotatedResults);
+                    }
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        useFocusEffect(() => {
+            dispatch({ type: 'setTabBarVisible', payload: false });
+        })
+
+        useEffect(() => {
+            updateCounter.current += 1;
+            const nextUpdateCounter = updateCounter.current;
+            setTimeout(() => {
+                updateSearch(searchText, searchType, nextUpdateCounter);
+            }, 200);
+        }, [searchText, searchType]);
+
+        useEffect(() => {
+            setLoading(false);
+        }, [searchResults]);
+
+        useEffect(() => {
+            loadDraftGuessingGames();
+        }, []);
+
+        const DraftGuessingGames = () => {
+            const gamesPlural = (draftGuessingGames.length > 1) ? 's' : '';
+            const headerText = `You have ${draftGuessingGames.length} draft guessing game${gamesPlural}`;
+            const DraftGameRow = ({ item }) => {
+                const game = item;
+                const advanceToClueBuilderScreen = () => {
+                    navigation.push('CreateGuessingGameCluesScreen', { game });
+                }
+                return (
+                    <DraftGameRowView onPress={advanceToClueBuilderScreen}>
+                        <DraftGameTitleText>{game.title}</DraftGameTitleText>
+                        <FontAwesomeIcon icon={faChevronRight} size={24} color='white' />
+                    </DraftGameRowView>
+                );
+            }
+
+            if (!showDraftGuessingGames) return <View />;
             return (
-                <DraftGameRowView onPress={advanceToClueBuilderScreen}>
-                    <DraftGameTitleText>{game.title}</DraftGameTitleText>
-                    <FontAwesomeIcon icon={faChevronRight} size={24} color='white' />
-                </DraftGameRowView>
+                <DraftGuessingGamesView>
+                    <Spacer />
+                    <HeaderText>{headerText}</HeaderText>
+                    <Spacer />
+                    <FlatList
+                        contentContainerStyle={{ paddingBottom: 200 }}
+                        data={draftGuessingGames}
+                        keyExtractor={item => item?.id}
+                        renderItem={({ item }) => <DraftGameRow item={item} />}
+                        showsVerticalScrollIndicator={false}
+                    />
+                    {/* { draftGuessingGames.map(game => <DraftGameRow key={game.id} game={game} /> )} */}
+                </DraftGuessingGamesView>
             );
         }
 
-        if (!showDraftGuessingGames) return <View />;
         return (
-            <DraftGuessingGamesView>
-                <Spacer />
-                <HeaderText>{headerText}</HeaderText>
-                <Spacer />
-                <FlatList
-                    contentContainerStyle={{ paddingBottom: 200 }}
-                    data={draftGuessingGames}
-                    keyExtractor={item => item?.id}
-                    renderItem={({ item }) => <DraftGameRow item={item} /> }
-                    showsVerticalScrollIndicator={false}
-                />
-                {/* { draftGuessingGames.map(game => <DraftGameRow key={game.id} game={game} /> )} */}
-            </DraftGuessingGamesView>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <ScreenView>
+                    <TopBarContainer topOffset={topOffset}>
+                        <HeaderWithBackButton navigation={navigation} text={"guessing game"} />
+                    </TopBarContainer>
+                    <HeaderView>
+                        <HeaderText>{'How it works'}</HeaderText>
+                        <HeaderSubText>{'Leave up to 6 reelays as clues for players to guess the right title.'}</HeaderSubText>
+                        <Spacer />
+                        <HeaderSubText>{'Select the correct answer below:'}</HeaderSubText>
+                    </HeaderView>
+                    <SelectorBarContainer>
+                        <ToggleSelector
+                            options={["Film", "TV"]}
+                            selectedOption={searchType}
+                            onSelect={(type) => {
+                                setSearchType(type);
+                            }}
+                        />
+                    </SelectorBarContainer>
+                    <SearchBarContainer>
+                        <SearchField
+                            searchText={searchText}
+                            updateSearchText={setSearchText}
+                            borderRadius={4}
+                            placeholderText={(searchType === 'TV') ? "Search TV shows..." : "Search films..."}
+                        />
+                    </SearchBarContainer>
+                    {loading && <ActivityIndicator />}
+                    {!loading && !searchTextEmpty && (
+                        <TitleSearchResults
+                            navigation={navigation}
+                            searchResults={searchResults}
+                            searchText={searchText}
+                            isSeries={(searchType === 'TV')}
+                            source={"createGuessingGame"}
+                            clubID={clubID ?? null}
+                        />
+                    )}
+                    <DraftGuessingGames />
+                </ScreenView>
+            </TouchableWithoutFeedback>
         );
+    } catch (error) {
+        firebaseCrashlyticsError(error);
     }
-
-    return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <ScreenView>
-                <TopBarContainer topOffset={topOffset}>
-                <HeaderWithBackButton navigation={navigation} text={"guessing game"} />
-                </TopBarContainer>
-                <HeaderView>
-                    <HeaderText>{'How it works'}</HeaderText>
-                    <HeaderSubText>{'Leave up to 6 reelays as clues for players to guess the right title.'}</HeaderSubText>
-                    <Spacer />
-                    <HeaderSubText>{'Select the correct answer below:'}</HeaderSubText>
-                </HeaderView>
-                <SelectorBarContainer>
-                    <ToggleSelector
-                        options={["Film", "TV"]}
-                        selectedOption={searchType}
-                        onSelect={(type) => {
-                            setSearchType(type);
-                        }}
-                    />
-                </SelectorBarContainer>
-                <SearchBarContainer>
-                    <SearchField
-                        searchText={searchText}
-                        updateSearchText={setSearchText}
-                        borderRadius={4}
-                        placeholderText={(searchType === 'TV') ? "Search TV shows..." : "Search films..."}
-                    />
-                </SearchBarContainer>
-                { loading && <ActivityIndicator /> }
-                { !loading && !searchTextEmpty && (
-                    <TitleSearchResults
-                        navigation={navigation}
-                        searchResults={searchResults}
-                        searchText={searchText}
-                        isSeries={(searchType === 'TV')}
-                        source={"createGuessingGame"}
-                        clubID={clubID ?? null}
-                    />
-                )}
-                <DraftGuessingGames />
-            </ScreenView>
-        </TouchableWithoutFeedback>
-	);
-};
+}

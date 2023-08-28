@@ -8,6 +8,7 @@ import * as ReelayText from "../../components/global/Text";
 import VenueIcon from '../../components/utils/VenueIcon';
 
 import styled from 'styled-components/native';
+import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../utils/EventLogger';
 
 const UserInfoContainer = styled(View)`
     padding: 16px;
@@ -56,53 +57,55 @@ const VenueContainer = styled(View)`
     width: 26px;
 `
 
-export default ProfileHeaderAndInfo = ({ 
-    navigation, 
-    creator, 
-    streamingSubscriptions, 
-    reelayCount, 
-    followers, 
-    following, 
+export default ProfileHeaderAndInfo = ({
+    navigation,
+    creator,
+    streamingSubscriptions,
+    reelayCount,
+    followers,
+    following,
 }) => {
-    const bioText = creator?.bio ?? '';
-    const websiteText = creator?.website ?? '';
-    const watchlistAddCount = creator?.watchlistAddCount ?? 0;
+    try {
+        firebaseCrashlyticsLog('Profile header_info count');
+        const bioText = creator?.bio ?? '';
+        const websiteText = creator?.website ?? '';
+        const watchlistAddCount = creator?.watchlistAddCount ?? 0;
 
-    const fixLink = (link) => {
-        if (link.startsWith('https://') || link.startsWith('http://')) {
-            return link;
-        } else {
-            return 'https://'+link;
+        const fixLink = (link) => {
+            if (link.startsWith('https://') || link.startsWith('http://')) {
+                return link;
+            } else {
+                return 'https://' + link;
+            }
         }
-    }
 
-    const goToWebsiteLink = () => Linking.openURL(fixLink(websiteText))
+        const goToWebsiteLink = () => Linking.openURL(fixLink(websiteText))
 
-    return (
-        <React.Fragment>
-            <HeaderContainer>
-                <ProfilePictureContainer>
-                    <ProfilePicture user={creator} size={80} />
-                </ProfilePictureContainer>
-                <StatsBarContainer>
-                    <ProfileStatsBar
-                        navigation={navigation}
-                        reelayCount={reelayCount}
-                        creator={creator}
-                        followers={followers}
-                        following={following}
-                        watchlistAddCount={watchlistAddCount}
-                    />
-                </StatsBarContainer>
-            </HeaderContainer>
-            <UserInfoContainer>
-                {bioText !== "" && (
-                    <BioText text={bioText.trim()} linkStyle={{ color: "#3366BB" }} url /> 
-                )}
-                {websiteText !== "" && (
-                    <WebsiteText onPress={goToWebsiteLink}>{websiteText}</WebsiteText>
-                )}
-                {/* <SubscriptionsContainer>
+        return (
+            <React.Fragment>
+                <HeaderContainer>
+                    <ProfilePictureContainer>
+                        <ProfilePicture user={creator} size={80} />
+                    </ProfilePictureContainer>
+                    <StatsBarContainer>
+                        <ProfileStatsBar
+                            navigation={navigation}
+                            reelayCount={reelayCount}
+                            creator={creator}
+                            followers={followers}
+                            following={following}
+                            watchlistAddCount={watchlistAddCount}
+                        />
+                    </StatsBarContainer>
+                </HeaderContainer>
+                <UserInfoContainer>
+                    {bioText !== "" && (
+                        <BioText text={bioText.trim()} linkStyle={{ color: "#3366BB" }} url />
+                    )}
+                    {websiteText !== "" && (
+                        <WebsiteText onPress={goToWebsiteLink}>{websiteText}</WebsiteText>
+                    )}
+                    {/* <SubscriptionsContainer>
                     {streamingSubscriptions.map((subscription, index) => {
                         return (
                             <VenueContainer key={index}>
@@ -111,7 +114,10 @@ export default ProfileHeaderAndInfo = ({
                         );
                     })}
                 </SubscriptionsContainer> */}
-            </UserInfoContainer>    
-        </React.Fragment>
-    )
+                </UserInfoContainer>
+            </React.Fragment>
+        )
+    } catch (error) {
+        firebaseCrashlyticsError(error);
+    }
 }

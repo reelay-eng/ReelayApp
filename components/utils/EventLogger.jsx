@@ -42,16 +42,16 @@ export const logAmplitudeEventProd = async (eventName, options) => {
 }
 
 export const firebaseCrashlyticsLog = async (screenTitle) => {
-     if(canUseNativeModules){
-            const Crashlytics = require('@react-native-firebase/crashlytics')
-            Crashlytics().logEvent(screenTitle)     //to log screen title/name
-            Crashlytics().crash();      //for testing purpose - remove it later
+    if (canUseNativeModules) {
+        const crashlytics = require('@react-native-firebase/crashlytics')
+        crashlytics().log(screenTitle)     //to log screen title/name
+        crashlytics().crash();      //for testing purpose - remove it later
     }
 }
 
 export const firebaseCrashlyticsError = async (error) => {
-    if(canUseNativeModules){
-           const Crashlytics = require('@react-native-firebase/crashlytics')
-           Crashlytics().error(error);      //to log error occured for particular event
-   }
+    if (canUseNativeModules) {
+        const crashlytics = require('@react-native-firebase/crashlytics')
+        crashlytics().error(error);      //to log error occured for particular event
+    }
 }
