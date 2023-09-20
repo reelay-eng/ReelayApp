@@ -170,10 +170,12 @@ export default SignedOutScreen = ({ navigation, route }) => {
                 setSigningInJustShowMe(true);
                 const guestCognitoUser = await Auth.signIn('be_our_guest', 'candelabra');
                 const cognitoSession = await Auth.currentSession();
+                console.log("guestCognitoUser",guestCognitoUser)
+                console.log("cognitoSession",cognitoSession)
                 setCognitoUser(guestCognitoUser);
                 dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
             } catch (error) {
-                console.log(error);
+                console.log("error",error);
                 showErrorToast('Oh no! We couldn\'t guest you in. Try again or contact support@reelay.app');
                 setSigningInJustShowMe(false);
             }

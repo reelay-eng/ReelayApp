@@ -22,7 +22,7 @@ const AllGamesButtonPressable = styled(TouchableOpacity)`
 const CardPressable = styled(Pressable)`
     background-color: #1E1F21;
     border-radius: 12px;
-    margin: 16px;
+    margin: 10px;
     padding-top: 24px;
     padding-bottom: 16px;
 `
@@ -40,7 +40,7 @@ const GuessingGamesView = styled.View`
     display: flex;
     flex-direction: column;
     margin-top: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 2px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -98,7 +98,7 @@ const StreakTrackerView = styled(View)`
     width: 100%;
 `
 
-export default GuessingGames = ({ navigation }) => {
+export default GuessingGames = ({ navigation, advertise = false }) => {
     try {
         firebaseCrashlyticsLog('Guessing games');
         const authSession = useSelector(state => state.authSession);
@@ -254,10 +254,11 @@ export default GuessingGames = ({ navigation }) => {
 
         return (
             <GuessingGamesView>
+                {!advertise &&
                 <HeaderView>
                     <HeaderText>{'Play the daily game'}</HeaderText>
                     <AllGamesButton />
-                </HeaderView>
+                </HeaderView>}
                 {displayGames?.length > 0 && <GuessingGamesCard />}
             </GuessingGamesView>
         )

@@ -45,7 +45,7 @@ export const firebaseCrashlyticsLog = async (screenTitle) => {
     if (canUseNativeModules) {
         const crashlytics = require('@react-native-firebase/crashlytics')
         crashlytics().log(screenTitle)     //to log screen title/name
-        crashlytics().crash();      //for testing purpose - remove it later
+        // crashlytics().crash();      //for testing purpose - remove it later
     }
 }
 

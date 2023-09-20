@@ -160,7 +160,7 @@ const HomeComponent = ({ navigation }) => {
                 <SectionDiscover key={1} navigation={navigation} refreshControl={refreshControl} />
                 {/* <AnnouncementsAndNotices navigation={navigation} /> */}
                 {/* { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> } */}
-                {/* <GuessingGames navigation={navigation} /> // Hidden 1.08.04*/}
+                {/* <GuessingGames navigation={navigation} /> */}
                 {/* <RecommendedForYou navigation={navigation} /> */}
                 {/* <PopularTitles navigation={navigation} /> */}
                 {/* <TopOfTheWeek navigation={navigation} /> */}

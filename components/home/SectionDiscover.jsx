@@ -42,6 +42,8 @@ import { ResizeMode } from 'expo-av'
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { Carousel } from 'react-native-snap-carousel';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import GuessingGames from './GuessingGames';
+import moment from 'moment';
 
 const { height, width } = Dimensions.get('window');
 
@@ -192,6 +194,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         firebaseCrashlyticsLog('SectionDiscover screen mounted')
         const { reelayDBUser } = useContext(AuthContext);
         const dispatch = useDispatch();
+        const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
 
         const [selectedSection, setSelectedSection] = useState('Newest');
         const [activeIndex, setActiveIndex] = useState(0);
@@ -252,6 +255,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         const [muteIndex, setMuteIndex] = useState(0);
         const [focusedIndex, setFocusedIndex] = useState();
         const [impressionAdv, setImpressionAdv] = useState(0);
+        const [gameImp, setGameImp] = useState(false);
         const videoRef = useRef(null);
         const flatRef = useRef(null);
         const uploadStage = useSelector(state => state.uploadStage);
@@ -607,11 +611,22 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         }, [])
         const Syncc = async () => {
             const advertiseImpression = await AsyncStorage.getItem('advertiseImpression');
+            const advertiseGame = await AsyncStorage.getItem('advertiseGame');
+            const todaysData = moment().format("DD-MM-YYYY")
             console.log("advertiseImpression", advertiseImpression)
             if (!advertiseImpression) {
                 setImpressionAdv(0)
                 await AsyncStorage.setItem('advertiseImpression', "0");
             } else if (advertiseImpression && advertiseImpression == "0") {
+                // if (!advertiseGame) {
+                //     setGameImp(true)
+                //     await AsyncStorage.setItem('advertiseGame', todaysData);
+                // }else if(advertiseGame && moment(advertiseGame).isSame(todaysData)){
+                //     setGameImp(false)
+                // }else{
+                //     setGameImp(true)
+                //     await AsyncStorage.setItem('advertiseGame', todaysData);
+                // }
                 setImpressionAdv(1)
                 await AsyncStorage.setItem('advertiseImpression', "1");
             } else if (advertiseImpression && advertiseImpression == "1") {
@@ -636,12 +651,10 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                 if (oppositeKey == 3) {
                     setShowAllFilters(true)
                 }
-                if (flatRef?.current) {
-                    flatRef?.current?.scrollToIndex({ animated: true, index: 0 });
-
-                }
+                // if (flatRef?.current) {
+                //     flatRef?.current?.scrollToIndex({ animated: true, index: 0 });
+                // }
                 if (activeIndex !== oppositeKey) {
-
                     setDisplayItems([]);
                     setActiveIndex(oppositeKey)
                     setSelectedSection(filterKey);
@@ -966,7 +979,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         );
 
         const rowRenderer = ({ item, index }) => {
-            const reelay = selectedSection == "Following" && followingData?.length < 50 ? item[0] : item;//selectedSection == "Newest" ? item : item[0];
+            const reelay = selectedSection == "Following" && followingData?.length < 50 ? isGuestUser? item: item[0] : item;//selectedSection == "Newest" ? item : item[0];
             const starRating = (reelay?.starRating ?? 0) + (reelay?.starRatingAddHalf ? 0.5 : 0);
             // var muteIndex = 0;
             const onPlaybackStatusUpdate = (playbackStatus, index) => {
@@ -979,6 +992,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             const gotoDetail = (reelay) => {
                 setMuteIndex(-1)
                 navigation.push('SingleReelayScreen', { reelaySub: reelay?.sub })
+                // navigation.push('TitleDiscoverReelayScreen', { reelaySub: reelay?.sub })
             }
 
             const generateAndSaveThumbnail = async () => {
@@ -1013,20 +1027,9 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                                 uri: reelay?.content?.videoURI,
                                             },
                                         }}
-                                        playbackCallback={(e) => {
-                                            if (e.isLoaded) {
-                                                // Video replay ended
-                                                if (e.didJustFinish) {
-                                                    setMuteIndex(-1)
-                                                }
-                                            }
-                                        }}
-                                        icon={{
-                                            replay: <></>,
-                                        }}
-                                        slider={{
-                                            visible: false,
-                                        }}
+                                        playbackCallback={(e) => { if (e.isLoaded) { if (e.didJustFinish) { setMuteIndex(-1) } }}} // Video replay ended
+                                        // icon={{ replray: <></>, }}
+                                        slider={{ visible: false, }}
                                         timeVisible={false}
                                         defaultControlsVisible={false}
                                         useNativeControls={false}
@@ -1065,7 +1068,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                                 <ProfilePicture user={reelay?.creator} size={26} border />
                                             </CreatorLineContainer>
                                         </>
-                                        <View style={{ marginLeft: 5, width: "75%" }}>
+                                        <View style={{ marginLeft: 5, width: "70%" }}>
                                             <UsernameText numberOfLines={2}>
                                                 {reelay?.creator?.username}
                                             </UsernameText>
@@ -1080,13 +1083,16 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                                 </StarRatingContainer>}
                                         </View>
                                     </View>
-                                    <>
+                                    <View style={{ width: "25%",justifyContent:"center"}}>
                                         {muteIndex !== index ?
-
-                                            <Ionicons onPress={() => setMuteIndex(index)} name='volume-mute' color={"#fff"} size={24} style={{ marginRight: 8 }} />
+                                    <Pressable onPress={() => setMuteIndex(index)}  style={{ marginLeft: -5, height:40 ,justifyContent:"center"}}>
+                                            <Ionicons name='volume-mute' color={"#fff"} size={24} style={{ paddingRight: 8,textAlign:"center"}} />
+                                            </Pressable>
                                             :
-                                            <Ionicons onPress={() => setMuteIndex(-1)} name='volume-high' color={"#fff"} size={24} style={{ marginRight: 8 }} />}
-                                    </>
+                                            <Pressable onPress={() => setMuteIndex(-1)} style={{ marginLeft: -5, height:40,justifyContent:"center"}}>
+                                            <Ionicons name='volume-high' color={"#fff"} size={24} style={{ paddingRight: 8,textAlign:"center" }} />
+                                            </Pressable>}
+                                    </View>
                                 </BlurView>
                             </GradientContainer>
                         </View>
@@ -1094,7 +1100,8 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                     <>
                         {reelay?.valIndex == 0 ?
 
-                            <Carousel
+                        //    ( !gameImp ?
+                             <Carousel
                                 activeSlideAlignment={'center'}
                                 data={Advertise1}
                                 loop={true}
@@ -1125,7 +1132,11 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                 }
                                 sliderHeight={452}
                                 sliderWidth={width}
-                            /> :
+                            />
+                            //  :
+                            //  <GuessingGames navigation={navigation} advertise={true} />)
+
+                            :
                             <Carousel
                                 activeSlideAlignment={'center'}
                                 data={Advertise2}
@@ -1171,7 +1182,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             }
         }, [focusedIndex]);
 
-
+        // const extraDa = selectedSection === "Watchlist" ? watchlistReels : selectedSection === "Following" ? followingReels : selectedSection === "Newest" ? newestReels : moreFiltersReels;
         return (
             <InTheatersContainer>
                 <HeaderContainer>
@@ -1180,12 +1191,13 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                 {!feedLoad ?
                     <View style={{}}>
                         <FlatList
-                            data={selectedSection == "Watchlist" ? watchlistReels : selectedSection == "Following" ? followingReels : selectedSection == "Newest" ? newestReels : moreFiltersReels}
+                            data={selectedSection === "Watchlist" ? watchlistReels : selectedSection === "Following" ? followingReels : selectedSection === "Newest" ? newestReels : moreFiltersReels}
                             refreshControl={refreshControls}
                             onScroll={handleScroll}
                             contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', paddingBottom: 300 }}
-                            initialNumToRender={4}
+                            initialNumToRender={2}
                             ref={flatRef}
+                            // extraData={extraDa}
                             removeClippedSubviews={false}
                             keyExtractor={(item, index) => index.toString()}
                             renderItem={(item, index) => rowRenderer(item, index)}

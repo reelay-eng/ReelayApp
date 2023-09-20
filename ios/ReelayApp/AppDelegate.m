@@ -72,7 +72,6 @@ static void InitializeFlipper(UIApplication *application) {
   [self.window makeKeyAndVisible];
   [FIRApp configure];
   [super application:application didFinishLaunchingWithOptions:launchOptions];
-  [FIRApp configure];
 
   return YES;
 }
