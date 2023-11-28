@@ -1082,6 +1082,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           videoRef.current.stopAsync();
         }
       }, []);
+      
     // old code starts
     // const gotoDetail = (reelay) => {
     //     setMuteIndex(-1);
