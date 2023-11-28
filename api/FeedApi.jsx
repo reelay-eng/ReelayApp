@@ -15,7 +15,9 @@ export const getDiscoverFeed = async ({
     page = 0, 
     reqUserSub, 
     sortMethod = 'mostRecent', 
+    items
 }) => {
+    const startTime = Performance.now();
     const queryParams = `page=${page}&sortMethod=${sortMethod}&visibility=${FEED_VISIBILITY}`;
     const routeGet = `${REELAY_API_BASE_URL}/feed/discover?${queryParams}`;
     const filteredFeed = await fetchResults(routeGet, {
@@ -26,6 +28,14 @@ export const getDiscoverFeed = async ({
             requsersub: reqUserSub,
         }
     });
+    if(filteredFeed){
+        const endTime = Performance.now();
+        const elapsedTimeInMilliseconds = endTime - startTime;
+        console.log(`getDiscoverFeed: ${REELAY_API_BASE_URL}/feed/discover of ${items} API took ${elapsedTimeInMilliseconds} milliseconds.`);
+        const elapsedTimeInSeconds = elapsedTimeInMilliseconds / 1000;
+        console.log(`getDiscoverFeed: ${REELAY_API_BASE_URL}/feed/discover API took  ${items} ${elapsedTimeInSeconds} seconds.`);
+    }
+   
     // console.log("filteredFeed",routeGet,{ ...getReelayAuthHeaders(authSession),
     //     filtersjson: JSON.stringify(filters),
     //     requsersub: reqUserSub,})
@@ -39,6 +49,7 @@ export const getDiscoverFeedLatest = async ({
     reqUserSub, 
     sortMethod = 'mostRecent', 
 }) => {
+    const startTime = Performance.now();
     const queryParams = `page=${page}&sortMethod=${sortMethod}&visibility=${FEED_VISIBILITY}`;
     const routeGet = `${REELAY_API_BASE_URL}/feed/discovernew?${queryParams}`;
     const filteredFeed = await fetchResults(routeGet, {
@@ -49,6 +60,13 @@ export const getDiscoverFeedLatest = async ({
             requsersub: reqUserSub,
         }
     });
+    if(filteredFeed){
+        const endTime = Performance.now();
+        const elapsedTimeInMilliseconds = endTime - startTime;
+        console.log(`getDiscoverFeedLatest: ${REELAY_API_BASE_URL}/feed/discovernew of ${items} API took ${elapsedTimeInMilliseconds} milliseconds.`);
+        const elapsedTimeInSeconds = elapsedTimeInMilliseconds / 1000;
+        console.log(`getDiscoverFeedLatest: ${REELAY_API_BASE_URL}/feed/discovernew of ${items} API took ${elapsedTimeInSeconds} seconds.`);
+    }
     // console.log("filteredFeed",routeGet, {
     //     ...getReelayAuthHeaders(authSession),
     //     filtersjson: JSON.stringify(filters),
@@ -64,6 +82,7 @@ export const getDiscoverFeedNew = async ({
             reqUserSub, 
             sortMethod = 'mostRecent', 
         })=>{
+            const startTime = Performance.now();
         const queryParams = `page=${page}&sortMethod=${sortMethod}&visibility=${FEED_VISIBILITY}`;
         const routeGet = `${REELAY_API_BASE_URL}/feed/latest?${queryParams}`;
         const filteredFeed = await fetchResults(routeGet, {
@@ -75,6 +94,13 @@ export const getDiscoverFeedNew = async ({
             }
             // headers: ReelayAPIHeaders,
         });
+        if(filteredFeed){
+            const endTime = Performance.now();
+            const elapsedTimeInMilliseconds = endTime - startTime;
+            console.log(`getDiscoverFeedLatest: ${REELAY_API_BASE_URL}/feed/latest of  API took ${elapsedTimeInMilliseconds} milliseconds.`);
+            const elapsedTimeInSeconds = elapsedTimeInMilliseconds / 1000;
+            console.log(`getDiscoverFeedLatest: ${REELAY_API_BASE_URL}/feed/latest of API took ${elapsedTimeInSeconds} seconds.`);
+        }
         // console.log("filteredFeed",routeGet)
         return await prepareThread(filteredFeed);
     };
