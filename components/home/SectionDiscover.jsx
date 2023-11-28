@@ -1118,11 +1118,13 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         }
       }, [reelay]);
      // old code starts
-     // const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
+     const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
      // old code ends
 
-    const cloudfrontThumbnailSource = useMemo(() => ({ uri: getThumbnailURI(reelay) }), [reelay]);
-
+    //  New Code starts
+    // const cloudfrontThumbnailSource = useMemo(() => ({ uri: getThumbnailURI(reelay) }), [reelay]);
+    // New Code ends
+    
       return !reelay?.advertise ? (
         <ThumbnailContainer key={index} onPress={() => gotoDetail(reelay)}>
           <View style={{ margin: 10 }}>
