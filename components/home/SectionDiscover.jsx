@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState, useRef } from "react";
+import React, { memo, useContext, useEffect, useState, useRef, useMemo, useCallback } from "react";
 import {
   Image,
   Pressable,
@@ -1067,7 +1067,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       }
     );
 
-    const rowRenderer = ({ item, index }) => {
+    const rowRenderer = React.memo(({ item, index }) => {
       const reelay =
         selectedSection == "Following" && followingData?.length < 50
           ? isGuestUser
@@ -1077,20 +1077,37 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       const starRating =
         (reelay?.starRating ?? 0) + (reelay?.starRatingAddHalf ? 0.5 : 0);
       // var muteIndex = 0;
-      const onPlaybackStatusUpdate = (playbackStatus, index) => {
+      const onPlaybackStatusUpdate = useCallback((playbackStatus) => {
         if (playbackStatus?.positionMillis > 6000) {
-          // setMuteIndex(index + 1)
           videoRef.current.stopAsync();
         }
-      };
-      const gotoDetail = (reelay) => {
-        setMuteIndex(-1);
-        navigation.push("SingleReelayScreen", { reelaySub: reelay?.sub });
-        // navigation.push('TitleDiscoverReelayScreen', { reelaySub: reelay?.sub })
-      };
+      }, []);
+    // old code starts
+    // const gotoDetail = (reelay) => {
+    //     setMuteIndex(-1);
+    //     navigation.push("SingleReelayScreen", { reelaySub: reelay?.sub });
+    //     // navigation.push('TitleDiscoverReelayScreen', { reelaySub: reelay?.sub })
+    //   };
+    // old code ends
 
-      const generateAndSaveThumbnail = async () => {
-        console.log("ON ERROR TRIGGERED: ", getThumbnailURI(reelay));
+      const gotoDetail = useCallback(() => {
+        setMuteIndex(-1);
+        navigation.push('SingleReelayScreen', { reelaySub: reelay?.sub });
+      }, [navigation, reelay]);
+    // old code starts
+    //   const generateAndSaveThumbnail = async () => {
+    //     console.log("ON ERROR TRIGGERED: ", getThumbnailURI(reelay));
+    //     const thumbnailObj = await generateThumbnail(reelay);
+    //     if (thumbnailObj && !thumbnailObj.error) {
+    //       const bnail = saveThumbnail(reelay, s3Client, thumbnailObj);
+    //       return bnail;
+    //     } else {
+    //       return SplashImage;
+    //     }
+    //     return thumbnailObj;
+    //   };
+    // old code ends
+      const generateAndSaveThumbnail = useCallback(async () => {
         const thumbnailObj = await generateThumbnail(reelay);
         if (thumbnailObj && !thumbnailObj.error) {
           const bnail = saveThumbnail(reelay, s3Client, thumbnailObj);
@@ -1098,10 +1115,13 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         } else {
           return SplashImage;
         }
-        return thumbnailObj;
-      };
+      }, [reelay]);
+     // old code starts
+     // const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
+     // old code ends
 
-      const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
+    const cloudfrontThumbnailSource = useMemo(() => ({ uri: getThumbnailURI(reelay) }), [reelay]);
+
       return !reelay?.advertise ? (
         <ThumbnailContainer key={index} onPress={() => gotoDetail(reelay)}>
           <View style={{ margin: 10 }}>
@@ -1338,7 +1358,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           )}
         </>
       );
-    };
+    });
     const refreshControls = (
       <RefreshControl
         tintColor={"#fff"}
@@ -1346,6 +1366,19 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         onRefresh={() => loadFeed(selectedSection)}
       />
     );
+
+    const flatListData = useMemo(() => {
+        return (
+          selectedSection === "Watchlist"
+            ? watchlistReels
+            : selectedSection === "Following"
+            ? followingReels
+            : selectedSection === "Newest"
+            ? newestReels
+            : moreFiltersReels
+        );
+      }, [selectedSection, watchlistReels, followingReels, newestReels, moreFiltersReels]);
+    
     const handleScroll = React.useCallback(
       ({
         nativeEvent: {
@@ -1375,7 +1408,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         </HeaderContainer>
         {!feedLoad ? (
           <View style={{}}>
-            <FlatList
+             {/* <FlatList
               data={
                 selectedSection === "Watchlist"
                   ? watchlistReels
@@ -1384,7 +1417,9 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                   : selectedSection === "Newest"
                   ? newestReels
                   : moreFiltersReels
-              }
+              } */}
+            <FlatList
+              data={ flatListData }
               refreshControl={refreshControls}
               onScroll={handleScroll}
               contentContainerStyle={{
