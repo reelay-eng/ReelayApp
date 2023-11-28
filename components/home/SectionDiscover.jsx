@@ -785,30 +785,29 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     //   loadFeed("More Filters");
     // }, []);
 
+    useEffect(() => {
+      const loadAllFeeds = async () => {
+        await loadFeed("Newest");
+        await loadFeed("Following");
+        await loadFeed("Watchlist");
+        await loadFeed("More Filters");
+      };
+
+      loadAllFeeds();
+    }, []);
+
     // useEffect(() => {
     //     const loadAllFeeds = async () => {
-    //       await loadFeed("Newest");
-    //       await loadFeed("Following");
-    //       await loadFeed("Watchlist");
-    //       await loadFeed("More Filters");
+    //       await Promise.all([
+    //         loadFeed("Newest"),
+    //         loadFeed("Following"),
+    //         loadFeed("Watchlist"),
+    //         loadFeed("More Filters"),
+    //       ]);
     //     };
-      
+
     //     loadAllFeeds();
     //   }, []);
-      
-    useEffect(() => {
-        const loadAllFeeds = async () => {
-          await Promise.all([
-            loadFeed("Newest"),
-            loadFeed("Following"),
-            loadFeed("Watchlist"),
-            loadFeed("More Filters"),
-          ]);
-        };
-      
-        loadAllFeeds();
-      }, []);
-      
 
     useEffect(() => {
       console.log("selectFil inside");
@@ -849,7 +848,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             page: 0,
             reqUserSub: reelayDBUser?.sub,
             sortMethod,
-            items
+            // items,
           });
         } else {
           fetchedThreads = await getDiscoverFeedLatest({
@@ -858,7 +857,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             page: 0,
             reqUserSub: reelayDBUser?.sub,
             sortMethod,
-            items
+            // items,
           });
         }
       } else {
@@ -868,7 +867,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           page: 0,
           reqUserSub: reelayDBUser?.sub,
           sortMethod,
-          items
+          //   items,
         });
       }
       // items == "Newest" ?
