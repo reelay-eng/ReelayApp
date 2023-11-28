@@ -1067,7 +1067,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       }
     );
 
-    const rowRenderer = React.memo(({ item, index }) => {
+    const rowRenderer = ({ item, index }) => {
       const reelay =
         selectedSection == "Following" && followingData?.length < 50
           ? isGuestUser
@@ -1082,7 +1082,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           videoRef.current.stopAsync();
         }
       }, []);
-      
+
     // old code starts
     // const gotoDetail = (reelay) => {
     //     setMuteIndex(-1);
@@ -1359,7 +1359,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           )}
         </>
       );
-    });
+    };
     const refreshControls = (
       <RefreshControl
         tintColor={"#fff"}
