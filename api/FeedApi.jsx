@@ -18,7 +18,7 @@ export const getDiscoverFeed = async ({
   sortMethod = "mostRecent",
   //   items,
 }) => {
-  //   const startTime = Performance.now();
+    const startTime = Performance.now();
   const queryParams = `page=${page}&sortMethod=${sortMethod}&visibility=${FEED_VISIBILITY}`;
   const routeGet = `${REELAY_API_BASE_URL}/feed/discover?${queryParams}`;
   const filteredFeed = await fetchResults(routeGet, {
@@ -29,17 +29,18 @@ export const getDiscoverFeed = async ({
       requsersub: reqUserSub,
     },
   });
-  //   if (filteredFeed) {
-  //     const endTime = Performance.now();
-  //     const elapsedTimeInMilliseconds = endTime - startTime;
-  //     console.log(
-  //       `getDiscoverFeed: ${REELAY_API_BASE_URL}/feed/discover of ${items} API took ${elapsedTimeInMilliseconds} milliseconds.`
-  //     );
-  //     const elapsedTimeInSeconds = elapsedTimeInMilliseconds / 1000;
-  //     console.log(
-  //       `getDiscoverFeed: ${REELAY_API_BASE_URL}/feed/discover API took  ${items} ${elapsedTimeInSeconds} seconds.`
-  //     );
-  //   }
+  console.log("filteredFeed 11111>>>", filteredFeed)
+    if (filteredFeed) {
+      const endTime = Performance.now();
+      const elapsedTimeInMilliseconds = endTime - startTime;
+      console.log(
+        `getDiscoverFeed: ${REELAY_API_BASE_URL}/feed/discover of API took ${elapsedTimeInMilliseconds} milliseconds.`
+      );
+      const elapsedTimeInSeconds = elapsedTimeInMilliseconds / 1000;
+      console.log(
+        `getDiscoverFeed: ${REELAY_API_BASE_URL}/feed/discover of API took ${elapsedTimeInSeconds} seconds.`
+      );
+    }
 
   // console.log("filteredFeed",routeGet,{ ...getReelayAuthHeaders(authSession),
   //     filtersjson: JSON.stringify(filters),
@@ -53,7 +54,7 @@ export const getDiscoverFeedLatest = async ({
   page = 0,
   reqUserSub,
   sortMethod = "mostRecent",
-  items,
+//   items,
 }) => {
   //   const startTime = Performance.now();
   const queryParams = `page=${page}&sortMethod=${sortMethod}&visibility=${FEED_VISIBILITY}`;
