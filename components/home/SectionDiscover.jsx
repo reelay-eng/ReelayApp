@@ -5,6 +5,7 @@ import React, {
   useState,
   useRef,
   useMemo,
+  useCallback,
 } from "react";
 import {
   Image,
@@ -85,6 +86,7 @@ import { Carousel } from "react-native-snap-carousel";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import GuessingGames from "./GuessingGames";
 import moment from "moment";
+import _ from "lodash";
 
 const { height, width } = Dimensions.get("window");
 
@@ -303,6 +305,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const flatRef = useRef(null);
     const uploadStage = useSelector((state) => state.uploadStage);
     const followingData = useSelector((state) => state.followingData);
+    const [initialRender, setInitialRender] = useState(true);
 
     const showProgressBarStages = [
       "uploading",
@@ -778,36 +781,12 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       return r1 !== r2;
     });
 
-    // useEffect(() => {
-    //   loadFeed("Newest");
-    //   loadFeed("Following");
-    //   loadFeed("Watchlist");
-    //   loadFeed("More Filters");
-    // }, []);
-
     useEffect(() => {
-      const loadAllFeeds = async () => {
-        await loadFeed("Newest");
-        await loadFeed("Following");
-        await loadFeed("Watchlist");
-        await loadFeed("More Filters");
-      };
-
-      loadAllFeeds();
+      loadFeed("Newest");
+      loadFeed("Following");
+      loadFeed("Watchlist");
+      loadFeed("More Filters");
     }, []);
-
-    // useEffect(() => {
-    //     const loadAllFeeds = async () => {
-    //       await Promise.all([
-    //         loadFeed("Newest"),
-    //         loadFeed("Following"),
-    //         loadFeed("Watchlist"),
-    //         loadFeed("More Filters"),
-    //       ]);
-    //     };
-
-    //     loadAllFeeds();
-    //   }, []);
 
     useEffect(() => {
       console.log("selectFil inside");
@@ -816,6 +795,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     }, [selectedFilters]);
 
     const loadFeed = async (items) => {
+      // console.log("Load feed executed--------");
       setFeedLoad(true);
       const silSelect =
         items == "Following"
@@ -848,7 +828,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             page: 0,
             reqUserSub: reelayDBUser?.sub,
             sortMethod,
-            // items,
           });
         } else {
           fetchedThreads = await getDiscoverFeedLatest({
@@ -857,7 +836,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             page: 0,
             reqUserSub: reelayDBUser?.sub,
             sortMethod,
-            // items,
           });
         }
       } else {
@@ -867,7 +845,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           page: 0,
           reqUserSub: reelayDBUser?.sub,
           sortMethod,
-          //   items,
         });
       }
       // items == "Newest" ?
@@ -918,144 +895,299 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
       setFeedLoad(false);
     };
+    //------- Old Code starts---------
+    // const extendFeed = async (items) => {
+    //   if (extendLoad) {
+    //     console.log("Already extending feed. Skipping...");
+    //     return;
+    //   }
 
-    const extendFeed = async (items) => {
-      console.log("extended");
+    //   setExtendLoad(true);
+
+    //   console.log("extendFeed ", nextPage.current, items);
+    //   const page =
+    //     feedSource === "discover"
+    //       ? discoverMostRecent.nextPage
+    //       : nextPage.current;
+    //   const silSelect =
+    //     items == "Following"
+    //       ? [
+    //           {
+    //             category: "community",
+    //             display: "my friends",
+    //             option: "following",
+    //           },
+    //         ]
+    //       : items == "Watchlist"
+    //       ? [
+    //           {
+    //             category: "watchlist",
+    //             display: "on my watchlist",
+    //             option: "on_my_watchlist",
+    //           },
+    //         ]
+    //       : items == "Newest"
+    //       ? []
+    //       : selectedFilters;
+
+    //   let fetchedThreads;
+    //   // items == "Newest" ?
+    //   //     await getDiscoverFeedNew({
+    //   //         authSession,
+    //   //         filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+    //   //         page,
+    //   //         reqUserSub: reelayDBUser?.sub,
+    //   //         sortMethod,
+    //   //     }) :
+
+    //   // if (items == "Following") {
+    //   //   if (followingData?.length < 50) {
+    //   //     fetchedThreads = await getDiscoverFeed({
+    //   //       authSession,
+    //   //       filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+    //   //       page,
+    //   //       reqUserSub: reelayDBUser?.sub,
+    //   //       sortMethod,
+    //   //     });
+    //   //   } else {
+    //   //     console.log("getDiscoverFeedLatest called 123");
+    //   //     fetchedThreads = await getDiscoverFeedLatest({
+    //   //       authSession,
+    //   //       filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+    //   //       page,
+    //   //       reqUserSub: reelayDBUser?.sub,
+    //   //       sortMethod,
+    //   //     });
+    //   //   }
+    //   // } else {
+    //   //   console.log("getDiscoverFeedLatest called 456");
+    //   //   fetchedThreads = await getDiscoverFeedLatest({
+    //   //     authSession,
+    //   //     filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+    //   //     page,
+    //   //     reqUserSub: reelayDBUser?.sub,
+    //   //     sortMethod,
+    //   //   });
+    //   // }
+
+    //   const shouldUseFollowingData =
+    //     items === "Following" && followingData?.length < 50;
+
+    //   if (shouldUseFollowingData) {
+    //     fetchedThreads = await getDiscoverFeed({
+    //       authSession,
+    //       filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+    //       page,
+    //       reqUserSub: reelayDBUser?.sub,
+    //       sortMethod,
+    //     });
+    //   } else {
+    //     fetchedThreads = await getDiscoverFeedLatest({
+    //       authSession,
+    //       filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+    //       page,
+    //       reqUserSub: reelayDBUser?.sub,
+    //       sortMethod,
+    //     });
+    //     console.log("-----fetchedThreads-----", fetchedThreads);
+    //   }
+
+    //   // probably don't need to create this every time, but we want to avoid unnecessary state
+    //   const threadEntries = {};
+    //   const addToThreadEntries = (fetchedThread) => {
+    //     const reelay =
+    //       items == "Following" && followingData?.length < 50
+    //         ? fetchedThread[0]
+    //         : fetchedThread; //items == "Newest" ? fetchedThread : fetchedThread[0];
+    //     threadEntries[reelay?.sub ?? reelay?.id] = 1;
+    //   };
+    //   const reelayThread =
+    //     items == "Watchlist"
+    //       ? watchlistReels
+    //       : items == "Following"
+    //       ? followingReels
+    //       : items == "Newest"
+    //       ? newestReels
+    //       : moreFiltersReels;
+    //   // reelayThread?.forEach(addToThreadEntries);
+
+    //   const notAlreadyInStack = (fetchedThread) => {
+    //     const reelay = fetchedThread; //items == "Newest" ? fetchedThread : fetchedThread[0];
+    //     const alreadyInStack = threadEntries[reelay?.sub ?? reelay?.id];
+    //     if (alreadyInStack)
+    //       console.log("Filtering stack ", reelay?.sub ?? reelay?.id);
+    //     return !alreadyInStack;
+    //   };
+
+    //   const filteredThreads = fetchedThreads; //items == "Newest" ? fetchedThreads : fetchedThreads.filter(notAlreadyInStack);
+    //   const allThreads = [...reelayThread, ...filteredThreads];
+    //   if (allThreads?.length == reelayThread?.length) {
+    //     setEndLoop(true);
+    //   }
+    //   setExtendLoad(false);
+
+    //   if (feedSource === "discover") {
+    //     let dispatchAction = "setDiscoverMostRecent";
+    //     if (sortMethod === "thisWeek") dispatchAction = "setDiscoverThisWeek";
+    //     if (sortMethod === "thisMonth") dispatchAction = "setDiscoverThisMonth";
+    //     if (sortMethod === "allTime") dispatchAction = "setDiscoverAllTime";
+
+    //     const payload = {
+    //       content: allThreads,
+    //       filters: {},
+    //       nextPage: page + 1,
+    //     };
+    //     console.log("dispatching payload with threads: ", allThreads.length);
+    //     console.log("extendFeed 123ß");
+    //     dispatch({ type: dispatchAction, payload });
+    //   }
+
+    //   nextPage.current = page + 1;
+
+    //   // if (items == "Newest") {
+    //   //   console.log("allThreads.length", allThreads.length);
+    //   //   if (allThreads.length <= 17) {
+    //   //     allThreads.splice(13, 0, { advertise: true, valIndex: 1 }); // n is declared and is the index where to add the object
+    //   //     dispatch({ type: "setNewestReels", payload: allThreads });
+    //   //   } else {
+    //   //     dispatch({ type: "setNewestReels", payload: allThreads });
+    //   //   }
+    //   // }
+    //   // if (items == "Following") {
+    //   //   dispatch({ type: "setFollowingReels", payload: allThreads });
+    //   // }
+    //   // if (items == "Watchlist") {
+    //   //   dispatch({ type: "setWatchlistReels", payload: allThreads });
+    //   // }
+    //   // if (items == "More Filters") {
+    //   //   dispatch({ type: "setMoreFiltersReels", payload: allThreads });
+    //   //   // closeAllFiltersList()
+    //   // }
+    //   let updateType;
+    //   switch (items) {
+    //     case "Newest":
+    //       if (allThreads.length <= 17) {
+    //         allThreads.splice(13, 0, { advertise: true, valIndex: 1 });
+    //       }
+    //       updateType = "setNewestReels";
+    //       break;
+    //     case "Following":
+    //       updateType = "setFollowingReels";
+    //       break;
+    //     case "Watchlist":
+    //       updateType = "setWatchlistReels";
+    //       break;
+    //     case "More Filters":
+    //       updateType = "setMoreFiltersReels";
+    //       // closeAllFiltersList()
+    //       break;
+    //     default:
+    //       break;
+    //   }
+
+    //   dispatch({ type: updateType, payload: allThreads });
+    // };
+    //  -------Old code ends------
+
+    // ----- New code extendFeed starts -----
+    const extendFeed = async (items = "") => {
+      if (extendLoad) {
+        return;
+      }
+
       setExtendLoad(true);
-      console.log("extendFeed", nextPage.current, items);
-      const page =
+
+      const calculatedPage =
         feedSource === "discover"
           ? discoverMostRecent.nextPage
           : nextPage.current;
-      const silSelect =
-        items == "Following"
-          ? [
-              {
-                category: "community",
-                display: "my friends",
-                option: "following",
-              },
-            ]
-          : items == "Watchlist"
-          ? [
-              {
-                category: "watchlist",
-                display: "on my watchlist",
-                option: "on_my_watchlist",
-              },
-            ]
-          : items == "Newest"
-          ? []
-          : selectedFilters;
 
-      var fetchedThreads;
-      // items == "Newest" ?
-      //     await getDiscoverFeedNew({
-      //         authSession,
-      //         filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-      //         page,
-      //         reqUserSub: reelayDBUser?.sub,
-      //         sortMethod,
-      //     }) :
-      if (items == "Following") {
-        if (followingData?.length < 50) {
-          fetchedThreads = await getDiscoverFeed({
-            authSession,
-            filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-            page,
-            reqUserSub: reelayDBUser?.sub,
-            sortMethod,
-          });
-        } else {
-          fetchedThreads = await getDiscoverFeedLatest({
-            authSession,
-            filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-            page,
-            reqUserSub: reelayDBUser?.sub,
-            sortMethod,
-          });
-        }
-      } else {
-        fetchedThreads = await getDiscoverFeedLatest({
-          authSession,
-          filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-          page,
-          reqUserSub: reelayDBUser?.sub,
-          sortMethod,
-        });
-      }
-
-      // probably don't need to create this every time, but we want to avoid unnecessary state
-      const threadEntries = {};
-      const addToThreadEntries = (fetchedThread) => {
-        const reelay =
-          items == "Following" && followingData?.length < 50
-            ? fetchedThread[0]
-            : fetchedThread; //items == "Newest" ? fetchedThread : fetchedThread[0];
-        threadEntries[reelay?.sub ?? reelay?.id] = 1;
-      };
-      const reelayThread =
-        items == "Watchlist"
-          ? watchlistReels
-          : items == "Following"
-          ? followingReels
-          : items == "Newest"
-          ? newestReels
-          : moreFiltersReels;
-      // reelayThread?.forEach(addToThreadEntries);
-
-      const notAlreadyInStack = (fetchedThread) => {
-        const reelay = fetchedThread; //items == "Newest" ? fetchedThread : fetchedThread[0];
-        const alreadyInStack = threadEntries[reelay?.sub ?? reelay?.id];
-        if (alreadyInStack)
-          console.log("Filtering stack ", reelay?.sub ?? reelay?.id);
-        return !alreadyInStack;
+      const queryParams = {
+        authSession,
+        filters: coalesceFiltersForAPI(setSilSelect(items), myStreamingVenues),
+        page: calculatedPage,
+        reqUserSub: reelayDBUser?.sub,
+        sortMethod,
       };
 
-      const filteredThreads = fetchedThreads; //items == "Newest" ? fetchedThreads : fetchedThreads.filter(notAlreadyInStack);
-      const allThreads = [...reelayThread, ...filteredThreads];
-      if (allThreads?.length == reelayThread?.length) {
-        setEndLoop(true);
-      }
+      const fetchedThreads =
+        items === "Following" && followingData?.length < 50
+          ? await getDiscoverFeed(queryParams)
+          : await getDiscoverFeedLatest(queryParams);
+
+      let combinedThreads = [...setReelayThread(items), ...fetchedThreads];
+      setEndLoop(combinedThreads.length === setReelayThread(items).length);
       setExtendLoad(false);
 
       if (feedSource === "discover") {
-        let dispatchAction = "setDiscoverMostRecent";
-        if (sortMethod === "thisWeek") dispatchAction = "setDiscoverThisWeek";
-        if (sortMethod === "thisMonth") dispatchAction = "setDiscoverThisMonth";
-        if (sortMethod === "allTime") dispatchAction = "setDiscoverAllTime";
-
         const payload = {
-          content: allThreads,
+          content: combinedThreads,
           filters: {},
-          nextPage: page + 1,
+          nextPage: calculatedPage + 1,
         };
-        console.log("dispatching payload with threads: ", allThreads.length);
-        dispatch({ type: dispatchAction, payload });
+
+        dispatch({ type: setDispatchAction(items), payload });
       }
 
-      nextPage.current = page + 1;
+      nextPage.current = calculatedPage + 1;
 
-      if (items == "Newest") {
-        console.log("allThreads.length", allThreads.length);
-        if (allThreads.length <= 17) {
-          allThreads.splice(13, 0, { advertise: true, valIndex: 1 }); // n is declared and is the index where to add the object
-          dispatch({ type: "setNewestReels", payload: allThreads });
-        } else {
-          dispatch({ type: "setNewestReels", payload: allThreads });
-        }
+      if (items === "Newest" && combinedThreads.length <= 17) {
+        combinedThreads.splice(13, 0, { advertise: true, valIndex: 1 });
       }
-      if (items == "Following") {
-        dispatch({ type: "setFollowingReels", payload: allThreads });
-      }
-      if (items == "Watchlist") {
-        dispatch({ type: "setWatchlistReels", payload: allThreads });
-      }
-      if (items == "More Filters") {
-        dispatch({ type: "setMoreFiltersReels", payload: allThreads });
-        // closeAllFiltersList()
-      }
+
+      dispatch({ type: setUpdateType(items), payload: combinedThreads });
     };
+
+    // Helper functions
+    const setSilSelect = (items) => {
+      const filterObj = {
+        Following: [
+          { category: "community", display: "my friends", option: "following" },
+        ],
+        Watchlist: [
+          {
+            category: "watchlist",
+            display: "on my watchlist",
+            option: "on_my_watchlist",
+          },
+        ],
+        Newest: [],
+      };
+
+      return filterObj[items] || selectedFilters;
+    };
+
+    const setReelayThread = (items) => {
+      const reelayObj = {
+        Watchlist: watchlistReels,
+        Following: followingReels,
+        Newest: newestReels,
+      };
+
+      return reelayObj[items] || moreFiltersReels;
+    };
+
+    const setUpdateType = (items) => {
+      const updateObj = {
+        Newest: "setNewestReels",
+        Following: "setFollowingReels",
+        Watchlist: "setWatchlistReels",
+        "More Filters": "setMoreFiltersReels",
+      };
+
+      return updateObj[items];
+    };
+
+    const setDispatchAction = (items) => {
+      const dispatchObj = {
+        thisWeek: "setDiscoverThisWeek",
+        thisMonth: "setDiscoverThisMonth",
+        allTime: "setDiscoverAllTime",
+      };
+
+      return dispatchObj[sortMethod] || "setDiscoverMostRecent";
+    };
+    // ----- New code extendFeed ends -----
 
     const getOppositeKey = (item) => {
       if (item === 0) return "Newest";
@@ -1097,6 +1229,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             ? item
             : item[0]
           : item; //selectedSection == "Newest" ? item : item[0];
+
       const starRating =
         (reelay?.starRating ?? 0) + (reelay?.starRatingAddHalf ? 0.5 : 0);
       // var muteIndex = 0;
@@ -1126,6 +1259,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
       const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
 
+      // console.log("cloudfrontThumbnailSource >>>", cloudfrontThumbnailSource);
       return !reelay?.advertise ? (
         <ThumbnailContainer key={index} onPress={() => gotoDetail(reelay)}>
           <View style={{ margin: 10 }}>
@@ -1430,7 +1564,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
               removeClippedSubviews={false}
               keyExtractor={(item, index) => index.toString()}
               renderItem={(item, index) => rowRenderer(item, index)}
-              onEndReachedThreshold={0.2}
+              onEndReachedThreshold={0.5}
               ListFooterComponent={
                 extendLoad && (
                   <View style={{ width: width }}>

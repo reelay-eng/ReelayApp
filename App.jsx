@@ -341,13 +341,23 @@ function App() {
       },
     });
 
-    await loadFonts();
-    await checkIsNewUser();
-    await ensureLocalImageDirExists();
-    await ensureLocalTitleDirExists();
-    await maybeFlushTitleImageCache();
-    await loadFirstWithoutLogin();
-    await checkFirsttimeVisit();
+    // await loadFonts();
+    // await checkIsNewUser();
+    // await ensureLocalImageDirExists();
+    // await ensureLocalTitleDirExists();
+    // await maybeFlushTitleImageCache();
+    // await loadFirstWithoutLogin();
+    // await checkFirsttimeVisit();
+    // Parallelizing promise-based tasks to speed up execution
+    await Promise.all([
+      loadFonts(),
+      checkIsNewUser(),
+      ensureLocalImageDirExists(),
+      ensureLocalTitleDirExists(),
+      maybeFlushTitleImageCache(),
+      loadFirstWithoutLogin(),
+      checkFirsttimeVisit(),
+    ]);
   };
 
   const checkFirsttimeVisit = async () => {
@@ -630,7 +640,10 @@ function App() {
     dispatch({ type: "setMyClubs", payload: myClubs ?? [] });
     dispatch({ type: "setDonateLinks", payload: donateLinksLoaded });
     dispatch({ type: "setCurrentAppLoadStage", payload: 4 });
-    console.log("dispatched second set of profile data");
+    console.log(
+      "----------- Load My Profile Ends ---------------"
+      // dispatched second set of profile data"
+    );
   };
 
   const registerMyPushToken = async () => {
@@ -667,29 +680,31 @@ function App() {
     setReelayDBUserID,
   };
 
-  if (isLoading) {
-    return (
-      <SplashContainer>
-        <SplashImage source={SPLASH_IMAGE_SOURCE} />
-        <LoadingContainer>
-          <ActivityIndicator />
-        </LoadingContainer>
-      </SplashContainer>
-    );
-  } else {
-    return (
-      <SplashContainer>
-        <LoadingContainer>
-          <SigningInIndicator />
-        </LoadingContainer>
-        <AuthContext.Provider value={authState}>
-          <StatusBar style="light" />
-          <Navigation colorScheme={colorScheme} />
-          <Toast config={toastConfig} />
-        </AuthContext.Provider>
-      </SplashContainer>
-    );
-  }
+  return (
+    <SplashContainer>
+      {isLoading ? (
+        <>
+          {console.log("-------------in is loading is true-------------")}
+          <SplashImage source={SPLASH_IMAGE_SOURCE} />
+          <LoadingContainer>
+            <ActivityIndicator />
+          </LoadingContainer>
+        </>
+      ) : (
+        <>
+          {console.log("-------------in is loading is false-------------")}
+          <LoadingContainer>
+            <SigningInIndicator />
+          </LoadingContainer>
+          <AuthContext.Provider value={authState}>
+            <StatusBar style="light" />
+            <Navigation colorScheme={colorScheme} />
+            <Toast config={toastConfig} />
+          </AuthContext.Provider>
+        </>
+      )}
+    </SplashContainer>
+  );
 }
 
 const ReduxApp = () => {
