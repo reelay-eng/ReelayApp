@@ -1257,61 +1257,65 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         return thumbnailObj;
       };
 
-      const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
-
-      // console.log("cloudfrontThumbnailSource >>>", cloudfrontThumbnailSource);
-      return !reelay?.advertise ? (
-        <ThumbnailContainer key={index} onPress={() => gotoDetail(reelay)}>
-          <View style={{ margin: 10 }}>
-            {onActive && muteIndex == index ? (
-              <View
+      const renderMediaContent = (reelay, index) => {
+        if (onActive && muteIndex === index) {
+          return (
+            <View
+              style={{
+                borderRadius: 12,
+                overflow: "hidden",
+                display: "flex",
+              }}
+            >
+              <VideoPlayer
+                videoProps={{
+                  shouldPlay: true,
+                  isMuted: false,
+                  isLooping: false,
+                  useNativeControls: false,
+                  timeVisible: false,
+                  defaultControlsVisible: false,
+                  resizeMode: ResizeMode.COVER,
+                  source: {
+                    uri: reelay?.content?.videoURI,
+                  },
+                }}
+                playbackCallback={(e) => {
+                  if (e.isLoaded) {
+                    if (e.didJustFinish) {
+                      setMuteIndex(-1);
+                    }
+                  }
+                }}
+                slider={{ visible: false }}
+                timeVisible={false}
+                defaultControlsVisible={false}
+                useNativeControls={false}
+                showControlsOnLoad={false}
                 style={{
+                  height: 240,
+                  width: POSTER_WIDTH2,
                   borderRadius: 12,
                   overflow: "hidden",
                   display: "flex",
                 }}
-              >
-                <VideoPlayer
-                  videoProps={{
-                    shouldPlay: true,
-                    isMuted: false,
-                    isLooping: false,
-                    useNativeControls: false,
-                    timeVisible: false,
-                    defaultControlsVisible: false,
-                    resizeMode: ResizeMode.COVER,
-                    source: {
-                      uri: reelay?.content?.videoURI,
-                    },
-                  }}
-                  playbackCallback={(e) => {
-                    if (e.isLoaded) {
-                      if (e.didJustFinish) {
-                        setMuteIndex(-1);
-                      }
-                    }
-                  }} // Video replay ended
-                  // icon={{ replray: <></>, }}
-                  slider={{ visible: false }}
-                  timeVisible={false}
-                  defaultControlsVisible={false}
-                  useNativeControls={false}
-                  showControlsOnLoad={false}
-                  style={{
-                    height: 240,
-                    width: POSTER_WIDTH2,
-                    borderRadius: 12,
-                    overflow: "hidden",
-                    display: "flex",
-                  }}
-                />
-              </View>
-            ) : (
-              <ThumbnailImage
-                onError={generateAndSaveThumbnail}
-                source={cloudfrontThumbnailSource}
               />
-            )}
+            </View>
+          );
+        } else {
+          return (
+            <ThumbnailImage
+              onError={() => generateAndSaveThumbnail(reelay)}
+              source={{ uri: getThumbnailURI(reelay) }}
+            />
+          );
+        }
+      };
+
+      return !reelay?.advertise ? (
+        <ThumbnailContainer key={index} onPress={() => gotoDetail(reelay)}>
+          <View style={{ margin: 10 }}>
+            {renderMediaContent(reelay, index)}
             <TItleContainer>
               <TitleBannerDiscover titleObj={reelay?.title} reelay={reelay} />
             </TItleContainer>

@@ -12,7 +12,7 @@ const THUMBNAIL_QUALITY = 0.5;
 
 export const getThumbnailURI = (reelay) => {
   //   console.log("------reelay------", reelay);
-  //   console.log(`CLOUDFRONT_THUMBNAIL_URL}/thumbnails/reelay-${reelay?.sub}`);
+  // console.log(`${CLOUDFRONT_THUMBNAIL_URL}/thumbnails/reelay-${reelay?.sub}`);
   return `${CLOUDFRONT_THUMBNAIL_URL}/thumbnails/reelay-${reelay?.sub}`;
 };
 
