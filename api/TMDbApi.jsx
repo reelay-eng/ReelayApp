@@ -196,80 +196,6 @@ export const fetchTrendingMovies = async () => {
     return [];
   }
 };
-
-// export const fetchAnnotatedTitle = async ({ tmdbTitleID, isSeries, isWelcomeReelay=false, loadedTitleObj=null, trending = false }) => {
-//     if (!tmdbTitleID) return EmptyTitleObject;
-
-//     const titleType = (isSeries) ? 'tv' : 'film';
-//     const cachedTitle = await fetchAnnotatedTitleFromCache(tmdbTitleID, titleType);
-//     if (cachedTitle) return cachedTitle;
-
-//     const fetchTitleObj = async () => (isSeries)
-//         ? await fetchSeries(tmdbTitleID)
-//         : await fetchMovie(tmdbTitleID);
-//     const tmdbTitleObject = loadedTitleObj ?? await fetchTitleObj();
-
-//     const titleCredits = isSeries
-//         ? await fetchSeriesCredits(tmdbTitleID)
-//         : await fetchMovieCredits(tmdbTitleID);
-
-//     const trailerURI = isSeries
-//         ? await fetchSeriesTrailerURI(tmdbTitleID)
-//         : await fetchMovieTrailerURI(tmdbTitleID);
-
-//     let posterSource = PLACEHOLDER_POSTER_SOURCE;
-//     if (tmdbTitleObject?.poster_path) {
-//         posterSource = { uri: getPosterURL(tmdbTitleObject?.poster_path, 185) };
-//     }
-
-//     if (isWelcomeReelay) {
-//         posterSource = WELCOME_VIDEO_POSTER_SOURCE;
-//     }
-
-//     const releaseDate = isSeries ? tmdbTitleObject?.first_air_date : tmdbTitleObject?.release_date;
-//     const releaseYear = (releaseDate?.length >= 4) ? (releaseDate.slice(0, 4)) : '';
-
-//     const rating_object_array = tmdbTitleObject?.release_dates?.results;
-//     let rating = null;
-//     if (rating_object_array && !isSeries) {
-// 		// base rating display off US categorization system, MPAA is not universal
-// 		let ratingObject = rating_object_array.find((e) => e["iso_3166_1"] === "US");
-//         // filter out if the certification exists or not
-// 		rating = ratingObject?.release_dates?.find((e) => e.certification != "")?.certification;
-// 		if (rating === undefined) rating = null;
-// 	}
-//     // todo: would like titleType to deprecate isMovie and isSeries
-//     let annotatedTitle = {
-//         id: tmdbTitleObject.id,
-//         director: getDirector(titleCredits),
-//         display: trending ? tmdbTitleObject.original_title :  isSeries ? tmdbTitleObject.name : tmdbTitleObject.title,
-//         displayActors: getDisplayActors(titleCredits),
-//         isSeries,
-//         genres: tmdbTitleObject.genres,
-//         overview: tmdbTitleObject.overview,
-//         posterPath: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
-//         posterSource,
-//         releaseDate,
-//         releaseYear,
-//         tagline: tmdbTitleObject.tagline,
-//         titleKey: `${titleType}-${tmdbTitleObject.id}`,
-//         titleType,
-//         trailerURI,
-//         rating,
-//         runtime: tmdbTitleObject.runtime ?? tmdbTitleObject.episode_run_time?.[0] ?? 0,
-//     }
-
-//     if (isSeries) {
-//         annotatedTitle = {
-//             ...annotatedTitle,
-//             title: tmdbTitleObject.name,
-//             releaseDate: tmdbTitleObject.first_air_date
-//         };
-//     }
-
-//     cacheAnnotatedTitle(annotatedTitle);
-//     return annotatedTitle;
-// }
 export const fetchAnnotatedTitle = async ({
   tmdbTitleID,
   isSeries,
@@ -280,30 +206,27 @@ export const fetchAnnotatedTitle = async ({
   if (!tmdbTitleID) return EmptyTitleObject;
 
   const titleType = isSeries ? "tv" : "film";
+  const titleCacheKey = `${titleType}-${tmdbTitleID}`;
+
   const cachedTitle = await fetchAnnotatedTitleFromCache(
     tmdbTitleID,
     titleType
   );
   if (cachedTitle) return cachedTitle;
 
-  const fetchTitleObj = isSeries
-    ? await fetchSeries(tmdbTitleID)
-    : await fetchMovie(tmdbTitleID);
+  const fetchTitle = isSeries ? fetchSeries : fetchMovie;
+  const fetchCredits = isSeries ? fetchSeriesCredits : fetchMovieCredits;
+  const fetchTrailerURI = isSeries
+    ? fetchSeriesTrailerURI
+    : fetchMovieTrailerURI;
 
-  const tmdbTitleObject = loadedTitleObj ?? Promise.resolve(fetchTitleObj);
+  const [resolvedTitleObject, titleCredits, trailerURI] = await Promise.all([
+    loadedTitleObj || fetchTitle(tmdbTitleID),
+    fetchCredits(tmdbTitleID),
+    fetchTrailerURI(tmdbTitleID),
+  ]);
 
-  const titleCredits = isSeries
-    ? fetchSeriesCredits(tmdbTitleID)
-    : fetchMovieCredits(tmdbTitleID);
-
-  const trailerURI = isSeries
-    ? fetchSeriesTrailerURI(tmdbTitleID)
-    : fetchMovieTrailerURI(tmdbTitleID);
-
-  const [resolvedTitleObject, resolvedTitleCredits, resolvedTrailerURI] =
-    await Promise.all([tmdbTitleObject, titleCredits, trailerURI]);
-
-  let posterSource = resolvedTitleObject?.poster_path
+  const posterSource = resolvedTitleObject?.poster_path
     ? { uri: getPosterURL(resolvedTitleObject.poster_path, 185) }
     : isWelcomeReelay
     ? WELCOME_VIDEO_POSTER_SOURCE
@@ -312,42 +235,37 @@ export const fetchAnnotatedTitle = async ({
   const releaseDate = isSeries
     ? resolvedTitleObject?.first_air_date
     : resolvedTitleObject?.release_date;
-
-  const releaseYear = releaseDate?.length >= 4 ? releaseDate.slice(0, 4) : "";
+  const releaseYear = releaseDate?.slice(0, 4) || "";
 
   const rating_object_array = resolvedTitleObject?.release_dates?.results;
-
-  let rating = null;
-
-  if (rating_object_array && !isSeries) {
-    const ratingObject = rating_object_array.find(
-      (e) => e["iso_3166_1"] === "US"
-    );
-    rating =
-      ratingObject?.release_dates?.find((e) => e.certification != "")
-        ?.certification || null;
-  }
+  const rating =
+    rating_object_array && !isSeries
+      ? rating_object_array
+          .find((e) => e["iso_3166_1"] === "US")
+          ?.release_dates.find((e) => e.certification !== "")?.certification ||
+        null
+      : null;
 
   const annotatedTitle = {
     id: resolvedTitleObject.id,
-    director: getDirector(resolvedTitleCredits),
+    director: getDirector(titleCredits),
     display: trending
       ? resolvedTitleObject.original_title
       : isSeries
       ? resolvedTitleObject.name
       : resolvedTitleObject.title,
-    displayActors: getDisplayActors(resolvedTitleCredits),
+    displayActors: getDisplayActors(titleCredits),
     isSeries,
     genres: resolvedTitleObject.genres,
     overview: resolvedTitleObject.overview,
     posterPath: resolvedTitleObject.poster_path,
     posterSource,
     releaseDate,
-    releaseYear: releaseYear,
+    releaseYear,
     tagline: resolvedTitleObject.tagline,
-    titleKey: `${titleType}-${resolvedTitleObject.id}`,
+    titleKey: titleCacheKey,
     titleType,
-    trailerURI: resolvedTrailerURI,
+    trailerURI,
     rating,
     runtime:
       resolvedTitleObject.runtime ??

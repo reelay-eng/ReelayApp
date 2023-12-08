@@ -778,68 +778,6 @@ export const prepareGuessingGame = async (guessingGame) => {
   }
   return guessingGame;
 };
-
-// export const prepareReelay = async (fetchedReelay) => {
-//   const isWelcomeReelay = fetchedReelay.datastoreSub === WELCOME_REELAY_SUB;
-//   const { tmdbTitleID, isSeries } = fetchedReelay;
-//   const titleObj = await fetchAnnotatedTitle({
-//     tmdbTitleID,
-//     isSeries,
-//     isWelcomeReelay,
-//   });
-//   const videoURIObject = getVideoURIObject(fetchedReelay);
-
-//   const sortCommentsByPostedDate = (comment1, comment2) => {
-//     try {
-//       const diff =
-//         Date.parse(comment1.postedAt) - Date.parse(comment2.postedAt);
-//       return diff;
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   };
-//   if (!fetchedReelay.comments) fetchedReelay.comments = [];
-//   const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
-
-//   const reportedContent = fetchedReelay.reviewStatus
-//     ? {
-//         firstReportedAt: fetchedReelay.firstReportedAt,
-//         lastReportedAt: fetchedReelay.lastReportedAt,
-//         reportCount: fetchedReelay.reportCount,
-//         reviewStatus: fetchedReelay.reviewStatus,
-//         reviewerSub: fetchedReelay.reviewerSub,
-//         userReportsJSON: fetchedReelay.userReportsJSON,
-//       }
-//     : {};
-
-//   return {
-//     id: fetchedReelay.id,
-//     clubID: fetchedReelay.clubID,
-//     clubName: fetchedReelay?.clubName,
-//     creator: {
-//       avatar: "../../assets/images/icon.png",
-//       sub: fetchedReelay.creatorSub,
-//       username: fetchedReelay.creatorName,
-//     },
-//     content: {
-//       venue: fetchedReelay.venue ? fetchedReelay.venue : null,
-//       videoURI: videoURIObject.videoURI,
-//     },
-//     comments: sortedComments,
-//     description: fetchedReelay.description,
-//     likes: fetchedReelay.likes,
-//     postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
-//     reportedContent,
-//     starRating: fetchedReelay.starRating,
-//     starRatingAddHalf: fetchedReelay.starRatingAddHalf,
-//     sub: fetchedReelay.datastoreSub,
-//     title: titleObj,
-//     titleKey: fetchedReelay.titleKey,
-//     titleType: fetchedReelay.titleType,
-//     topicID: fetchedReelay.topicID,
-//     topicTitle: fetchedReelay?.topicTitle,
-//   };
-// };
 // updated code
 export const prepareReelay = async (fetchedReelay) => {
   const isWelcomeReelay = fetchedReelay.datastoreSub === WELCOME_REELAY_SUB;
