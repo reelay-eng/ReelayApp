@@ -11,7 +11,7 @@ const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3ThumbnailBucket;
 const THUMBNAIL_QUALITY = 0.5;
 
 export const getThumbnailURI = (reelay) => {
-  //   console.log("------reelay------", reelay);
+  // console.log("------reelay------", reelay?.sub);
   // console.log(`${CLOUDFRONT_THUMBNAIL_URL}/thumbnails/reelay-${reelay?.sub}`);
   return `${CLOUDFRONT_THUMBNAIL_URL}/thumbnails/reelay-${reelay?.sub}`;
 };
@@ -20,21 +20,48 @@ export const getThumbnailS3Key = (reelay) => {
   return `thumbnails/reelay-${reelay?.sub}`;
 };
 
+// export const generateThumbnail = async (reelay) => {
+//   // const tryTimecodesMillis = [3000, 1000, 100];
+//   const tryTimecodesMillis = [100, 1000, 3000];
+//   let timecodeIndex = 0;
+//   while (timecodeIndex < tryTimecodesMillis.length) {
+//     try {
+//       const thumbnailTimecode = tryTimecodesMillis[timecodeIndex];
+//       const source = reelay?.content?.videoURI;
+//       const options = { time: thumbnailTimecode, quality: THUMBNAIL_QUALITY };
+//       const thumbnailObj = await getThumbnailAsync(source, options);
+//       return thumbnailObj;
+//     } catch (error) {
+//       console.warn(error);
+//       timecodeIndex++;
+//     }
+//   }
+//   return { error: "Could not generate thumbnail" };
+// };
 export const generateThumbnail = async (reelay) => {
-  const tryTimecodesMillis = [3000, 1000, 100];
-  let timecodeIndex = 0;
-  while (timecodeIndex < tryTimecodesMillis.length) {
-    try {
-      const thumbnailTimecode = tryTimecodesMillis[timecodeIndex];
-      const source = reelay?.content?.videoURI;
-      const options = { time: thumbnailTimecode, quality: THUMBNAIL_QUALITY };
-      const thumbnailObj = await getThumbnailAsync(source, options);
-      return thumbnailObj;
-    } catch (error) {
+  const tryTimecodesMillis = [100, 1000, 3000];
+
+  const source = reelay?.content?.videoURI;
+  const optionsArr = tryTimecodesMillis.map((time) => ({
+    time,
+    quality: THUMBNAIL_QUALITY,
+  }));
+
+  // Concurrent thumbnail generation with different timecodes
+  const promisesArr = optionsArr.map((option) =>
+    getThumbnailAsync(source, option).catch((error) => {
       console.warn(error);
-      timecodeIndex++;
+      return { error: "Thumbnail generation failed" };
+    })
+  );
+
+  for await (const thumbnail of promisesArr) {
+    if (!thumbnail.error) {
+      return thumbnail;
     }
   }
+
+  // If no thumbnails could be generated
   return { error: "Could not generate thumbnail" };
 };
 

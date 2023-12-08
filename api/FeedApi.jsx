@@ -41,6 +41,7 @@ export const getDiscoverFeed = async ({
   // console.log("filteredFeed",routeGet,{ ...getReelayAuthHeaders(authSession),
   //     filtersjson: JSON.stringify(filters),
   //     requsersub: reqUserSub,})
+
   return await prepareFeed(filteredFeed);
 };
 
@@ -72,11 +73,16 @@ export const getDiscoverFeedLatest = async ({
       `getDiscoverFeedLatest: ${REELAY_API_BASE_URL}/feed/discovernew of API took ${elapsedTimeInSeconds} seconds.`
     );
   }
+  // console.log("/feed/discovernew response is:", filteredFeed[0]);
   // console.log("filteredFeed",routeGet, {
   //     ...getReelayAuthHeaders(authSession),
   //     filtersjson: JSON.stringify(filters),
   //     requsersub: reqUserSub,
   // })
+  // console.log(
+  //   "===================await prepareThread(filteredFeed) response is:=====================",
+  //   await prepareThread(filteredFeed)
+  // );
   return await prepareThread(filteredFeed);
 };
 

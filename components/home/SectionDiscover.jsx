@@ -1088,10 +1088,76 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     //   dispatch({ type: updateType, payload: allThreads });
     // };
     //  -------Old code ends------
+    const renderMediaContent = useCallback(
+      (reelay, index) => {
+        // console.log("reelay123", reelay?.sub);
+
+        if (onActive && muteIndex === index) {
+          return (
+            <View
+              style={{
+                borderRadius: 12,
+                overflow: "hidden",
+                display: "flex",
+              }}
+            >
+              <VideoPlayer
+                videoProps={{
+                  shouldPlay: true,
+                  isMuted: false,
+                  isLooping: false,
+                  useNativeControls: false,
+                  timeVisible: false,
+                  defaultControlsVisible: false,
+                  resizeMode: ResizeMode.COVER,
+                  source: {
+                    uri: reelay?.content?.videoURI,
+                  },
+                }}
+                playbackCallback={(e) => {
+                  if (e.isLoaded) {
+                    if (e.didJustFinish) {
+                      setMuteIndex(-1);
+                    }
+                  }
+                }}
+                slider={{ visible: false }}
+                timeVisible={false}
+                defaultControlsVisible={false}
+                useNativeControls={false}
+                showControlsOnLoad={false}
+                style={{
+                  height: 240,
+                  width: POSTER_WIDTH2,
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  display: "flex",
+                }}
+              />
+            </View>
+          );
+        } else {
+          return (
+            <ThumbnailImage
+              onError={() => generateAndSaveThumbnail(reelay)}
+              source={{ uri: getThumbnailURI(reelay) }}
+            />
+          );
+        }
+      },
+      [onActive, muteIndex]
+    );
 
     // ----- New code extendFeed starts -----
     const extendFeed = async (items = "") => {
-      if (extendLoad) {
+      // if (extendLoad) {
+      //   return;
+      // }
+      if (
+        extendLoad ||
+        !items ||
+        (items === "Following" && followingData?.length < 50)
+      ) {
         return;
       }
 
@@ -1110,15 +1176,22 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         sortMethod,
       };
 
-      const fetchedThreads =
-        items === "Following" && followingData?.length < 50
-          ? await getDiscoverFeed(queryParams)
-          : await getDiscoverFeedLatest(queryParams);
+      // const fetchedThreads =
+      //   items === "Following" && followingData?.length < 50
+      //     ? await getDiscoverFeed(queryParams)
+      //     : await getDiscoverFeedLatest(queryParams);
+      let fetchedThreads = await getDiscoverFeedLatest(queryParams);
 
       let combinedThreads = [...setReelayThread(items), ...fetchedThreads];
+
+      // console.log(
+      //   "-------------...fetchedThreads-------------",
+      //   ...fetchedThreads
+      // );
+      // let combinedThreads = [...setReelayThread(items), ...fetchedThreads];
       setEndLoop(combinedThreads.length === setReelayThread(items).length);
       setExtendLoad(false);
-
+      // console.log("[combinedThreads[0]", combinedThreads);
       if (feedSource === "discover") {
         const payload = {
           content: combinedThreads,
@@ -1128,7 +1201,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
         dispatch({ type: setDispatchAction(items), payload });
       }
-
+      // setExtendLoad(false);
       nextPage.current = calculatedPage + 1;
 
       if (items === "Newest" && combinedThreads.length <= 17) {
@@ -1221,7 +1294,13 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         dimension.width = 180;
       }
     );
-
+    const getReelay = (selectedSection, followingData, isGuestUser, item) => {
+      if (selectedSection === "Following" && followingData?.length < 50) {
+        return isGuestUser ? item : item[0];
+      } else {
+        return item;
+      }
+    };
     const rowRenderer = ({ item, index }) => {
       const reelay =
         selectedSection == "Following" && followingData?.length < 50
@@ -1230,6 +1309,19 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             : item[0]
           : item; //selectedSection == "Newest" ? item : item[0];
 
+      // let reelay;
+      // if (selectedSection === "Following" && followingData?.length < 50) {
+      //   reelay = isGuestUser ? item : item[0];
+      // } else {
+      //   reelay = item;
+      // }
+      // const reelay = getReelay(
+      //   selectedSection,
+      //   followingData,
+      //   isGuestUser,
+      //   item
+      // );
+      // console.log("reelay?.sub", reelay?.sub);
       const starRating =
         (reelay?.starRating ?? 0) + (reelay?.starRatingAddHalf ? 0.5 : 0);
       // var muteIndex = 0;
@@ -1255,61 +1347,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           return SplashImage;
         }
         return thumbnailObj;
-      };
-
-      const renderMediaContent = (reelay, index) => {
-        if (onActive && muteIndex === index) {
-          return (
-            <View
-              style={{
-                borderRadius: 12,
-                overflow: "hidden",
-                display: "flex",
-              }}
-            >
-              <VideoPlayer
-                videoProps={{
-                  shouldPlay: true,
-                  isMuted: false,
-                  isLooping: false,
-                  useNativeControls: false,
-                  timeVisible: false,
-                  defaultControlsVisible: false,
-                  resizeMode: ResizeMode.COVER,
-                  source: {
-                    uri: reelay?.content?.videoURI,
-                  },
-                }}
-                playbackCallback={(e) => {
-                  if (e.isLoaded) {
-                    if (e.didJustFinish) {
-                      setMuteIndex(-1);
-                    }
-                  }
-                }}
-                slider={{ visible: false }}
-                timeVisible={false}
-                defaultControlsVisible={false}
-                useNativeControls={false}
-                showControlsOnLoad={false}
-                style={{
-                  height: 240,
-                  width: POSTER_WIDTH2,
-                  borderRadius: 12,
-                  overflow: "hidden",
-                  display: "flex",
-                }}
-              />
-            </View>
-          );
-        } else {
-          return (
-            <ThumbnailImage
-              onError={() => generateAndSaveThumbnail(reelay)}
-              source={{ uri: getThumbnailURI(reelay) }}
-            />
-          );
-        }
       };
 
       return !reelay?.advertise ? (
@@ -1408,7 +1445,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
               loop={true}
               // activeIndex={2}
               inactiveSlideScale={0.95}
-              //  itemHeight={452}
+              // itemHeight={452}
               firstItem={impressionAdv}
               itemWidth={width}
               renderItem={({ item, index }) => (
@@ -1451,7 +1488,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           ) : (
             //  :
             //  <GuessingGames navigation={navigation} advertise={true} />)
-
             <Carousel
               activeSlideAlignment={"center"}
               data={Advertise2}
@@ -1528,15 +1564,21 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       },
       [focusedIndex]
     );
-    const flatListData = useMemo(() => {
-      return selectedSection === "Watchlist"
-        ? watchlistReels
-        : selectedSection === "Following"
-        ? followingReels
-        : selectedSection === "Newest"
-        ? newestReels
-        : moreFiltersReels;
-    }, [
+
+    const getFlatListData = () => {
+      switch (selectedSection) {
+        case "Watchlist":
+          return watchlistReels;
+        case "Following":
+          return followingReels;
+        case "Newest":
+          return newestReels;
+        default:
+          return moreFiltersReels;
+      }
+    };
+
+    const flatListData = useMemo(getFlatListData, [
       selectedSection,
       watchlistReels,
       followingReels,
@@ -1568,7 +1610,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
               removeClippedSubviews={false}
               keyExtractor={(item, index) => index.toString()}
               renderItem={(item, index) => rowRenderer(item, index)}
-              onEndReachedThreshold={0.5}
+              onEndReachedThreshold={0.4}
               ListFooterComponent={
                 extendLoad && (
                   <View style={{ width: width }}>
