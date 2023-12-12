@@ -272,6 +272,9 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const followingReels = useSelector((state) => state.followingReels);
     const watchlistReels = useSelector((state) => state.watchlistReels);
     const moreFiltersReels = useSelector((state) => state.moreFiltersReels);
+    const isItemAddedToWatchList = useSelector(
+      (state) => state.isItemAddedToWatchList
+    );
 
     const sortedThreadData = {
       mostRecent: discoverMostRecent,
@@ -791,8 +794,20 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     }, []);
 
     useEffect(() => {
-      console.log("selectFil inside");
+      // console.log("******** selectedSection ********", selectedSection);
+      // console.log(
+      //   "******** isItemAddedToWatchList ********",
+      //   isItemAddedToWatchList
+      // );
+      if (selectedSection == "Watchlist" && isItemAddedToWatchList) {
+        // console.log("******** Watchlist called ********");
+        loadFeed("Watchlist");
+        dispatch({ type: "setItemAddRemoveToWatchList", payload: false });
+      }
+    }, [selectedSection]);
 
+    useEffect(() => {
+      console.log("selectField inside", selectedFilters);
       if (selectedSection == "More Filters") loadFeed("More Filters");
     }, [selectedFilters]);
 
