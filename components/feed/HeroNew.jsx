@@ -50,7 +50,6 @@ const HeroModals = memo(
     const trailerVisible =
       useSelector((state) => state.reelayWithVisibleTrailer) === reelay;
     const { reelayDBUser } = useContext(AuthContext);
-    const isGuestUser = reelayDBUser?.username === "be_our_guest";
 
     useFocusEffect(() => {
       setModalsViewable(true);
@@ -58,9 +57,9 @@ const HeroModals = memo(
     });
 
     const addLikesToComment = (reelay, commentID, commentLikeObj) => {
-      const commentObj = reelay?.comments?.find(
-        (nextCommentObj) => nextCommentObj.id === commentID
-      );
+      const matchCommentID = (nextCommentObj) =>
+        nextCommentObj.id === commentID;
+      const commentObj = reelay?.comments?.find(matchCommentID);
       if (commentObj) {
         commentObj.likes = commentLikeObj;
       }
@@ -71,11 +70,9 @@ const HeroModals = memo(
         reelay.sub,
         reelayDBUser?.sub
       );
-
       const singleReelayEntry = commentLikes?.reelays?.[reelay.sub];
       if (singleReelayEntry) {
         const commentEntries = singleReelayEntry?.comments;
-
         if (!commentEntries) {
           console.log("error: could not load comment entries");
           return;
@@ -83,17 +80,16 @@ const HeroModals = memo(
         const commentIDs = Object.keys(commentEntries);
         commentIDs.forEach((commentID) => {
           const commentLikeObj = commentEntries[commentID];
-          addLikesToComment(reelay, commentID, commentLikeObj);
+          addLikesToComment(commentID, commentLikeObj);
         });
       }
       reelay.commentLikesLoaded = true;
     }, [reelay, reelayDBUser]);
 
     useEffect(() => {
-      if (!isGuestUser && !reelay?.commentLikesLoaded) {
-        loadCommentLikes();
-      }
-    }, [isGuestUser, reelay, loadCommentLikes]);
+      if (reelay?.commentLikesLoaded) return;
+      loadCommentLikes();
+    }, [loadCommentLikes]);
 
     if (!modalsViewable) return <View />;
     return (
@@ -144,8 +140,8 @@ export default Hero = memo(
       reelay?.sub === Constants.manifest.extra.welcomeReelaySub;
     console.log(
       "Hero is rendering: ",
-      reelay?.creator?.username,
-      reelay?.title?.display
+      reelay.creator.username,
+      reelay.title.display
     );
     // console.log('Hero is rendering: ', reelay);
 

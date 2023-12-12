@@ -1,12 +1,4 @@
-import React, {
-  useContext,
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-  memo,
-} from "react";
+import React, { useContext, useEffect, useState, useRef, memo } from "react";
 import { ActivityIndicator, Dimensions, FlatList, View } from "react-native";
 import ReelayStack from "./ReelayStack";
 
@@ -41,11 +33,6 @@ const FixedReelayFeed = ({
   const { reelayDBUser } = useContext(AuthContext);
   const [feedPosition, setFeedPosition] = useState(initialFeedPos);
   const [stackList, setStackList] = useState([]);
-  // Memoize initialFeedPos and initialStackPos to prevent unnecessary re-renderings
-  const initialPositions = useMemo(
-    () => ({ initialFeedPos, initialStackPos }),
-    [initialFeedPos, initialStackPos]
-  );
 
   useEffect(() => {
     const stackEmpty = !stackList.length;
@@ -56,66 +43,57 @@ const FixedReelayFeed = ({
 
     console.log("gotta load the feed");
     setStackList(fixedStackList);
-  }, [forceRefresh, stackList, fixedStackList]);
+  }, [navigation]);
 
-  const getItemLayout = useCallback((stack, index) => {
+  const getItemLayout = (stack, index) => {
     return {
       length: height,
       offset: index * height,
       index: index,
     };
-  }, []);
+  };
 
-  const renderStack = useCallback(
-    ({ item, index }) => {
-      const stack = item;
-      const stackViewable = index === feedPosition;
+  const renderStack = ({ item, index }) => {
+    const stack = item;
+    const stackViewable = index === feedPosition;
 
-      return (
-        <React.Fragment>
-          <ReelayStack
-            feedSource={feedSource}
-            // initialStackPos={initialStackPos}
-            initialStackPos={initialPositions.initialStackPos}
-            navigation={navigation}
-            stack={stack}
-            stackViewable={stackViewable}
-            firstReelAfterSignup={firstReelAfterSignup}
-          />
-        </React.Fragment>
-      );
-    },
-    [feedPosition, navigation]
-  );
+    return (
+      <React.Fragment>
+        <ReelayStack
+          feedSource={feedSource}
+          initialStackPos={initialStackPos}
+          navigation={navigation}
+          stack={stack}
+          stackViewable={stackViewable}
+          firstReelAfterSignup={firstReelAfterSignup}
+        />
+      </React.Fragment>
+    );
+  };
 
-  const onFeedSwiped = useCallback(
-    async (e) => {
-      const { x, y } = e.nativeEvent.contentOffset;
-      const nextFeedPosition = Math.round(y / height);
-      if (nextFeedPosition === feedPosition) return;
+  const onFeedSwiped = async (e) => {
+    const { x, y } = e.nativeEvent.contentOffset;
+    const nextFeedPosition = Math.round(y / height);
+    if (nextFeedPosition === feedPosition) return;
 
-      const swipeDirection = nextFeedPosition < feedPosition ? "up" : "down";
-      const nextStack = stackList[nextFeedPosition];
-      const prevStack = stackList[feedPosition];
+    const swipeDirection = nextFeedPosition < feedPosition ? "up" : "down";
+    const nextStack = stackList[nextFeedPosition];
+    const prevStack = stackList[feedPosition];
 
-      const logProperties = {
-        nextReelayTitle: nextStack[0].title.display,
-        prevReelayTitle: prevStack[0].title.display,
-        source: "fixedStack",
-        swipeDirection: swipeDirection,
-        username: reelayDBUser?.username,
-      };
-      logAmplitudeEventProd("swipedFeed", logProperties);
-      setFeedPosition(nextFeedPosition);
-    },
-    [stackList, feedPosition]
-  );
+    const logProperties = {
+      nextReelayTitle: nextStack[0].title.display,
+      prevReelayTitle: prevStack[0].title.display,
+      source: "fixedStack",
+      swipeDirection: swipeDirection,
+      username: reelayDBUser?.username,
+    };
+    logAmplitudeEventProd("swipedFeed", logProperties);
+    setFeedPosition(nextFeedPosition);
+  };
 
-  useFocusEffect(
-    useCallback(() => {
-      dispatch({ type: "setTabBarVisible", payload: true });
-    }, [dispatch])
-  );
+  useFocusEffect(() => {
+    dispatch({ type: "setTabBarVisible", payload: true });
+  });
 
   return (
     <ReelayFeedContainer>
@@ -126,7 +104,7 @@ const FixedReelayFeed = ({
           getItemLayout={getItemLayout}
           horizontal={false}
           initialNumToRender={2}
-          initialScrollIndex={initialPositions.initialFeedPos}
+          initialScrollIndex={initialFeedPos}
           keyboardShouldPersistTaps={"handled"}
           keyExtractor={(stack) => String(stack[0].title.id)}
           maxToRenderPerBatch={2}
@@ -151,8 +129,6 @@ const FixedReelayFeed = ({
     </ReelayFeedContainer>
   );
 };
-
-// export default memo(FixedReelayFeed);
 
 export default memo(FixedReelayFeed, (prevProps, nextProps) => {
   return true;

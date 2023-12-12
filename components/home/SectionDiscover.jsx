@@ -307,6 +307,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const followingData = useSelector((state) => state.followingData);
     const [initialRender, setInitialRender] = useState(true);
     const [hasStartedScrolling, setHasStartedScrolling] = useState(false);
+    const [clickAllowed, setClickAllowed] = useState(true);
 
     const showProgressBarStages = [
       "uploading",
@@ -946,7 +947,14 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       },
       [onActive, muteIndex]
     );
-
+    useEffect(() => {
+      if (clickAllowed === false) {
+        const timer = setTimeout(() => {
+          setClickAllowed(true);
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
+    }, [clickAllowed]);
     // ----- New code extendFeed starts -----
     const extendFeed = async (items = "") => {
       // if (extendLoad) {
@@ -1117,7 +1125,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           videoRef.current.stopAsync();
         }
       };
-      const gotoDetail = (reelay) => {
+      const goToDetail = (reelay) => {
         setMuteIndex(-1);
         navigation.push("SingleReelayScreen", { reelaySub: reelay?.sub });
         // navigation.push('TitleDiscoverReelayScreen', { reelaySub: reelay?.sub })
@@ -1136,7 +1144,18 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       };
 
       return !reelay?.advertise ? (
-        <ThumbnailContainer key={index} onPress={() => gotoDetail(reelay)}>
+        <ThumbnailContainer
+          key={index}
+          // onPress={() => goToDetail(reelay)}
+          onPress={() => {
+            if (clickAllowed) {
+              setClickAllowed(false);
+              goToDetail(reelay);
+            }
+          }}
+          accessible={true}
+          accessibilityLabel={`Go to details of ${reelay?.title?.text}`}
+        >
           <View style={{ margin: 10 }}>
             {renderMediaContent(reelay, index)}
             <TItleContainer>
