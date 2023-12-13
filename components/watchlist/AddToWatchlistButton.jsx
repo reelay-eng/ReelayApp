@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../../context/AuthContext";
 import {
@@ -77,6 +77,8 @@ export default AddToWatchlistButton = ({
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector((state) => state.myWatchlistItems);
     const seenCheckmarkSize = iconSize;
+    const [reelAddedToWatchList, setReelAddedToWatchList] = useState(false);
+    // const [currentInWatchlist, setCurrentInWatchlist] = useState(inWatchlist);
 
     const matchWatchlistItem = (nextItem) => {
       const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
@@ -98,7 +100,8 @@ export default AddToWatchlistButton = ({
     const getGradientColors = () => {
       if (hasSeenTitle)
         return [ReelayColors.reelayGreen, ReelayColors.reelayGreen];
-      if (inWatchlist) return [ReelayColors.reelayGreen, "#0789FD"];
+      if (inWatchlist || reelAddedToWatchList)
+        return [ReelayColors.reelayGreen, "#0789FD"];
       return ["#0789FD", "#0789FD"];
     };
 
@@ -117,35 +120,43 @@ export default AddToWatchlistButton = ({
       } else {
         showMessageToast(`Added ${titleObj?.display} to your watchlist`);
       }
-
-      const addToWatchlistResult = await addToMyWatchlist({
-        reqUserSub: reelayDBUser?.sub,
-        reelaySub: reelay?.sub ?? null,
-        creatorName: reelay?.creator?.username ?? null,
-        tmdbTitleID: titleObj?.id,
-        titleType: titleObj?.titleType,
-      });
-      dispatch({ type: "setMyWatchlistItems", payload: [] });
-      dispatch({ type: "setItemAddRemoveToWatchList", payload: true });
-      const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
-
-      // todo: should also be conditional based on user settings
-      if (reelay?.creator) {
-        notifyOnAddedToWatchlist({
-          reelayedByUserSub: reelay?.creator?.sub,
-          addedByUserSub: reelayDBUser?.sub,
-          addedByUsername: reelayDBUser?.username,
-          watchlistItem: addToWatchlistResult,
+      setReelAddedToWatchList(true);
+      // setCurrentInWatchlist(true);
+      try {
+        const addToWatchlistResult = await addToMyWatchlist({
+          reqUserSub: reelayDBUser?.sub,
+          reelaySub: reelay?.sub ?? null,
+          creatorName: reelay?.creator?.username ?? null,
+          tmdbTitleID: titleObj?.id,
+          titleType: titleObj?.titleType,
         });
+        dispatch({ type: "setMyWatchlistItems", payload: [] });
+        dispatch({ type: "setItemAddRemoveToWatchList", payload: true });
+        const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
+
+        // todo: should also be conditional based on user settings
+        if (reelay?.creator) {
+          notifyOnAddedToWatchlist({
+            reelayedByUserSub: reelay?.creator?.sub,
+            addedByUserSub: reelayDBUser?.sub,
+            addedByUsername: reelayDBUser?.username,
+            watchlistItem: addToWatchlistResult,
+          });
+        }
+
+        logAmplitudeEventProd("addToMyWatchlist", {
+          title: titleObj?.display,
+          username: reelayDBUser?.username,
+          userSub: reelayDBUser?.sub,
+        });
+
+        dispatch({ type: "setMyWatchlistItems", payload: nextWatchlistItems });
+      } catch (error) {
+        console.error("Error while adding to watchlist:", error);
+        // showMessageToast("An error occurred. Please try again.");
+      } finally {
+        setReelAddedToWatchList(false);
       }
-
-      logAmplitudeEventProd("addToMyWatchlist", {
-        title: titleObj?.display,
-        username: reelayDBUser?.username,
-        userSub: reelayDBUser?.sub,
-      });
-
-      dispatch({ type: "setMyWatchlistItems", payload: nextWatchlistItems });
     };
 
     const removeFromWatchlistOnPress = async () => {
@@ -168,16 +179,17 @@ export default AddToWatchlistButton = ({
         tmdbTitleID: titleObj?.id,
         titleType: titleObj?.titleType,
       });
-
+      // setCurrentInWatchlist(false);
       console.log("remove from watchlist result: ", removeFromWatchlistResult);
     };
 
     const onPress = async () => {
-      console.log("******** On press is clicked ******* ");
       if (showMeSignupIfGuest()) return;
       if (inWatchlist) {
+        console.log("******** removeFromWatchlistOnPress clicked ******* ");
         removeFromWatchlistOnPress();
       } else {
+        console.log("******** addToWatchlistOnPress clicked ******* ");
         addToWatchlistOnPress();
       }
     };
@@ -198,14 +210,21 @@ export default AddToWatchlistButton = ({
           end={{ x: 1, y: 1 }}
         />
         <WatchlistButtonCircleView buttonSize={buttonSize}>
-          {inWatchlist && (
+          {reelAddedToWatchList && (
             <FontAwesomeIcon
               icon={SolidIcons.faBookmark}
               size={iconSize}
               color="white"
             />
           )}
-          {!inWatchlist && !hasSeenTitle && (
+          {!reelAddedToWatchList && inWatchlist && (
+            <FontAwesomeIcon
+              icon={SolidIcons.faBookmark}
+              size={iconSize}
+              color="white"
+            />
+          )}
+          {!reelAddedToWatchList && !inWatchlist && !hasSeenTitle && (
             <FontAwesomeIcon
               icon={RegularIcons.faBookmark}
               size={iconSize}
