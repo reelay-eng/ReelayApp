@@ -1441,9 +1441,10 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
               ref={flatRef}
               // extraData={extraDa}
               removeClippedSubviews={false}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item, index) => `${item.id}-${index.toString()}`}
+              // keyExtractor={(item, index) => index.toString()}
               renderItem={(item, index) => rowRenderer(item, index)}
-              onEndReachedThreshold={0.5}
+              onEndReachedThreshold={0.4}
               ListFooterComponent={
                 extendLoad && (
                   <View style={{ width: width }}>
