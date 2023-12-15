@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, Suspense, lazy } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useDispatch } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
-import FixedReelayFeed from "../../components/feed/FixedReelayFeed";
 import styled from "styled-components/native";
-
 import { getReelay, prepareReelay } from "../../api/ReelayDBApi";
+import FixedReelayFeed from "../../components/feed/FixedReelayFeed";
 
 const LoadingContainer = styled(View)`
   align-items: center;
@@ -23,7 +22,6 @@ const TitleFeedContainer = styled(View)`
 
 export default SingleReelayScreen = ({ navigation, route }) => {
   const { preparedReelay, reelaySub } = route.params;
-
   const dispatch = useDispatch();
   const [singleReelay, setSingleReelay] = useState(preparedReelay);
 
@@ -39,11 +37,16 @@ export default SingleReelayScreen = ({ navigation, route }) => {
   //     // setSingleReelay(preparedFetchedReelay || fetchedReelay);
   //   }
   // }, [reelaySub, singleReelay, preparedReelay]);
-  const loadSingleReelay = useCallback(() => {
+
+  const loadSingleReelay = useCallback(async () => {
     if (!singleReelay) {
-      getReelay(reelaySub ?? preparedReelay?.sub)
-        .then((fetchedReelay) => prepareReelay(fetchedReelay))
-        .then((preparedReelay) => setSingleReelay(preparedReelay));
+      try {
+        const fetchedReelay = await getReelay(reelaySub ?? preparedReelay?.sub);
+        const preparedReelay = await prepareReelay(fetchedReelay);
+        setSingleReelay(preparedReelay);
+      } catch (e) {
+        console.log(e);
+      }
     }
   }, [reelaySub, singleReelay, preparedReelay]);
 
