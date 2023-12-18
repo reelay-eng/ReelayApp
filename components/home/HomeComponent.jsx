@@ -30,17 +30,15 @@ import NoticeOverlay from "../overlay/NoticeOverlay";
 import AnnouncementsAndNotices from "./AnnouncementsAndNotices";
 import PopularTitles from "./PopularTitles";
 
-import { LinearGradient } from "expo-linear-gradient";
-import DiscoverSearch from "./DiscoverSearch";
-import RecommendedForYou from "./RecommendedForYou";
-import GuessingGames from "./GuessingGames";
-import { getGuessingGamesPublished } from "../../api/GuessingGameApi";
-import HomeWatchlistCard from "./HomeWatchlistCard";
-import SectionDiscover from "./SectionDiscover";
-import {
-  firebaseCrashlyticsLog,
-  firebaseCrashlyticsError,
-} from "../utils/EventLogger";
+import { LinearGradient } from 'expo-linear-gradient';
+import DiscoverSearch from './DiscoverSearch';
+import RecommendedForYou from './RecommendedForYou';
+import GuessingGames from './GuessingGames';
+import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
+import HomeWatchlistCard from './HomeWatchlistCard';
+import SectionDiscover from './SectionDiscover';
+import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../utils/EventLogger';
+import GuessingGamesRandom from './GuessingGamesRandom';
 
 const BottomBar = styled(LinearGradient)`
   height: 100px;

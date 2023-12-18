@@ -160,6 +160,8 @@ export default ReelayFeedHeader = ({
     setSortMethod = () => {},
     selectedFilters = [],
     setSelectedFilters = () => {},
+    playGame = false,
+    callFunction  = () => {}
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
@@ -206,6 +208,7 @@ export default ReelayFeedHeader = ({
             case 'theaters': return 'in theaters';
             case 'trending': return 'trending';
             case 'upload': return 'preview';
+            case 'discovernew': return 'Discover';
             default: 
                 return '';
         }
@@ -258,7 +261,7 @@ export default ReelayFeedHeader = ({
 
     const BackButton = () => {
         return (
-            <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={10}>
+            <TouchableOpacity onPress={() => playGame? callFunction(): navigation.goBack()} hitSlop={10}>
                 <FontAwesomeIcon icon={faArrowLeft} size={20} color='white' />
             </TouchableOpacity>
         );

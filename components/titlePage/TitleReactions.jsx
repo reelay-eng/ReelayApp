@@ -13,6 +13,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import * as Haptics from 'expo-haptics';
 import ProfilePicture from '../global/ProfilePicture';
 import AddReactEmojiDrawer from './AddReactEmojiDrawer';
+import { Platform } from 'react-native';
 
 const { height, width } = Dimensions.get('window');
 const MAX_DISPLAY_EMOJIS = 5;
@@ -71,7 +72,8 @@ const ReactionCardView = styled(View)`
     border-radius: 16px;
     margin: 16px;
     padding: 12px;
-    width: ${width - 32}px;
+    margin-left: ${Platform.isPad ?  32:16}px;
+    margin-right:${Platform.isPad ?  32:16}px;
 `
 const ReactionHeaderRow = styled(View)`
     align-items: center;

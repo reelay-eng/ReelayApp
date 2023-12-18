@@ -14,6 +14,14 @@ export default function FeedScreen({ navigation, route }) {
         const pinnedReelay = route?.params?.pinnedReelay ?? null;
         const preloadedStackList = route?.params?.preloadedStackList ?? [];
 
+        // React.useEffect(()=>{ 
+        //     return ()=>{
+        //         console.log("onback")
+        //         preloadedStackList = []
+        //         navigation.setParams({preloadedStackList: null})
+        //     }
+        //   } ,[])
+        // console.log(feedSource,initialFeedFilters,initialFeedPos,initialStackPos,preloadedStackList)
         return (
             <ReelayFeed
                 forceRefresh={forceRefresh}

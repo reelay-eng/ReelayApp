@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Platform, TouchableOpacity, View } from 'react-native';
 
 import { getReelaysByTitleKey } from "../../api/ReelayDBApi";
 import ReelayThumbnail from '../global/ReelayThumbnail';
@@ -23,7 +23,8 @@ const SeeAllReviewsPressable = styled(TouchableOpacity)`
 	height: 40px;
 	justify-content: center;
 	margin: 24px;
-	width: ${width - 48}px;
+    margin-left: ${Platform.isPad ?  48:24}px;
+    margin-right:${Platform.isPad ?  48:24}px;
 `
 const SeeAllReviewsText = styled(ReelayText.CaptionEmphasized)`
 	color: white;

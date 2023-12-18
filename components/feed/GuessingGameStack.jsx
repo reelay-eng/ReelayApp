@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StackPositionBar from './StackPositionBar';
 import { getGameDetails } from '../../api/GuessingGameApi';
 import GuessingGameBanner from '../games/GuessingGameBanner';
+import GuessingGameBannerBackSkip from '../games/GuessingGameBannerBackSkip';
 
 const { height, width } = Dimensions.get('window');
 
@@ -176,6 +177,18 @@ export const GuessingGameStack = ({
             { (stack.length > 1) && (
                 <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
             )}
+            <GuessingGameBannerBackSkip 
+             club={getClubStub(viewableReelay)}
+             clueIndex={stackPosition}
+             guessingGame={displayGame}
+             isPreview={isPreview}
+             isUnlocked={isUnlocked}
+             navigation={navigation}
+             titleObj={viewableReelay?.title}
+             topic={topicStub}
+             reelay={viewableReelay}
+            feedSource={'guessingGame'}/>
+
             {/* {shareOutViewable && <ShareGuessingGameDrawer navigation={navigation} game={displayGame} /> } */}
         </ReelayFeedContainer>
     );

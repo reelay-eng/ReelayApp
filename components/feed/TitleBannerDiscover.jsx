@@ -1,5 +1,5 @@
 import React, { Fragment, memo, useContext, useState } from "react";
-import { Dimensions, Pressable, TouchableOpacity, View } from "react-native";
+import { Dimensions, Platform, Pressable, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
@@ -303,6 +303,8 @@ const TitleBannerDiscover = ({
                     navigation={navigation}
                     reelay={reelay}
                     titleObj={reelay?.title}
+                    buttonSize = {35}
+                    iconSize = {17}
                 />
             </AddToWatchlistButtonContainer>
         );
@@ -333,7 +335,7 @@ const TitleBannerDiscover = ({
                 <TitleBannerRow onPress={onClickExpand}>
                     <Poster />
                     <TitleInfo />
-                    {/* { !onCameraScreen && <AddToWatchlist /> } */}
+                    { !onCameraScreen && <AddToWatchlist /> }
                 </TitleBannerRow>    
                 {/* { expanded && <ExpandedInfo /> }
                 { expanded && <ExpandArrow /> } */}

@@ -114,6 +114,16 @@ export const ProfileSettings = ({ navigation }) => {
                             }}
                         />
                     )}
+                    {isAdmin && (
+                        <SettingEntry
+                            text="(Admin) Create Game"
+                            iconName="flag-outline"
+                            onPress={() => {
+                                // navigation.navigate('Watch', { screen: 'SelectCorrectGuessScreen' });
+                                navigation.push('SelectCorrectGuessScreen');
+                            }}
+                        />
+                    )}
                     <SettingEntry
                         text="Terms and Conditions"
                         iconName="document-text-outline"

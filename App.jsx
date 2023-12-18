@@ -105,6 +105,14 @@ const SplashImage = styled(Image)`
   position: absolute;
 `;
 
+const NewImage = styled(Image)`
+        align-self: center;
+        height: 220px;
+        width: 220px;
+        margin-top: -250px;
+        align-items: center;
+        `
+
 const SigningInIndicator = () => {
   const ButtonText = styled(ReelayText.Body2Emphasized)`
     color: white;
@@ -143,6 +151,7 @@ const SigningInIndicator = () => {
 
 const canUseNativeModules = Constants.appOwnership !== "expo";
 const SPLASH_IMAGE_SOURCE = require("./assets/images/reelay-splash-with-dog-black.png");
+const SPLASH_IMAGE_SOURCE_NEW = require('./assets/icons/reelay-new.png');
 
 function App() {
   global.XMLHttpRequest =
