@@ -104,6 +104,7 @@ export default GuessingGameFeedScreen = ({ navigation, route }) => {
                     onEndReached={extendGuessingGames}
                     onEndReachedThreshold={0.9}
                     onScroll={onFeedSwiped}
+                    scrollEnabled={false}
                     pagingEnabled={true}
                     ref={feedPager}
                     renderItem={renderGuessingGame}
@@ -116,7 +117,6 @@ export default GuessingGameFeedScreen = ({ navigation, route }) => {
                     windowSize={3}
                 />
             }
-            <ReelayFeedHeader feedSource={'guessingGame'} navigation={navigation} />
         </ReelayFeedContainer>
     );
 }

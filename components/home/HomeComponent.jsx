@@ -26,6 +26,7 @@ import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
 import HomeWatchlistCard from './HomeWatchlistCard';
 import SectionDiscover from './SectionDiscover';
 import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from '../utils/EventLogger';
+import GuessingGamesRandom from './GuessingGamesRandom';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -161,6 +162,7 @@ const HomeComponent = ({ navigation }) => {
                 {/* <AnnouncementsAndNotices navigation={navigation} /> */}
                 {/* { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> } */}
                 {/* <GuessingGames navigation={navigation} /> */}
+                {/* <GuessingGamesRandom navigation={navigation} /> */}
                 {/* <RecommendedForYou navigation={navigation} /> */}
                 {/* <PopularTitles navigation={navigation} /> */}
                 {/* <TopOfTheWeek navigation={navigation} /> */}

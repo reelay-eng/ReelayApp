@@ -1,12 +1,12 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Dimensions, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Dimensions, TouchableOpacity, View,FlatList  } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ReelayText from '../../components/global/Text';
 import { HeaderWithBackButton } from "../../components/global/Headers";
 import styled from 'styled-components/native';
 import { getRuntimeString } from "../../components/utils/TitleRuntime";
 import TitlePoster from "../../components/global/TitlePoster";
-import { FlatList, ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handler";
+// import {  ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handler";
 // import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import ReelayColors from "../../constants/ReelayColors";
 import { LogBox } from 'react-native';
@@ -261,10 +261,12 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         }
 
         useFocusEffect(() => {
+            console.log("inside")
             dispatch({ type: 'setTabBarVisible', payload: false });
         })
 
         useEffect(() => {
+            console.log("inside")
             LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
         }, []);
 
@@ -316,7 +318,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
             }
         }
 
-        const ClueReelayRow = ({ item, index, drag, isActive }) => {
+        const ClueReelayRow = ({ item, index=0, drag = "", isActive = false }) => {
             const advanceToCreateReelayScreen = () => navigation.push('ReelayCameraScreen', {
                 draftGame: game,
                 topicID: game?.id,
@@ -330,7 +332,9 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                 : advanceToCreateReelayScreen;
 
             return (
-                <ClueReelayRowPressable delayLongPress={100} onPress={onPress} onLongPress={drag} disabled={isActive}>
+                <ClueReelayRowPressable delayLongPress={100} onPress={onPress}
+                //  onLongPress={drag}
+                 disabled={isActive}>
                     <ClueReelayIndexView>
                         <ClueReelayIndexText>{index + 1}</ClueReelayIndexText>
                     </ClueReelayIndexView>
@@ -436,16 +440,17 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
 
         return (
             <ScreenView topOffset={topOffset}>
-                {/* <DraggableFlatList
-                ListHeaderComponent={ComponentAboveList}
-                ListFooterComponent={ComponentBelowList}
-                data={clues}
-                keyExtractor={(item, index) => (!!item) ? item?.id : index}
-                onDragEnd={setNextCluesFromDrag}
-                renderItem={(props) => <ClueReelayRow { ...props } /> }                
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: bottomOffset + 100 }}
-            /> */}
+                <FlatList
+                    ListHeaderComponent={ComponentAboveList}
+                    ListFooterComponent={ComponentBelowList}
+                    data={clues}
+                    keyExtractor={(item, index) => (!!item) ? item?.id : index}
+                    onDragEnd={setNextCluesFromDrag}
+                    renderItem={ClueReelayRow}                
+                    // renderItem={(props) => <ClueReelayRow { ...props } /> }                
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: bottomOffset + 100 }}
+            />
                 {showProgressBar && <UploadProgressBar mountLocation={'InClueBuilder'} onRefresh={onRefresh} />}
             </ScreenView>
         )

@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import {
 	Alert,
 	Dimensions,
+	Platform,
 	Pressable,
 	ScrollView,
 	TouchableOpacity,
@@ -58,7 +59,8 @@ const CreateReelayPressable = styled(TouchableOpacity)`
 	justify-content: center;
 	margin: 16px;
 	margin-top: 0px;
-	width: ${width - 32}px;
+    margin-left: ${Platform.isPad ?  32:16}px;
+    margin-right:${Platform.isPad ?  32:16}px;
 `
 const ShareMoviePressable = styled(TouchableOpacity)`
 	align-items: center;

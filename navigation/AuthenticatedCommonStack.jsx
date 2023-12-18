@@ -84,7 +84,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
                 <CommonStack.Screen name='CreateListScreen' component={CreateListScreen} options={commonOptions} />
                 <CommonStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
                 <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
-                <CommonStack.Screen name='GuessingGameFeedScreen' component={GuessingGameFeedScreen} options={commonOptions} />
+                <CommonStack.Screen name='GuessingGameFeedScreen' component={GuessingGameFeedScreen} options={{gestureEnabled: false,headerShown: false}}/>
                 <CommonStack.Screen name='InstaStoryClubScreen' component={InstaStoryClubScreen} options={commonOptions} />
                 <CommonStack.Screen name='InstaStoryGuessingGameScreen' component={InstaStoryGuessingGameScreen} options={commonOptions} />
                 <CommonStack.Screen name='InstaStoryReelayScreen' component={InstaStoryReelayScreen} options={commonOptions} />

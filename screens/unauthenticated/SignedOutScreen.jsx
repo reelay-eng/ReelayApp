@@ -10,6 +10,7 @@ import styled from "styled-components/native";
 import SocialLoginBar from "../../components/auth/SocialLoginBar";
 
 import ReelayLogoText from "../../assets/images/reelay-logo-text-with-dog.png"
+import ReelayLogoTextNew from "../../assets/icons/reelay-new.png"
 
 import { AuthContext } from "../../context/AuthContext";
 import { showErrorToast } from "../../components/utils/toasts";
@@ -201,7 +202,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
                 {!signingInJustShowMe && (
                     <>
                         <ButtonsFlexContainer>
-                            <Image source={ReelayLogoText} style={{ height: '25%' }} resizeMode="contain" />
+                            <Image source={ReelayLogoTextNew} style={{ height: '25%' }} resizeMode="contain" />
                             <Spacer height="10%" />
                             <SocialLoginBar
                                 navigation={navigation}

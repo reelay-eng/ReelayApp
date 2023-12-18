@@ -1,6 +1,6 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, LogBox, View } from 'react-native';
+import { ActivityIndicator, Image, LogBox, Platform, View } from 'react-native';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -81,11 +81,24 @@ const SplashContainer = styled(View)`
     width: 100%;
     position: absolute;
 `
+const SplashContainer2 = styled(View)`
+    background-color: black;
+    flex:1;
+    justify-content: center;
+`
 const SplashImage = styled(Image)`
     height: 100%;
     width: 100%;
     position: absolute;
 `
+
+const NewImage = styled(Image)`
+        align-self: center;
+        height: 220px;
+        width: 220px;
+        margin-top: -250px;
+        align-items: center;
+        `
 
 const SigningInIndicator = () => {
     const ButtonText = styled(ReelayText.Body2Emphasized)`
@@ -126,6 +139,7 @@ const SigningInIndicator = () => {
 
 const canUseNativeModules = Constants.appOwnership !== 'expo';
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog-black.png');
+const SPLASH_IMAGE_SOURCE_NEW = require('./assets/icons/reelay-new.png');
 
 function App() {
     const colorScheme = useColorScheme();
@@ -609,7 +623,12 @@ function App() {
     if (isLoading) {
         return (
             <SplashContainer>
-                <SplashImage source={SPLASH_IMAGE_SOURCE} />
+                {!Platform.isPad ? 
+                <SplashImage source={SPLASH_IMAGE_SOURCE} />:
+                // <SplashContainer2>
+                //     <NewImage source={SPLASH_IMAGE_SOURCE_NEW}/>
+                // </SplashContainer2>
+                <SplashImage resizeMode="contain" source={SPLASH_IMAGE_SOURCE} />}
                 <LoadingContainer>
                     <ActivityIndicator />
                 </LoadingContainer>

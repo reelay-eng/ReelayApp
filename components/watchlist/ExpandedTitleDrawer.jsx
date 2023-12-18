@@ -19,6 +19,7 @@ import MarkSeenButton from './MarkSeenButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
 import { getRuntimeString } from '../utils/TitleRuntime';
+import * as Haptics from 'expo-haptics';
 
 const { height, width } = Dimensions.get('window');
 const CARD_SIDE_MARGIN = 6;
@@ -367,7 +368,9 @@ export default ExpandedTitleDrawer = ({
     }, []);
 
     const AddToWatchlistLine = () => {
+       
         const onPress = async () => {
+            
             await addToMyWatchlist({ 
                 creatorName: null,
                 reelaySub: null,

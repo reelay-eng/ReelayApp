@@ -44,6 +44,8 @@ import { Carousel } from 'react-native-snap-carousel';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GuessingGames from './GuessingGames';
 import moment from 'moment';
+import AddToWatchlistButton from '../watchlist/AddToWatchlistButton';
+import GuessingGamesRandom from './GuessingGamesRandom';
 
 const { height, width } = Dimensions.get('window');
 
@@ -253,6 +255,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         const [endLoop, setEndLoop] = useState(false);
         const [onActive, setActive] = useState(true);
         const [muteIndex, setMuteIndex] = useState(0);
+        const [isMute, setisMute] = useState(false);
         const [focusedIndex, setFocusedIndex] = useState();
         const [impressionAdv, setImpressionAdv] = useState(0);
         const [gameImp, setGameImp] = useState(false);
@@ -263,6 +266,24 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
         const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
         const showProgressBar = showProgressBarStages.includes(uploadStage);
+
+        const [orientation, setOrientation] = useState("PORTRAIT");
+        const [weedth, setWeedth] = useState(width);
+        
+        useEffect(() => {
+            if(Platform.isPad){
+            Dimensions.addEventListener('change', ({window:{width,height}})=>{
+              if (width<height) {
+                setWeedth(width)
+                setOrientation("PORTRAIT")
+              } else {
+                setWeedth(width)
+                setOrientation("LANDSCAPE")
+              }
+            })
+        }
+        
+          }, []);
 
         const Advertise1 = [
             {
@@ -691,7 +712,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
 
         const WatchlistFilters = () => {
-            const filterKeys = ['Newest', 'Following', 'Watchlist', 'More Filters'];
+            const filterKeys = isGuestUser ? ['Newest', 'More Filters']:['Newest', 'Following', 'Watchlist', 'More Filters'];
             return (
                 <FilterRowView>
                     {filterKeys.map(key => <FilterButton key={key} filterKey={key} />)}
@@ -746,26 +767,26 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                     items == "Newest" ? [] : selectedFilters;
 
             var fetchedThreads;
-            if (items == "Following") {
-                // console.log("followingData",followingData)
-                if (followingData?.length < 50) {
-                    fetchedThreads = await getDiscoverFeed({
-                        authSession,
-                        filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-                        page: 0,
-                        reqUserSub: reelayDBUser?.sub,
-                        sortMethod,
-                    })
-                } else {
-                    fetchedThreads = await getDiscoverFeedLatest({
-                        authSession,
-                        filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-                        page: 0,
-                        reqUserSub: reelayDBUser?.sub,
-                        sortMethod,
-                    })
-                }
-            } else {
+            // if (items == "Following") {
+            //     // console.log("followingData",followingData)
+            //     // if (followingData?.length < 50) {
+                    // fetchedThreads = await getDiscoverFeed({
+                    //     authSession,
+                    //     filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+                    //     page: 0,
+                    //     reqUserSub: reelayDBUser?.sub,
+                    //     sortMethod,
+                    // })
+            //     // } else {
+            //         fetchedThreads = await getDiscoverFeedLatest({
+            //             authSession,
+            //             filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+            //             page: 0,
+            //             reqUserSub: reelayDBUser?.sub,
+            //             sortMethod,
+            //         })
+            //     // }
+            // } else {
                 fetchedThreads = await getDiscoverFeedLatest({
                     authSession,
                     filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
@@ -773,7 +794,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                     reqUserSub: reelayDBUser?.sub,
                     sortMethod,
                 })
-            }
+            // }
             // items == "Newest" ?
             //     await getDiscoverFeedNew({
             //         authSession,
@@ -852,25 +873,25 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             //         reqUserSub: reelayDBUser?.sub,
             //         sortMethod,
             //     }) :
-            if (items == "Following") {
-                if (followingData?.length < 50) {
-                    fetchedThreads = await getDiscoverFeed({
-                        authSession,
-                        filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-                        page,
-                        reqUserSub: reelayDBUser?.sub,
-                        sortMethod,
-                    })
-                } else {
-                    fetchedThreads = await getDiscoverFeedLatest({
-                        authSession,
-                        filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-                        page,
-                        reqUserSub: reelayDBUser?.sub,
-                        sortMethod,
-                    })
-                }
-            } else {
+            // if (items == "Following") {
+            //     if (followingData?.length < 50) {
+            //         fetchedThreads = await getDiscoverFeed({
+            //             authSession,
+            //             filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+            //             page,
+            //             reqUserSub: reelayDBUser?.sub,
+            //             sortMethod,
+            //         })
+            //     } else {
+            //         fetchedThreads = await getDiscoverFeedLatest({
+            //             authSession,
+            //             filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+            //             page,
+            //             reqUserSub: reelayDBUser?.sub,
+            //             sortMethod,
+            //         })
+            //     }
+            // } else {
                 fetchedThreads = await getDiscoverFeedLatest({
                     authSession,
                     filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
@@ -878,7 +899,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                     reqUserSub: reelayDBUser?.sub,
                     sortMethod,
                 })
-            }
+            // }
 
             // probably don't need to create this every time, but we want to avoid unnecessary state
             const threadEntries = {};
@@ -965,9 +986,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         const closeAllFiltersList = () => setShowAllFilters(false);
         const closeAllFilters = () => { };
 
-
-
-
         const layoutProvider = new LayoutProvider(
             index => {
                 return index;
@@ -978,8 +996,38 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
             }
         );
 
+        const renderTitleBanner = (reelay) => {
+            return (
+                <TItleContainer>
+                    <TitleBannerDiscover
+                        navigation={navigation}
+                        titleObj={reelay?.title}
+                        reelay={reelay}
+                    />
+                </TItleContainer>
+            );
+        }
+
+        const gotoDetail = (reelay, index) => {
+            setMuteIndex(-1)
+            const extraDa = 
+            (selectedSection == "Watchlist") ? watchlistReels :
+             (selectedSection == "Following" )? followingReels : 
+             (selectedSection == "Newest") ? newestReels://.filter(function(el) { return el?.advertise !== true; }) : 
+             moreFiltersReels;
+
+            navigation.push("FeedScreen", {
+                feedSource: 'discovernew',
+                initialFeedPos: index,
+                preloadedStackList: extraDa,
+            });
+            // console.log("selectedSection",selectedSection,newestReels.filter(function(el) { return el?.advertise == true; }))
+        }
+        
+
+        
         const rowRenderer = ({ item, index }) => {
-            const reelay = selectedSection == "Following" && followingData?.length < 50 ? isGuestUser? item: item[0] : item;//selectedSection == "Newest" ? item : item[0];
+            const reelay = item[0] //selectedSection == "Following" && followingData?.length < 50 ? isGuestUser? item: item[0] : item;//selectedSection == "Newest" ? item : item[0];
             const starRating = (reelay?.starRating ?? 0) + (reelay?.starRatingAddHalf ? 0.5 : 0);
             // var muteIndex = 0;
             const onPlaybackStatusUpdate = (playbackStatus, index) => {
@@ -989,11 +1037,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
                 }
             }
-            const gotoDetail = (reelay) => {
-                setMuteIndex(-1)
-                navigation.push('SingleReelayScreen', { reelaySub: reelay?.sub })
-                // navigation.push('TitleDiscoverReelayScreen', { reelaySub: reelay?.sub })
-            }
+            
 
             const generateAndSaveThumbnail = async () => {
                 console.log('ON ERROR TRIGGERED: ', getThumbnailURI(reelay));
@@ -1009,15 +1053,20 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
             const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
             return (
-                !reelay?.advertise ?
-                    <ThumbnailContainer key={index} onPress={() => gotoDetail(reelay)}>
+                !item?.advertise ?
+                    <Pressable //ThumbnailContainer 
+                    style={{justifyContent: "center",
+                        borderRadius:12,
+                        width: weedth * 0.5}}
+                    key={index} 
+                    onPress={() => gotoDetail(reelay, index)}>
                         <View style={{ margin: 10 }}>
                             {onActive && muteIndex == index ?
                                 <View style={{ borderRadius: 12, overflow: "hidden", display: "flex" }}>
                                     <VideoPlayer
                                         videoProps={{
                                             shouldPlay: true,
-                                            isMuted: false,
+                                            isMuted: isMute,
                                             isLooping: false,
                                             useNativeControls: false,
                                             timeVisible: false,
@@ -1036,7 +1085,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                         showControlsOnLoad={false}
                                         style={{
                                             height: 240,
-                                            width: POSTER_WIDTH2,
+                                            width: weedth * 0.46,
                                             borderRadius: 12,
                                             overflow: "hidden",
                                             display: "flex"
@@ -1049,20 +1098,16 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                     source={cloudfrontThumbnailSource}
                                 />
                             }
-                            <TItleContainer>
-                                <TitleBannerDiscover
-                                    titleObj={reelay?.title}
-                                    reelay={reelay}
-                                />
-                            </TItleContainer>
                             <GradientContainer>
+                            {renderTitleBanner(reelay)}
+
                                 {/* <ThumbnailGradient colors={["transparent", "#0B1424"]} /> */}
                                 <BlurView intensity={15} tint='dark'
                                     style={{
                                         flexDirection: "row", justifyContent: "space-between", alignItems: 'center',
                                         width: '100%', height: 40, borderBottomRightRadius: 12, borderBottomLeftRadius: 12, overflow: "hidden"
                                     }}>
-                                    <View style={{ flexDirection: "row", height: 40, width: "80%" }}>
+                                    <View style={{ flexDirection: "row", height: 40, width: Platform.isPad ? "84%": "81%" }}>
                                         <>
                                             <CreatorLineContainer>
                                                 <ProfilePicture user={reelay?.creator} size={26} border />
@@ -1083,59 +1128,65 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                                 </StarRatingContainer>}
                                         </View>
                                     </View>
-                                    <View style={{ width: "25%",justifyContent:"center"}}>
-                                        {muteIndex !== index ?
-                                    <Pressable onPress={() => setMuteIndex(index)}  style={{ marginLeft: -5, height:40 ,justifyContent:"center"}}>
+                                  
+                                    <View style={{ width: "25%",justifyContent:"center",flexDirection:"row"}}>
+                                    
+                                        {muteIndex !== index || isMute ?
+                                    <Pressable onPress={() => {
+                                        setMuteIndex(index)
+                                     setisMute(false)
+                                     }}  style={{ marginLeft: -5, height:40 ,justifyContent:"center"}}>
                                             <Ionicons name='volume-mute' color={"#fff"} size={24} style={{ paddingRight: 8,textAlign:"center"}} />
                                             </Pressable>
                                             :
-                                            <Pressable onPress={() => setMuteIndex(-1)} style={{ marginLeft: -5, height:40,justifyContent:"center"}}>
+                                            <Pressable onPress={() => { //setMuteIndex(-1)
+                                                setisMute(true)}} style={{ marginLeft: -5, height:40,justifyContent:"center"}}>
                                             <Ionicons name='volume-high' color={"#fff"} size={24} style={{ paddingRight: 8,textAlign:"center" }} />
                                             </Pressable>}
                                     </View>
                                 </BlurView>
                             </GradientContainer>
                         </View>
-                    </ThumbnailContainer> :
+                    </Pressable> :
                     <>
-                        {reelay?.valIndex == 0 ?
+                        {item?.valIndex == 0 ?
 
                         //    ( !gameImp ?
-                             <Carousel
-                                activeSlideAlignment={'center'}
-                                data={Advertise1}
-                                loop={true}
-                                // activeIndex={2}
-                                inactiveSlideScale={0.95}
-                                //  itemHeight={452}
-                                firstItem={impressionAdv}
-                                itemWidth={width}
-                                renderItem={({ item, index }) =>
+                            //  <Carousel
+                            //     activeSlideAlignment={'center'}
+                            //     data={Advertise1}
+                            //     loop={true}
+                            //     // activeIndex={2}
+                            //     inactiveSlideScale={0.95}
+                            //     //  itemHeight={452}
+                            //     firstItem={impressionAdv}
+                            //     itemWidth={weedth}
+                            //     renderItem={({ item, index }) =>
 
-                                    <Pressable onPress={() => navigation.push('TitleDetailScreen', { titleObj: item })}
-                                        style={{
-                                            backgroundColor: item.key == 1 || item.key == 3 ? "#4388F1" : "#1EC072",
-                                            flexDirection: "row", borderRadius: 10, margin: 10, padding: 10
-                                        }}>
-                                        <View style={{ width: "35%" }}>
-                                            <View style={{ justifyContent: "center", alignSelf: "center" }}>
-                                                <HustleImage resizeMode='contain' source={{ uri: item.poster_path }} />
-                                            </View>
-                                        </View>
-                                        <View style={{ width: "62%", paddingTop: 10, marginLeft: 10 }}>
-                                            <WelcomeText numberOfLines={2}>{item.title}</WelcomeText>
-                                            <WelcomeText2>{item.release_date}</WelcomeText2>
-                                            <LearnText numberOfLines={2}>{item.genres}</LearnText>
-                                            <LearnText2 numberOfLines={4}>{item.overview}</LearnText2>
-                                        </View>
-                                    </Pressable>
-                                }
-                                sliderHeight={452}
-                                sliderWidth={width}
-                            />
+                            //         <Pressable onPress={() => navigation.push('TitleDetailScreen', { titleObj: item })}
+                            //             style={{
+                            //                 backgroundColor: item.key == 1 || item.key == 3 ? "#4388F1" : "#1EC072",
+                            //                 flexDirection: "row", borderRadius: 10, margin: 10, padding: 10
+                            //             }}>
+                            //             <View style={{ width: "35%" }}>
+                            //                 <View style={{ justifyContent: "center", alignSelf: "center" }}>
+                            //                     <HustleImage resizeMode='contain' source={{ uri: item.poster_path }} />
+                            //                 </View>
+                            //             </View>
+                            //             <View style={{ width: "62%", paddingTop: 10, marginLeft: 10 }}>
+                            //                 <WelcomeText numberOfLines={2}>{item.title}</WelcomeText>
+                            //                 <WelcomeText2>{item.release_date}</WelcomeText2>
+                            //                 <LearnText numberOfLines={2}>{item.genres}</LearnText>
+                            //                 <LearnText2 numberOfLines={4}>{item.overview}</LearnText2>
+                            //             </View>
+                            //         </Pressable>
+                            //     }
+                            //     sliderHeight={452}
+                            //     sliderWidth={weedth}
+                            // />
                             //  :
                             //  <GuessingGames navigation={navigation} advertise={true} />)
-
+                            <GuessingGamesRandom navigation={navigation} />
                             :
                             <Carousel
                                 activeSlideAlignment={'center'}
@@ -1144,10 +1195,11 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                 firstItem={impressionAdv}
                                 inactiveSlideScale={0.95}
                                 //  itemHeight={452}
-                                itemWidth={width}
+                                itemWidth={weedth}
                                 renderItem={({ item, index }) =>
 
-                                    <Pressable onPress={() => navigation.push('TitleDetailScreen', { titleObj: item })} style={{ backgroundColor: item.key == 2 ? "#4388F1" : "#1EC072", flexDirection: "row", borderRadius: 10, margin: 10, marginRight: 20, padding: 10 }}>
+                                    <Pressable onPress={() => navigation.push('TitleDetailScreen', { titleObj: item })} 
+                                    style={{ backgroundColor: item.key == 2 ? "#4388F1" : "#1EC072", flexDirection: "row", borderRadius: 10, margin: 10, marginRight: 10, padding: 10 }}>
                                         <View style={{ width: "35%" }}>
                                             <View style={{ justifyContent: "center", alignSelf: "center" }}>
                                                 <HustleImage resizeMode='contain' source={{ uri: item.poster_path }} />
@@ -1162,7 +1214,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                                     </Pressable>
                                 }
                                 sliderHeight={452}
-                                sliderWidth={width}
+                                sliderWidth={weedth}
                             />}
                     </>
             );
@@ -1177,6 +1229,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                 let calOffset = muteIndex <= 12 ? offset * 2 : (offset * 2) - 2;
                 if (offset * 2 !== setMuteIndex) {
                     setMuteIndex(calOffset)//offset * 2)
+                    setisMute(false)
                 }
                 setFocusedIndex(offset)
             }
@@ -1189,7 +1242,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                     <WatchlistFilters />
                 </HeaderContainer>
                 {!feedLoad ?
-                    <View style={{}}>
+                    <View style={{width:weedth}}>
                         <FlatList
                             data={selectedSection === "Watchlist" ? watchlistReels : selectedSection === "Following" ? followingReels : selectedSection === "Newest" ? newestReels : moreFiltersReels}
                             refreshControl={refreshControls}
@@ -1197,11 +1250,11 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                             contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', paddingBottom: 300 }}
                             initialNumToRender={2}
                             ref={flatRef}
-                            // extraData={extraDa}
+                            extraData={orientation}
                             removeClippedSubviews={false}
                             keyExtractor={(item, index) => index.toString()}
                             renderItem={(item, index) => rowRenderer(item, index)}
-                            onEndReachedThreshold={0.2}
+                            onEndReachedThreshold={1}
                             ListFooterComponent={extendLoad &&
                                 <View style={{ width: width }}>
                                     <ActivityIndicator style={{ margin: 10 }} size={"small"} color={"#fff"} />

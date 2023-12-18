@@ -102,6 +102,7 @@ export default AddToWatchlistButton = ({
         const addToWatchlistOnPress = async () => {
             if (shouldGoToWatchlist) {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                showMessageToast(`Added ${titleObj?.display} to your watchlist`);
             } else {
                 showMessageToast(`Added ${titleObj?.display} to your watchlist`);
             }
@@ -160,6 +161,7 @@ export default AddToWatchlistButton = ({
         }
 
         const onPress = async () => {
+            console.log("touch")
             if (showMeSignupIfGuest()) return;
             if (inWatchlist) {
                 removeFromWatchlistOnPress();

@@ -18,6 +18,7 @@ import { coalesceFiltersForAPI } from '../utils/FilterMappings';
 import GuessingGameStack from './GuessingGameStack';
 import moment, { min } from 'moment';
 import FeedTutorial from './FeedTutorial';
+import EmptyDIscover from './EmptyDIscover';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -370,6 +371,9 @@ export default ReelayFeed = ({ navigation,
             //         stackViewable={stackViewable}
             //     />;
             // }
+            if(stack.advertise){
+                return <EmptyDIscover navigation={navigation} topic={stack} />
+            }
 
             const showFeedTutorialOnStack = (
                 showFeedTutorial &&

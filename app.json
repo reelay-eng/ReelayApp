@@ -15,7 +15,7 @@
         "userInterfaceStyle": "automatic",
         "splash": {
             "image": "./assets/images/reelay-splash-with-dog-black.png",
-            "resizeMode": "cover",
+            "resizeMode": "contain",
             "backgroundColor": "#000000"
         },
         "updates": {

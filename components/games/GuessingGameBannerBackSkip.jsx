@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Dimensions, Pressable, ScrollView, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Dimensions, Pressable, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 
@@ -23,6 +23,9 @@ import * as Haptics from 'expo-haptics';
 import moment from "moment";
 import { EmptyTitleObject } from "../../api/TMDbApi";
 import { firebaseCrashlyticsLog, firebaseCrashlyticsError } from "../utils/EventLogger";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ReelayFeedHeader from "../feed/ReelayFeedHeader";
+import { Alert } from "react-native";
 
 const POSTER_WIDTH = 36;
 
@@ -199,7 +202,39 @@ const YearVenueContainer = styled(View)`
     align-items: center;
     flex-direction: row;
 `
+const DiscoveryBarLeftView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-top: 6px;
+    margin-left: 12px;
+`
+const HeaderLeftSpacer = styled(View)`
+    width: 10px;
+`
+const HeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 24px;
+    line-height: 24px;
+`
+const DiscoveryBarView = styled(Pressable)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    position: absolute;
+    top: ${props => props.topOffset}px;
+    width: 100%;
+`
 
+const HeaderFill = styled(View)`
+    background-color: black;
+    height: ${props => props.topOffset + 46}px;
+    position: absolute;
+    width: 100%;
+`
+const FeedHeaderView = styled(SafeAreaView)`
+    position: absolute;
+    width: 100%;
+`
 const SearchResults = ({ onGuessTitle, searchResults }) => {
     const displayResults = searchResults.slice(0, 4);
 
@@ -238,7 +273,7 @@ const SearchResults = ({ onGuessTitle, searchResults }) => {
     // return <FlatList data={displayResults} renderItem={renderItem} />;
 }
 
-const GuessingGameBanner = ({
+const GuessingGameBannerBackSkip = ({
     clueIndex = 0,
     guessingGame,
     isPreview = false,
@@ -346,6 +381,8 @@ const GuessingGameBanner = ({
                 }
             }
 
+            
+
             const onGuessTitle = async (guessedTitleObj) => {
                 const guessedTitleKey = `${guessedTitleObj.titleType}-${guessedTitleObj?.id}`
                 const isCorrect = (guessedTitleKey === correctTitleKey);
@@ -379,7 +416,6 @@ const GuessingGameBanner = ({
                 if (isCorrect || isLastClue) {
                     guessingGame.hasCompletedGame = true;
                 }
-
                 guessingGame.myGuesses = [...myGuesses, nextGuess];
                 dispatch({ type: 'updateHomeGuessingGames', payload: guessingGame });
 
@@ -397,6 +433,8 @@ const GuessingGameBanner = ({
                 } else {
                     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
                 }
+
+                navigation.goBack()
 
                 if (!isPreview && reelayDBUser?.username !== 'be_our_guest') {
                     const postBody = {
@@ -424,6 +462,17 @@ const GuessingGameBanner = ({
                 );
             }
 
+            const onBackGame = () =>{
+                Alert.alert("Going Back?","You will loose a chance to guess!",[
+                    {
+                      text: "Cancel",
+                      style: "cancel"
+                    },
+                    { text: "Back", onPress: () => onGuessTitle(EmptyTitleObject) }
+                  ])
+            }
+            
+
             useEffect(() => {
                 try {
                     updateCounter.current += 1;
@@ -438,26 +487,7 @@ const GuessingGameBanner = ({
             }, [searchText]);
 
             return (
-                <SearchView>
-                    <SearchField
-                        backgroundColor="rgba(0,0,0,0.4)"
-                        placeholderText={`You have ${guessesLeft} guess${guessesPlural} remaining`}
-                        searchText={searchText}
-                        updateSearchText={setSearchText}
-                    />
-                    {showSkipButton && <SkipButton />}
-                    {showSearchResults && (
-                        <SearchResults
-                            searchResults={searchResults}
-                            onGuessTitle={onGuessTitle}
-                        />
-                    )}
-                    {loading && (
-                        <RefreshView>
-                            <ActivityIndicator />
-                        </RefreshView>
-                    )}
-                </SearchView>
+                <ReelayFeedHeader feedSource={'guessingGame'} navigation={navigation} playGame={ guessingGame.hasCompletedGame ? false : true} callFunction={onBackGame}/>
             )
         }
 
@@ -563,26 +593,26 @@ const GuessingGameBanner = ({
 
 
         const showGuessResult = ((clueIndex < myGuesses?.length) || gameOver);
+        const topOffset = useSafeAreaInsets().top;
+
+        
 
         return (
-            <TopicBannerBackground>
-                <BlurView intensity={25} tint='dark' style={{ alignItems: 'center', width: '100%' }}>
-                    <BannerTopSpacer allowExpand={allowExpand} />
-                    <TopicBannerRow onPress={onClickExpand}>
-                        <GamesIcon />
-                        <TopicTitle />
-                    </TopicBannerRow>
-                    <GuessMarkers />
-                    {showGuessResult && !isGameCreator && <GuessResult />}
-                    {showGuessResult && isGameCreator && <Spacer />}
-                    {!showGuessResult && <Guesser />}
-                </BlurView>
-                
-            </TopicBannerBackground>
+            // <FeedHeaderView>
+            // <DiscoveryBarView topOffset={topOffset}>
+            //                 <HeaderFill topOffset={topOffset} />
+            //      <DiscoveryBarLeftView>
+            //         <BackButton />
+            //         <HeaderLeftSpacer />
+            //         <HeaderText>{getDisplayText()}</HeaderText>
+            //     </DiscoveryBarLeftView>
+            // </DiscoveryBarView>
+            // </FeedHeaderView>
+            <Guesser />
         );
     } catch (error) {
         firebaseCrashlyticsError(error);
     }
 }
 
-export default GuessingGameBanner;
+export default GuessingGameBannerBackSkip;
