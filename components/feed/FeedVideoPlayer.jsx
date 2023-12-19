@@ -1,4 +1,3 @@
-// ------------- FeedVideoPlayer ------------
 import React, {
   createContext,
   memo,

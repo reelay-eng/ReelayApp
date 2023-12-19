@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, Suspense, lazy } from "react";
 import { ActivityIndicator, View } from "react-native";
-import FixedReelayFeed from "../../components/feed/FixedReelayFeed";
-import styled from "styled-components/native";
-
-import { getReelay, prepareReelay } from "../../api/ReelayDBApi";
 import { useDispatch } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
+import styled from "styled-components/native";
+import { getReelay, prepareReelay } from "../../api/ReelayDBApi";
+import FixedReelayFeed from "../../components/feed/FixedReelayFeed";
 
 const LoadingContainer = styled(View)`
   align-items: center;
@@ -14,6 +13,7 @@ const LoadingContainer = styled(View)`
   height: 100%;
   width: 100%;
 `;
+
 const TitleFeedContainer = styled(View)`
   height: 100%;
   width: 100%;
@@ -21,63 +21,44 @@ const TitleFeedContainer = styled(View)`
 `;
 
 export default SingleReelayScreen = ({ navigation, route }) => {
-  const preparedReelay = route.params?.preparedReelay;
-  const creatorName = preparedReelay?.creator?.username;
-  const reelaySub = route.params?.reelaySub ?? preparedReelay?.sub;
-
+  const { preparedReelay, reelaySub } = route.params;
   const dispatch = useDispatch();
   const [singleReelay, setSingleReelay] = useState(preparedReelay);
 
-  const loadSingleReelay = async () => {
-    const fetchedReelay = await getReelay(reelaySub);
-    const preparedReelay = await prepareReelay(fetchedReelay);
-    setSingleReelay(preparedReelay);
-  };
-
-  useFocusEffect(() => {
-    dispatch({ type: "setTabBarVisible", payload: true });
-  });
+  const loadSingleReelay = useCallback(async () => {
+    if (!singleReelay) {
+      try {
+        const fetchedReelay = await getReelay(reelaySub ?? preparedReelay?.sub);
+        const preparedReelay = await prepareReelay(fetchedReelay);
+        setSingleReelay(preparedReelay);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }, [reelaySub, singleReelay, preparedReelay]);
 
   useEffect(() => {
-    if (!singleReelay) loadSingleReelay();
-  }, []);
+    loadSingleReelay();
+  }, [loadSingleReelay]);
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch({ type: "setTabBarVisible", payload: true });
+    }, [dispatch])
+  );
 
   if (!singleReelay) {
     return (
       <LoadingContainer>
-        <ActivityIndicator />
+        <ActivityIndicator accessibilityLabel="Loading content" />
       </LoadingContainer>
     );
   }
-  //   const loadSingleReelay = useCallback(async () => {
-  //     const fetchedReelay = await getReelay(reelaySub);
-  //     const preparedReelay = await prepareReelay(fetchedReelay);
-  //     setSingleReelay(preparedReelay);
-  //   }, [reelaySub]);
 
-  //   useEffect(() => {
-  //     if (!singleReelay) loadSingleReelay();
-  //   }, [loadSingleReelay, singleReelay]);
-
-  //   // Use useCallback and dispatch inside useFocusEffect
-
-  //   useFocusEffect(
-  //     useCallback(() => {
-  //       dispatch({ type: "setTabBarVisible", payload: true });
-  //     }, [])
-  //   );
-
-  if (!singleReelay) {
-    return (
-      <LoadingContainer>
-        <ActivityIndicator />
-      </LoadingContainer>
-    );
-  }
   return (
     <TitleFeedContainer>
       <FixedReelayFeed
-        headerDisplayText={creatorName}
+        headerDisplayText={preparedReelay?.creator?.username}
         fixedStackList={[[singleReelay]]}
         feedSource="single"
         initialStackPos={0}
