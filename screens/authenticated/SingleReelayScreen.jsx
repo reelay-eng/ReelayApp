@@ -25,19 +25,6 @@ export default SingleReelayScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const [singleReelay, setSingleReelay] = useState(preparedReelay);
 
-  // const loadSingleReelay = useCallback(async () => {
-  //   if (!singleReelay) {
-  //     const fetchedReelay = await getReelay(reelaySub ?? preparedReelay?.sub);
-  //     const preparedReelay = await prepareReelay(fetchedReelay);
-  //     // const [fetchedReelay, preparedFetchedReelay] = await Promise.all([
-  //     //   getReelay(reelaySub ?? preparedReelay?.sub),
-  //     //   prepareReelay(preparedReelay),
-  //     // ]);
-  //     setSingleReelay(preparedReelay);
-  //     // setSingleReelay(preparedFetchedReelay || fetchedReelay);
-  //   }
-  // }, [reelaySub, singleReelay, preparedReelay]);
-
   const loadSingleReelay = useCallback(async () => {
     if (!singleReelay) {
       try {
