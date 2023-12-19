@@ -936,16 +936,17 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         return () => clearTimeout(timer);
       }
     }, [clickAllowed]);
+
     const extendFeed = async (items) => {
       console.log("extended");
 
-      if (
-        extendLoad ||
-        !items ||
-        (items === "Following" && followingData?.length < 50)
-      ) {
-        return;
-      }
+      // if (
+      //   extendLoad ||
+      //   !items ||
+      //   (items === "Following" && followingData?.length < 50)
+      // ) {
+      //   return;
+      // }
       setExtendLoad(true);
       console.log("extendFeed", nextPage.current, items);
       const page =
