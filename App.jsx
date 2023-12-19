@@ -57,7 +57,6 @@ import {
   getWatchlistItems,
   getWatchlistRecs,
 } from "./api/WatchlistApi";
-
 import { registerForPushNotificationsAsync } from "./api/NotificationsApi";
 import { toastConfig } from "./components/utils/ToastConfig";
 import Toast from "react-native-toast-message";
