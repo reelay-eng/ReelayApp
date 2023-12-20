@@ -59,11 +59,7 @@ import ReelayColors from "../../constants/ReelayColors";
 import ReelayDiscVideo from "../global/ReelayDiscVideo";
 import { Video } from "expo-av";
 import VideoPlayer from "expo-video-player";
-import {
-  RecyclerListView,
-  DataProvider,
-  LayoutProvider,
-} from "recyclerlistview";
+import { DataProvider, LayoutProvider } from "recyclerlistview";
 import TitleBannerDiscover from "../feed/TitleBannerDiscover";
 import StarRating from "../global/StarRating";
 import { FlatList } from "react-native";
