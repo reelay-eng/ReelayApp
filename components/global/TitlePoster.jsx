@@ -22,6 +22,7 @@ const TitlePoster = ({ onLoad = () => {}, title, onPress, width = 60 }) => {
   const height = width * 1.5;
   const style = { borderRadius, height, width };
   const [userCanPress, setUserCanPress] = useState(true);
+
   const source = {
     uri: getTitlePosterURI(title?.posterPath, false),
     priority: FastImage.priority.normal,

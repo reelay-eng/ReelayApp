@@ -761,7 +761,10 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     );
 
     const WatchlistFilters = () => {
-      const filterKeys = ["Newest", "Following", "Watchlist", "More Filters"];
+      // const filterKeys = ["Newest", "Following", "Watchlist", "More Filters"];
+      const filterKeys = isGuestUser
+        ? ["Newest", "More Filters"]
+        : ["Newest", "Following", "Watchlist", "More Filters"];
       return (
         <FilterRowView>
           {filterKeys.map((key) => (
@@ -975,13 +978,13 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       // if (extendLoad) {
       //   return;
       // }
-      if (
-        extendLoad ||
-        !items ||
-        (items === "Following" && followingData?.length < 50)
-      ) {
-        return;
-      }
+      // if (
+      //   extendLoad ||
+      //   !items ||
+      //   (items === "Following" && followingData?.length < 50)
+      // ) {
+      //   return;
+      // }
 
       setExtendLoad(true);
 

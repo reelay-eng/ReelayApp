@@ -33,8 +33,8 @@ const initialState = {
   myClubs: [],
   myClubActivities: [],
   myWatchlistItems: [],
-  myWatchlistRecs: [],
   isItemAddedToWatchList: false,
+  myWatchlistRecs: [],
   newTopicCreatedInClub: null,
   openedActivityDotMenu: null,
 
