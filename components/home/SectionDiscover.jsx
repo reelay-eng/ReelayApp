@@ -269,10 +269,10 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const followingReels = useSelector((state) => state.followingReels);
     const watchlistReels = useSelector((state) => state.watchlistReels);
     const moreFiltersReels = useSelector((state) => state.moreFiltersReels);
-    // ---- TO DO -----
-    // const isItemAddedToWatchList = useSelector(
-    //   (state) => state.isItemAddedToWatchList
-    // );
+
+    const isItemAddedToWatchList = useSelector(
+      (state) => state.isItemAddedToWatchList
+    );
 
     const sortedThreadData = {
       mostRecent: discoverMostRecent,
