@@ -86,7 +86,8 @@ import { Carousel } from "react-native-snap-carousel";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import GuessingGames from "./GuessingGames";
 import moment from "moment";
-import _ from "lodash";
+import AddToWatchlistButton from "../watchlist/AddToWatchlistButton";
+import GuessingGamesRandom from "./GuessingGamesRandom";
 
 const { height, width } = Dimensions.get("window");
 
@@ -272,9 +273,10 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const followingReels = useSelector((state) => state.followingReels);
     const watchlistReels = useSelector((state) => state.watchlistReels);
     const moreFiltersReels = useSelector((state) => state.moreFiltersReels);
-    const isItemAddedToWatchList = useSelector(
-      (state) => state.isItemAddedToWatchList
-    );
+    // ---- TO DO -----
+    // const isItemAddedToWatchList = useSelector(
+    //   (state) => state.isItemAddedToWatchList
+    // );
 
     const sortedThreadData = {
       mostRecent: discoverMostRecent,
@@ -301,6 +303,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const [endLoop, setEndLoop] = useState(false);
     const [onActive, setActive] = useState(true);
     const [muteIndex, setMuteIndex] = useState(0);
+    const [isMute, setisMute] = useState(false);
     const [focusedIndex, setFocusedIndex] = useState();
     const [impressionAdv, setImpressionAdv] = useState(0);
     const [gameImp, setGameImp] = useState(false);
@@ -308,8 +311,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     const flatRef = useRef(null);
     const uploadStage = useSelector((state) => state.uploadStage);
     const followingData = useSelector((state) => state.followingData);
-    const [initialRender, setInitialRender] = useState(true);
-    const [hasStartedScrolling, setHasStartedScrolling] = useState(false);
     const [clickAllowed, setClickAllowed] = useState(true);
 
     const showProgressBarStages = [
@@ -318,6 +319,26 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       "upload-failed-retry",
     ];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
+
+    const [orientation, setOrientation] = useState("PORTRAIT");
+    const [weedth, setWeedth] = useState(width);
+
+    useEffect(() => {
+      if (Platform.isPad) {
+        Dimensions.addEventListener(
+          "change",
+          ({ window: { width, height } }) => {
+            if (width < height) {
+              setWeedth(width);
+              setOrientation("PORTRAIT");
+            } else {
+              setWeedth(width);
+              setOrientation("LANDSCAPE");
+            }
+          }
+        );
+      }
+    }, []);
 
     const Advertise1 = [
       {
@@ -761,7 +782,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     );
 
     const WatchlistFilters = () => {
-      // const filterKeys = ["Newest", "Following", "Watchlist", "More Filters"];
       const filterKeys = isGuestUser
         ? ["Newest", "More Filters"]
         : ["Newest", "Following", "Watchlist", "More Filters"];
@@ -797,25 +817,18 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
     }, []);
 
     useEffect(() => {
-      // console.log("******** selectedSection ********", selectedSection);
-      // console.log(
-      //   "******** isItemAddedToWatchList ********",
-      //   isItemAddedToWatchList
-      // );
       if (selectedSection == "Watchlist" && isItemAddedToWatchList) {
-        // console.log("******** Watchlist called ********");
         loadFeed("Watchlist");
         dispatch({ type: "setItemAddRemoveToWatchList", payload: false });
       }
     }, [selectedSection]);
 
     useEffect(() => {
-      console.log("selectField inside", selectedFilters);
+      console.log("selectFil inside");
       if (selectedSection == "More Filters") loadFeed("More Filters");
     }, [selectedFilters]);
 
     const loadFeed = async (items) => {
-      // console.log("Load feed executed--------");
       setFeedLoad(true);
       const silSelect =
         items == "Following"
@@ -839,34 +852,44 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           : selectedFilters;
 
       var fetchedThreads;
-      if (items == "Following") {
-        // console.log("followingData",followingData)
-        if (followingData?.length < 50) {
-          fetchedThreads = await getDiscoverFeed({
-            authSession,
-            filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-            page: 0,
-            reqUserSub: reelayDBUser?.sub,
-            sortMethod,
-          });
-        } else {
-          fetchedThreads = await getDiscoverFeedLatest({
-            authSession,
-            filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-            page: 0,
-            reqUserSub: reelayDBUser?.sub,
-            sortMethod,
-          });
-        }
-      } else {
-        fetchedThreads = await getDiscoverFeedLatest({
-          authSession,
-          filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
-          page: 0,
-          reqUserSub: reelayDBUser?.sub,
-          sortMethod,
-        });
-      }
+      // if (items == "Following") {
+      //     // console.log("followingData",followingData)
+      //     // if (followingData?.length < 50) {
+      // fetchedThreads = await getDiscoverFeed({
+      //     authSession,
+      //     filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+      //     page: 0,
+      //     reqUserSub: reelayDBUser?.sub,
+      //     sortMethod,
+      // })
+      //     // } else {
+      //         fetchedThreads = await getDiscoverFeedLatest({
+      //             authSession,
+      //             filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+      //             page: 0,
+      //             reqUserSub: reelayDBUser?.sub,
+      //             sortMethod,
+      //         })
+      //     // }
+      // } else {
+      fetchedThreads = await getDiscoverFeedLatest({
+        authSession,
+        filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+        page: 0,
+        reqUserSub: reelayDBUser?.sub,
+        sortMethod,
+      });
+      // }
+      // items == "Newest" ?
+      //     await getDiscoverFeedNew({
+      //         authSession,
+      //         filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+      //         page: 0,
+      //         reqUserSub: reelayDBUser?.sub,
+      //         sortMethod,
+      //     })
+      //     :
+
       // console.log("fetchedThreads",fetchedThreads)
 
       if (feedSource === "discover") {
@@ -905,66 +928,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
 
       setFeedLoad(false);
     };
-
-    const renderMediaContent = useCallback(
-      (reelay, index) => {
-        // console.log("reelay123", reelay?.sub);
-
-        if (onActive && muteIndex === index) {
-          return (
-            <View
-              style={{
-                borderRadius: 12,
-                overflow: "hidden",
-                display: "flex",
-              }}
-            >
-              <VideoPlayer
-                videoProps={{
-                  shouldPlay: true,
-                  isMuted: false,
-                  isLooping: false,
-                  useNativeControls: false,
-                  timeVisible: false,
-                  defaultControlsVisible: false,
-                  resizeMode: ResizeMode.COVER,
-                  source: {
-                    uri: reelay?.content?.videoURI,
-                  },
-                }}
-                playbackCallback={(e) => {
-                  if (e.isLoaded) {
-                    if (e.didJustFinish) {
-                      setMuteIndex(-1);
-                    }
-                  }
-                }}
-                slider={{ visible: false }}
-                timeVisible={false}
-                defaultControlsVisible={false}
-                useNativeControls={false}
-                showControlsOnLoad={false}
-                style={{
-                  height: 240,
-                  width: POSTER_WIDTH2,
-                  borderRadius: 12,
-                  overflow: "hidden",
-                  display: "flex",
-                }}
-              />
-            </View>
-          );
-        } else {
-          return (
-            <ThumbnailImage
-              onError={() => generateAndSaveThumbnail(reelay)}
-              source={{ uri: getThumbnailURI(reelay) }}
-            />
-          );
-        }
-      },
-      [onActive, muteIndex]
-    );
     useEffect(() => {
       if (clickAllowed === false) {
         const timer = setTimeout(() => {
@@ -973,11 +936,10 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         return () => clearTimeout(timer);
       }
     }, [clickAllowed]);
-    // ----- New code extendFeed starts -----
-    const extendFeed = async (items = "") => {
-      // if (extendLoad) {
-      //   return;
-      // }
+
+    const extendFeed = async (items) => {
+      console.log("extended");
+
       // if (
       //   extendLoad ||
       //   !items ||
@@ -985,107 +947,141 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       // ) {
       //   return;
       // }
-
       setExtendLoad(true);
-
-      const calculatedPage =
+      console.log("extendFeed", nextPage.current, items);
+      const page =
         feedSource === "discover"
           ? discoverMostRecent.nextPage
           : nextPage.current;
+      const silSelect =
+        items == "Following"
+          ? [
+              {
+                category: "community",
+                display: "my friends",
+                option: "following",
+              },
+            ]
+          : items == "Watchlist"
+          ? [
+              {
+                category: "watchlist",
+                display: "on my watchlist",
+                option: "on_my_watchlist",
+              },
+            ]
+          : items == "Newest"
+          ? []
+          : selectedFilters;
 
-      const queryParams = {
+      var fetchedThreads;
+      // items == "Newest" ?
+      //     await getDiscoverFeedNew({
+      //         authSession,
+      //         filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+      //         page,
+      //         reqUserSub: reelayDBUser?.sub,
+      //         sortMethod,
+      //     }) :
+      // if (items == "Following") {
+      //     if (followingData?.length < 50) {
+      //         fetchedThreads = await getDiscoverFeed({
+      //             authSession,
+      //             filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+      //             page,
+      //             reqUserSub: reelayDBUser?.sub,
+      //             sortMethod,
+      //         })
+      //     } else {
+      //         fetchedThreads = await getDiscoverFeedLatest({
+      //             authSession,
+      //             filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+      //             page,
+      //             reqUserSub: reelayDBUser?.sub,
+      //             sortMethod,
+      //         })
+      //     }
+      // } else {
+      fetchedThreads = await getDiscoverFeedLatest({
         authSession,
-        filters: coalesceFiltersForAPI(setSilSelect(items), myStreamingVenues),
-        page: calculatedPage,
+        filters: coalesceFiltersForAPI(silSelect, myStreamingVenues),
+        page,
         reqUserSub: reelayDBUser?.sub,
         sortMethod,
+      });
+      // }
+
+      // probably don't need to create this every time, but we want to avoid unnecessary state
+      const threadEntries = {};
+      const addToThreadEntries = (fetchedThread) => {
+        const reelay =
+          items == "Following" && followingData?.length < 50
+            ? fetchedThread[0]
+            : fetchedThread; //items == "Newest" ? fetchedThread : fetchedThread[0];
+        threadEntries[reelay?.sub ?? reelay?.id] = 1;
+      };
+      const reelayThread =
+        items == "Watchlist"
+          ? watchlistReels
+          : items == "Following"
+          ? followingReels
+          : items == "Newest"
+          ? newestReels
+          : moreFiltersReels;
+      // reelayThread?.forEach(addToThreadEntries);
+
+      const notAlreadyInStack = (fetchedThread) => {
+        const reelay = fetchedThread; //items == "Newest" ? fetchedThread : fetchedThread[0];
+        const alreadyInStack = threadEntries[reelay?.sub ?? reelay?.id];
+        if (alreadyInStack)
+          console.log("Filtering stack ", reelay?.sub ?? reelay?.id);
+        return !alreadyInStack;
       };
 
-      // const fetchedThreads =
-      //   items === "Following" && followingData?.length < 50
-      //     ? await getDiscoverFeed(queryParams)
-      //     : await getDiscoverFeedLatest(queryParams);
-      let fetchedThreads = await getDiscoverFeedLatest(queryParams);
-
-      let combinedThreads = [...setReelayThread(items), ...fetchedThreads];
-
-      // console.log(
-      //   "-------------...fetchedThreads-------------",
-      //   ...fetchedThreads
-      // );
-      // let combinedThreads = [...setReelayThread(items), ...fetchedThreads];
-      setEndLoop(combinedThreads.length === setReelayThread(items).length);
+      const filteredThreads = fetchedThreads; //items == "Newest" ? fetchedThreads : fetchedThreads.filter(notAlreadyInStack);
+      const allThreads = [...reelayThread, ...filteredThreads];
+      if (allThreads?.length == reelayThread?.length) {
+        setEndLoop(true);
+      }
       setExtendLoad(false);
-      // console.log("[combinedThreads[0]", combinedThreads);
+
       if (feedSource === "discover") {
+        let dispatchAction = "setDiscoverMostRecent";
+        if (sortMethod === "thisWeek") dispatchAction = "setDiscoverThisWeek";
+        if (sortMethod === "thisMonth") dispatchAction = "setDiscoverThisMonth";
+        if (sortMethod === "allTime") dispatchAction = "setDiscoverAllTime";
+
         const payload = {
-          content: combinedThreads,
+          content: allThreads,
           filters: {},
-          nextPage: calculatedPage + 1,
+          nextPage: page + 1,
         };
-
-        dispatch({ type: setDispatchAction(items), payload });
-      }
-      // setExtendLoad(false);
-      nextPage.current = calculatedPage + 1;
-
-      if (items === "Newest" && combinedThreads.length <= 17) {
-        combinedThreads.splice(13, 0, { advertise: true, valIndex: 1 });
+        console.log("dispatching payload with threads: ", allThreads.length);
+        dispatch({ type: dispatchAction, payload });
       }
 
-      dispatch({ type: setUpdateType(items), payload: combinedThreads });
+      nextPage.current = page + 1;
+
+      if (items == "Newest") {
+        console.log("allThreads.length", allThreads.length);
+        if (allThreads.length <= 17) {
+          allThreads.splice(13, 0, { advertise: true, valIndex: 1 }); // n is declared and is the index where to add the object
+          dispatch({ type: "setNewestReels", payload: allThreads });
+        } else {
+          dispatch({ type: "setNewestReels", payload: allThreads });
+        }
+      }
+      if (items == "Following") {
+        dispatch({ type: "setFollowingReels", payload: allThreads });
+      }
+      if (items == "Watchlist") {
+        dispatch({ type: "setWatchlistReels", payload: allThreads });
+      }
+      if (items == "More Filters") {
+        dispatch({ type: "setMoreFiltersReels", payload: allThreads });
+        // closeAllFiltersList()
+      }
     };
-
-    // Helper functions
-    const setSilSelect = (items) => {
-      const filterObj = {
-        Following: [
-          { category: "community", display: "my friends", option: "following" },
-        ],
-        Watchlist: [
-          {
-            category: "watchlist",
-            display: "on my watchlist",
-            option: "on_my_watchlist",
-          },
-        ],
-        Newest: [],
-      };
-
-      return filterObj[items] || selectedFilters;
-    };
-
-    const setReelayThread = (items) => {
-      const reelayObj = {
-        Watchlist: watchlistReels,
-        Following: followingReels,
-        Newest: newestReels,
-      };
-
-      return reelayObj[items] || moreFiltersReels;
-    };
-
-    const setUpdateType = (items) => {
-      const updateObj = {
-        Newest: "setNewestReels",
-        Following: "setFollowingReels",
-        Watchlist: "setWatchlistReels",
-        "More Filters": "setMoreFiltersReels",
-      };
-
-      return updateObj[items];
-    };
-
-    const setDispatchAction = (items) => {
-      const dispatchObj = {
-        thisWeek: "setDiscoverThisWeek",
-        thisMonth: "setDiscoverThisMonth",
-        allTime: "setDiscoverAllTime",
-      };
-
-      return dispatchObj[sortMethod] || "setDiscoverMostRecent";
-    };
-    // ----- New code extendFeed ends -----
 
     const getOppositeKey = (item) => {
       if (item === 0) return "Newest";
@@ -1119,21 +1115,40 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         dimension.width = 180;
       }
     );
-    const getReelay = (selectedSection, followingData, isGuestUser, item) => {
-      if (selectedSection === "Following" && followingData?.length < 50) {
-        return isGuestUser ? item : item[0];
-      } else {
-        return item;
-      }
+
+    const renderTitleBanner = (reelay) => {
+      return (
+        <TItleContainer>
+          <TitleBannerDiscover
+            navigation={navigation}
+            titleObj={reelay?.title}
+            reelay={reelay}
+          />
+        </TItleContainer>
+      );
     };
+
+    const gotoDetail = (reelay, index) => {
+      setMuteIndex(-1);
+      const extraDa =
+        selectedSection == "Watchlist"
+          ? watchlistReels
+          : selectedSection == "Following"
+          ? followingReels
+          : selectedSection == "Newest"
+          ? newestReels //.filter(function(el) { return el?.advertise !== true; }) :
+          : moreFiltersReels;
+
+      navigation.push("FeedScreen", {
+        feedSource: "discovernew",
+        initialFeedPos: index,
+        preloadedStackList: extraDa,
+      });
+      // console.log("selectedSection",selectedSection,newestReels.filter(function(el) { return el?.advertise == true; }))
+    };
+
     const rowRenderer = ({ item, index }) => {
-      const reelay =
-        selectedSection == "Following" && followingData?.length < 50
-          ? isGuestUser
-            ? item
-            : item[0]
-          : item; //selectedSection == "Newest" ? item : item[0];
-      // console.log("reelay?.sub", reelay?.sub);
+      const reelay = item[0]; //selectedSection == "Following" && followingData?.length < 50 ? isGuestUser? item: item[0] : item;//selectedSection == "Newest" ? item : item[0];
       const starRating =
         (reelay?.starRating ?? 0) + (reelay?.starRatingAddHalf ? 0.5 : 0);
       // var muteIndex = 0;
@@ -1142,11 +1157,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           // setMuteIndex(index + 1)
           videoRef.current.stopAsync();
         }
-      };
-      const goToDetail = (reelay) => {
-        setMuteIndex(-1);
-        navigation.push("SingleReelayScreen", { reelaySub: reelay?.sub });
-        // navigation.push('TitleDiscoverReelayScreen', { reelaySub: reelay?.sub })
       };
 
       const generateAndSaveThumbnail = async () => {
@@ -1161,25 +1171,75 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         return thumbnailObj;
       };
 
-      return !reelay?.advertise ? (
-        <ThumbnailContainer
+      const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
+      return !item?.advertise ? (
+        <Pressable //ThumbnailContainer
+          style={{
+            justifyContent: "center",
+            borderRadius: 12,
+            width: weedth * 0.5,
+          }}
           key={index}
-          // onPress={() => goToDetail(reelay)}
           onPress={() => {
             if (clickAllowed) {
               setClickAllowed(false);
-              goToDetail(reelay);
+              gotoDetail(reelay, index);
             }
           }}
-          accessible={true}
-          accessibilityLabel={`Go to details of ${reelay?.title?.text}`}
         >
           <View style={{ margin: 10 }}>
-            {renderMediaContent(reelay, index)}
-            <TItleContainer>
-              <TitleBannerDiscover titleObj={reelay?.title} reelay={reelay} />
-            </TItleContainer>
+            {onActive && muteIndex == index ? (
+              <View
+                style={{
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  display: "flex",
+                }}
+              >
+                <VideoPlayer
+                  videoProps={{
+                    shouldPlay: true,
+                    isMuted: isMute,
+                    isLooping: false,
+                    useNativeControls: false,
+                    timeVisible: false,
+                    defaultControlsVisible: false,
+                    resizeMode: ResizeMode.COVER,
+                    source: {
+                      uri: reelay?.content?.videoURI,
+                    },
+                  }}
+                  playbackCallback={(e) => {
+                    if (e.isLoaded) {
+                      if (e.didJustFinish) {
+                        setMuteIndex(-1);
+                      }
+                    }
+                  }} // Video replay ended
+                  // icon={{ replray: <></>, }}
+                  slider={{ visible: false }}
+                  timeVisible={false}
+                  defaultControlsVisible={false}
+                  useNativeControls={false}
+                  showControlsOnLoad={false}
+                  style={{
+                    height: 240,
+                    width: weedth * 0.46,
+                    borderRadius: 12,
+                    overflow: "hidden",
+                    display: "flex",
+                  }}
+                />
+              </View>
+            ) : (
+              <ThumbnailImage
+                onError={generateAndSaveThumbnail}
+                source={cloudfrontThumbnailSource}
+              />
+            )}
             <GradientContainer>
+              {renderTitleBanner(reelay)}
+
               {/* <ThumbnailGradient colors={["transparent", "#0B1424"]} /> */}
               <BlurView
                 intensity={15}
@@ -1196,7 +1256,11 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                 }}
               >
                 <View
-                  style={{ flexDirection: "row", height: 40, width: "80%" }}
+                  style={{
+                    flexDirection: "row",
+                    height: 40,
+                    width: Platform.isPad ? "84%" : "81%",
+                  }}
                 >
                   <>
                     <CreatorLineContainer>
@@ -1219,10 +1283,20 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                     )}
                   </View>
                 </View>
-                <View style={{ width: "25%", justifyContent: "center" }}>
-                  {muteIndex !== index ? (
+
+                <View
+                  style={{
+                    width: "25%",
+                    justifyContent: "center",
+                    flexDirection: "row",
+                  }}
+                >
+                  {muteIndex !== index || isMute ? (
                     <Pressable
-                      onPress={() => setMuteIndex(index)}
+                      onPress={() => {
+                        setMuteIndex(index);
+                        setisMute(false);
+                      }}
                       style={{
                         marginLeft: -5,
                         height: 40,
@@ -1238,7 +1312,10 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                     </Pressable>
                   ) : (
                     <Pressable
-                      onPress={() => setMuteIndex(-1)}
+                      onPress={() => {
+                        //setMuteIndex(-1)
+                        setisMute(true);
+                      }}
                       style={{
                         marginLeft: -5,
                         height: 40,
@@ -1257,60 +1334,47 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
               </BlurView>
             </GradientContainer>
           </View>
-        </ThumbnailContainer>
+        </Pressable>
       ) : (
         <>
-          {reelay?.valIndex == 0 ? (
+          {item?.valIndex == 0 ? (
             //    ( !gameImp ?
-            <Carousel
-              activeSlideAlignment={"center"}
-              data={Advertise1}
-              loop={true}
-              // activeIndex={2}
-              inactiveSlideScale={0.95}
-              // itemHeight={452}
-              firstItem={impressionAdv}
-              itemWidth={width}
-              renderItem={({ item, index }) => (
-                <Pressable
-                  onPress={() =>
-                    navigation.push("TitleDetailScreen", { titleObj: item })
-                  }
-                  style={{
-                    backgroundColor:
-                      item.key == 1 || item.key == 3 ? "#4388F1" : "#1EC072",
-                    flexDirection: "row",
-                    borderRadius: 10,
-                    margin: 10,
-                    padding: 10,
-                  }}
-                >
-                  <View style={{ width: "35%" }}>
-                    <View
-                      style={{ justifyContent: "center", alignSelf: "center" }}
-                    >
-                      <HustleImage
-                        resizeMode="contain"
-                        source={{ uri: item.poster_path }}
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{ width: "62%", paddingTop: 10, marginLeft: 10 }}
-                  >
-                    <WelcomeText numberOfLines={2}>{item.title}</WelcomeText>
-                    <WelcomeText2>{item.release_date}</WelcomeText2>
-                    <LearnText numberOfLines={2}>{item.genres}</LearnText>
-                    <LearnText2 numberOfLines={4}>{item.overview}</LearnText2>
-                  </View>
-                </Pressable>
-              )}
-              sliderHeight={452}
-              sliderWidth={width}
-            />
-          ) : (
+            //  <Carousel
+            //     activeSlideAlignment={'center'}
+            //     data={Advertise1}
+            //     loop={true}
+            //     // activeIndex={2}
+            //     inactiveSlideScale={0.95}
+            //     //  itemHeight={452}
+            //     firstItem={impressionAdv}
+            //     itemWidth={weedth}
+            //     renderItem={({ item, index }) =>
+
+            //         <Pressable onPress={() => navigation.push('TitleDetailScreen', { titleObj: item })}
+            //             style={{
+            //                 backgroundColor: item.key == 1 || item.key == 3 ? "#4388F1" : "#1EC072",
+            //                 flexDirection: "row", borderRadius: 10, margin: 10, padding: 10
+            //             }}>
+            //             <View style={{ width: "35%" }}>
+            //                 <View style={{ justifyContent: "center", alignSelf: "center" }}>
+            //                     <HustleImage resizeMode='contain' source={{ uri: item.poster_path }} />
+            //                 </View>
+            //             </View>
+            //             <View style={{ width: "62%", paddingTop: 10, marginLeft: 10 }}>
+            //                 <WelcomeText numberOfLines={2}>{item.title}</WelcomeText>
+            //                 <WelcomeText2>{item.release_date}</WelcomeText2>
+            //                 <LearnText numberOfLines={2}>{item.genres}</LearnText>
+            //                 <LearnText2 numberOfLines={4}>{item.overview}</LearnText2>
+            //             </View>
+            //         </Pressable>
+            //     }
+            //     sliderHeight={452}
+            //     sliderWidth={weedth}
+            // />
             //  :
             //  <GuessingGames navigation={navigation} advertise={true} />)
+            <GuessingGamesRandom navigation={navigation} />
+          ) : (
             <Carousel
               activeSlideAlignment={"center"}
               data={Advertise2}
@@ -1318,7 +1382,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
               firstItem={impressionAdv}
               inactiveSlideScale={0.95}
               //  itemHeight={452}
-              itemWidth={width}
+              itemWidth={weedth}
               renderItem={({ item, index }) => (
                 <Pressable
                   onPress={() =>
@@ -1329,7 +1393,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                     flexDirection: "row",
                     borderRadius: 10,
                     margin: 10,
-                    marginRight: 20,
+                    marginRight: 10,
                     padding: 10,
                   }}
                 >
@@ -1354,7 +1418,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
                 </Pressable>
               )}
               sliderHeight={452}
-              sliderWidth={width}
+              sliderWidth={weedth}
             />
           )}
         </>
@@ -1381,25 +1445,13 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           let calOffset = muteIndex <= 12 ? offset * 2 : offset * 2 - 2;
           if (offset * 2 !== setMuteIndex) {
             setMuteIndex(calOffset); //offset * 2)
+            setisMute(false);
           }
           setFocusedIndex(offset);
         }
       },
       [focusedIndex]
     );
-    // const handleScroll = () => {
-    //   // Check if the user has started scrolling
-    //   if (!hasStartedScrolling) {
-    //     setHasStartedScrolling(true);
-
-    //     // Call extendFeed when the user starts scrolling
-    //     // if (!endLoop) {
-    //     extendFeed(selectedSection);
-    //     // rowRenderer(selectedSection);
-
-    //     // }
-    //   }
-    // };
 
     const getFlatListData = () => {
       switch (selectedSection) {
@@ -1421,7 +1473,6 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       newestReels,
       moreFiltersReels,
     ]);
-
     // const extraDa = selectedSection === "Watchlist" ? watchlistReels : selectedSection === "Following" ? followingReels : selectedSection === "Newest" ? newestReels : moreFiltersReels;
     return (
       <InTheatersContainer>
@@ -1429,9 +1480,8 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
           <WatchlistFilters />
         </HeaderContainer>
         {!feedLoad ? (
-          <View style={{}}>
+          <View style={{ width: weedth }}>
             <FlatList
-              // data={selectedSection === "Watchlist" ? watchlistReels : selectedSection === "Following" ? followingReels : selectedSection === "Newest" ? newestReels : moreFiltersReels}
               data={flatListData}
               refreshControl={refreshControls}
               onScroll={handleScroll}
@@ -1442,12 +1492,12 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
               }}
               initialNumToRender={2}
               ref={flatRef}
-              // extraData={extraDa}
+              extraData={orientation}
               removeClippedSubviews={false}
-              keyExtractor={(item, index) => `${item.id}-${index.toString()}`}
               // keyExtractor={(item, index) => index.toString()}
               renderItem={(item, index) => rowRenderer(item, index)}
-              onEndReachedThreshold={0.4}
+              keyExtractor={(item, index) => `${item.id}-${index.toString()}`}
+              onEndReachedThreshold={1}
               ListFooterComponent={
                 extendLoad && (
                   <View style={{ width: width }}>
