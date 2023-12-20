@@ -10,6 +10,7 @@ export default ({ config }) => {
     //     process.env.NODE_ENV === 'devg') return 'https://api-dev.reelay.app';
     // if (process.env.NODE_ENV === 'local' ||
     //     process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
+
     // should be unreachable but just in case
     // return 'http://54.188.65.34';
     // return 'http://localhost:3001';

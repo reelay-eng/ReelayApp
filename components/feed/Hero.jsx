@@ -37,161 +37,150 @@ const BottomGradient = styled(LinearGradient)`
   height: 172px;
   width: 100%;
 `;
-const HeroModals = memo(
-  ({ game = null, reelay, navigation, firstReelAfterSignup = false }) => {
-    const [modalsViewable, setModalsViewable] = useState(false);
-    const likesVisible = useSelector((state) => state.likesVisible);
-    const commentsVisible = useSelector((state) => state.commentsVisible);
-    const dotMenuVisible = useSelector((state) => state.dotMenuVisible);
-    const justShowMeSignupVisible = useSelector(
-      (state) => state.justShowMeSignupVisible
+const HeroModals = ({
+  game = null,
+  reelay,
+  navigation,
+  firstReelAfterSignup = false,
+}) => {
+  const [modalsViewable, setModalsViewable] = useState(false);
+  const likesVisible = useSelector((state) => state.likesVisible);
+  const commentsVisible = useSelector((state) => state.commentsVisible);
+  const dotMenuVisible = useSelector((state) => state.dotMenuVisible);
+  const justShowMeSignupVisible = useSelector(
+    (state) => state.justShowMeSignupVisible
+  );
+  const statsVisible = useSelector((state) => state.statsVisible);
+  const trailerVisible =
+    useSelector((state) => state.reelayWithVisibleTrailer) === reelay;
+  const { reelayDBUser } = useContext(AuthContext);
+
+  useFocusEffect(() => {
+    setModalsViewable(true);
+    return () => setModalsViewable(false);
+  });
+
+  const addLikesToComment = (commentID, commentLikeObj) => {
+    const matchCommentID = (nextCommentObj) => nextCommentObj.id === commentID;
+    const commentObj = reelay?.comments?.find(matchCommentID);
+    commentObj.likes = commentLikeObj;
+  };
+
+  const loadCommentLikes = useCallback(async () => {
+    const commentLikes = await getCommentLikesForReelay(
+      reelay.sub,
+      reelayDBUser?.sub
     );
-    const statsVisible = useSelector((state) => state.statsVisible);
-    const trailerVisible =
-      useSelector((state) => state.reelayWithVisibleTrailer) === reelay;
-    const { reelayDBUser } = useContext(AuthContext);
-    const isGuestUser = reelayDBUser?.username === "be_our_guest";
-
-    useFocusEffect(() => {
-      setModalsViewable(true);
-      return () => setModalsViewable(false);
-    });
-
-    const addLikesToComment = (reelay, commentID, commentLikeObj) => {
-      const commentObj = reelay?.comments?.find(
-        (nextCommentObj) => nextCommentObj.id === commentID
-      );
-      if (commentObj) {
-        commentObj.likes = commentLikeObj;
+    const singleReelayEntry = commentLikes?.reelays?.[reelay.sub];
+    if (singleReelayEntry) {
+      const commentEntries = singleReelayEntry?.comments;
+      if (!commentEntries) {
+        console.log("error: could not load comment entries");
+        return;
       }
-    };
+      const commentIDs = Object.keys(commentEntries);
+      commentIDs.forEach((commentID) => {
+        const commentLikeObj = commentEntries[commentID];
+        addLikesToComment(commentID, commentLikeObj);
+      });
+    }
+    reelay.commentLikesLoaded = true;
+  }, [reelay, reelayDBUser]);
 
-    const loadCommentLikes = useCallback(async () => {
-      const commentLikes = await getCommentLikesForReelay(
-        reelay.sub,
-        reelayDBUser?.sub
-      );
+  useEffect(() => {
+    if (reelay?.commentLikesLoaded) return;
+    loadCommentLikes();
+  }, []);
 
-      const singleReelayEntry = commentLikes?.reelays?.[reelay.sub];
-      if (singleReelayEntry) {
-        const commentEntries = singleReelayEntry?.comments;
+  if (!modalsViewable) return <View />;
+  return (
+    <React.Fragment>
+      {likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} />}
+      {commentsVisible && (
+        <CommentsDrawer reelay={reelay} navigation={navigation} />
+      )}
+      {dotMenuVisible && (
+        <Reelay3DotDrawer reelay={reelay} navigation={navigation} />
+      )}
+      {justShowMeSignupVisible && (
+        <JustShowMeSignupDrawer navigation={navigation} />
+      )}
+      {trailerVisible && <FeedTrailerDrawer reelay={reelay} />}
+      {statsVisible && (
+        <ShareGuessingGameDrawer game={game} navigation={navigation} />
+      )}
+    </React.Fragment>
+  );
+};
+export default Hero = ({
+  clubStub,
+  feedSource,
+  index,
+  game = null,
+  navigation,
+  reelay,
+  showSidebar = true,
+  viewable,
+  firstReelAfterSignup = false,
+}) => {
+  const getModalReelay = useCallback(() => {
+    const gameReelayCount = game?.reelays?.length ?? 0;
+    if (!gameReelayCount) return reelay;
+    return game?.reelays?.[0];
+  }, [game, reelay]);
 
-        if (!commentEntries) {
-          console.log("error: could not load comment entries");
-          return;
-        }
-        const commentIDs = Object.keys(commentEntries);
-        commentIDs.forEach((commentID) => {
-          const commentLikeObj = commentEntries[commentID];
-          addLikesToComment(reelay, commentID, commentLikeObj);
-        });
-      }
-      reelay.commentLikesLoaded = true;
-    }, [reelay, reelayDBUser]);
+  const modalReelay = getModalReelay();
+  const commentsCount = useRef(modalReelay.comments.length);
+  const isWelcomeVideo =
+    reelay?.sub === Constants.manifest.extra.welcomeReelaySub;
+  console.log(
+    "Hero is rendering: ",
+    reelay.creator.username,
+    reelay.title.display
+  );
+  // console.log('Hero is rendering: ', reelay);
 
-    useEffect(() => {
-      if (!isGuestUser && !reelay?.commentLikesLoaded) {
-        loadCommentLikes();
-      }
-    }, [isGuestUser, reelay, loadCommentLikes]);
-
-    if (!modalsViewable) return <View />;
-    return (
-      <React.Fragment>
-        {likesVisible && (
-          <LikesDrawer reelay={reelay} navigation={navigation} />
-        )}
-        {commentsVisible && (
-          <CommentsDrawer reelay={reelay} navigation={navigation} />
-        )}
-        {dotMenuVisible && (
-          <Reelay3DotDrawer reelay={reelay} navigation={navigation} />
-        )}
-        {justShowMeSignupVisible && (
-          <JustShowMeSignupDrawer navigation={navigation} />
-        )}
-        {trailerVisible && <FeedTrailerDrawer reelay={reelay} />}
-        {statsVisible && (
-          <ShareGuessingGameDrawer game={game} navigation={navigation} />
-        )}
-      </React.Fragment>
-    );
-  },
-  (prevProps, nextProps) => prevProps.reelay === nextProps.reelay
-);
-
-export default Hero = memo(
-  ({
-    clubStub,
-    feedSource,
-    index,
-    game = null,
-    navigation,
-    reelay,
-    showSidebar = true,
-    viewable,
-    firstReelAfterSignup = false,
-  }) => {
-    const getModalReelay = useCallback(() => {
-      const gameReelayCount = game?.reelays?.length ?? 0;
-      if (!gameReelayCount) return reelay;
-      return game?.reelays?.[0];
-    }, [game, reelay]);
-
-    const modalReelay = getModalReelay();
-    const commentsCount = useRef(modalReelay.comments.length);
-    const isWelcomeVideo =
-      reelay?.sub === Constants.manifest.extra.welcomeReelaySub;
-    console.log(
-      "Hero is rendering: ",
-      reelay?.creator?.username,
-      reelay?.title?.display
-    );
-    // console.log('Hero is rendering: ', reelay);
-
-    return (
-      <View key={index} style={{ justifyContent: "flex-end" }}>
-        <FeedVideoPlayer
-          gameID={game?.id ?? null}
+  return (
+    <View key={index} style={{ justifyContent: "flex-end" }}>
+      <FeedVideoPlayer
+        gameID={game?.id ?? null}
+        navigation={navigation}
+        reelay={reelay}
+        viewable={viewable}
+      />
+      <BottomGradient
+        colors={["transparent", "#0d0d0d"]}
+        locations={[0.08, 1]}
+      />
+      <ReelayInfo
+        clubStub={clubStub}
+        feedSource={feedSource}
+        navigation={navigation}
+        reelay={reelay}
+      />
+      {!isWelcomeVideo && showSidebar && !firstReelAfterSignup && (
+        <Sidebar
+          commentsCount={commentsCount}
+          game={game}
+          navigation={navigation}
+          reelay={modalReelay}
+        />
+      )}
+      {firstReelAfterSignup && (
+        <ShareOutButton
           navigation={navigation}
           reelay={reelay}
-          viewable={viewable}
+          firstReelAfterSignup={firstReelAfterSignup}
         />
-        <BottomGradient
-          colors={["transparent", "#0d0d0d"]}
-          locations={[0.08, 1]}
-        />
-        <ReelayInfo
-          clubStub={clubStub}
-          feedSource={feedSource}
+      )}
+      {viewable && (
+        <HeroModals
+          game={game}
+          reelay={modalReelay}
           navigation={navigation}
-          reelay={reelay}
+          firstReelAfterSignup={firstReelAfterSignup}
         />
-        {!isWelcomeVideo && showSidebar && !firstReelAfterSignup && (
-          <Sidebar
-            commentsCount={commentsCount}
-            game={game}
-            navigation={navigation}
-            reelay={modalReelay}
-          />
-        )}
-        {firstReelAfterSignup && (
-          <ShareOutButton
-            navigation={navigation}
-            reelay={reelay}
-            firstReelAfterSignup={firstReelAfterSignup}
-          />
-        )}
-        {viewable && (
-          <HeroModals
-            game={game}
-            reelay={modalReelay}
-            navigation={navigation}
-            firstReelAfterSignup={firstReelAfterSignup}
-          />
-        )}
-      </View>
-    );
-  },
-  (prevProps, nextProps) => prevProps.reelay === nextProps.reelay
-);
+      )}
+    </View>
+  );
+};
