@@ -746,7 +746,7 @@ DEPENDENCIES:
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
-  - ffmpeg-kit-react-native/full-gpl (from `/Users/faizan/Sites/technosoft/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec`)
+  - ffmpeg-kit-react-native/full-gpl (from `/Users/abdul.mansuri/Documents/Reelay/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec`)
   - FirebaseCore
   - FirebaseCoreExtension
   - FirebaseCrashlytics
@@ -923,7 +923,7 @@ EXTERNAL SOURCES:
   FBReactNativeSpec:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   ffmpeg-kit-react-native:
-    :podspec: "/Users/faizan/Sites/technosoft/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec"
+    :podspec: "/Users/abdul.mansuri/Documents/Reelay/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   MixpanelReactNative:
@@ -1160,4 +1160,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: c1065a0178a2387b433e859bff5c48a552dd0406
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.14.3

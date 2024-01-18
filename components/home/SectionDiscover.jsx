@@ -20,6 +20,7 @@ import {
   RefreshControl,
   Linking,
   Platform,
+  Alert,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { AuthContext } from "../../context/AuthContext";
@@ -199,6 +200,12 @@ const HustleImage = styled(Image)`
   border-radius: 10px;
 `;
 
+const HustleImageCover = styled(Image)`
+  height: ${Platform.isPad ? 200:185}px;
+  width: 100%;
+  border-radius: 10px;
+`;
+
 const ThumbnailImage = styled(canUseFastImage ? FastImage : Image)`
   border-radius: 12px;
   height: ${240}px;
@@ -228,7 +235,12 @@ const LearnText2 = styled(ReelayText.Subtitle1)`
   margin-top: 10px;
   color: white;
 `;
+  const ADVERTIS1 = require("../../assets/images/advertise/adv1.jpeg");
+  const ADVERTIS2 = require("../../assets/images/advertise/adv2.jpeg");
+  const ADVERTIS3 = require("../../assets/images/advertise/adv3.jpeg");
+
 const filterKeys = ["Newest", "Following", "Watchlist", "More Filters"];
+
 const SectionDiscover = ({ navigation, route, refreshControl }) => {
   try {
     firebaseCrashlyticsLog("SectionDiscover screen mounted");
@@ -336,6 +348,8 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       }
     }, []);
 
+    
+    const NewAdv = [{key:1, image:ADVERTIS1, url:"https://www.disneyplus.com/"}, {key:2, image:ADVERTIS2, url:"https://www.peacocktv.com/"}, {key:3, image:ADVERTIS3, url:"https://www.max.com/"}, ]
     const Advertise1 = [
       {
         key: 1,
@@ -1061,9 +1075,11 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       if (items == "Newest") {
         console.log("allThreads.length", allThreads.length);
         if (allThreads.length <= 17) {
-          allThreads.splice(13, 0, { advertise: true, valIndex: 1 }); // n is declared and is the index where to add the object
+          allThreads.splice(allThreads.length, 0, { advertise: true, valIndex: 0 }); // n is declared and is the index where to add the object
+          // allThreads.splice(13, 0, { advertise: true, valIndex: 1 }); // n is declared and is the index where to add the object
           dispatch({ type: "setNewestReels", payload: allThreads });
         } else {
+          allThreads.splice(allThreads.length, 0, { advertise: true, valIndex: 0 }); // n is declared and is the index where to add the object
           dispatch({ type: "setNewestReels", payload: allThreads });
         }
       }
@@ -1333,44 +1349,50 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         </Pressable>
       ) : (
         <>
-          {item?.valIndex == 0 ? (
+          {item?.valIndex == 0 ? 
+          (
             //    ( !gameImp ?
-            //  <Carousel
-            //     activeSlideAlignment={'center'}
-            //     data={Advertise1}
-            //     loop={true}
-            //     // activeIndex={2}
-            //     inactiveSlideScale={0.95}
-            //     //  itemHeight={452}
-            //     firstItem={impressionAdv}
-            //     itemWidth={weedth}
-            //     renderItem={({ item, index }) =>
+             <Carousel
+                activeSlideAlignment={'center'}
+                data={NewAdv} //Advertise1}
+                loop={true}
+                // activeIndex={2}
+                inactiveSlideScale={0.95}
+                //  itemHeight={452}
+                firstItem={impressionAdv}
+                // firstItem={Math.floor(Math.random() * (3 - 1 + 1)) + 1}
+                itemWidth={weedth}
+                renderItem={ ({ item, index }) => 
 
-            //         <Pressable onPress={() => navigation.push('TitleDetailScreen', { titleObj: item })}
-            //             style={{
-            //                 backgroundColor: item.key == 1 || item.key == 3 ? "#4388F1" : "#1EC072",
-            //                 flexDirection: "row", borderRadius: 10, margin: 10, padding: 10
-            //             }}>
-            //             <View style={{ width: "35%" }}>
-            //                 <View style={{ justifyContent: "center", alignSelf: "center" }}>
-            //                     <HustleImage resizeMode='contain' source={{ uri: item.poster_path }} />
-            //                 </View>
-            //             </View>
-            //             <View style={{ width: "62%", paddingTop: 10, marginLeft: 10 }}>
-            //                 <WelcomeText numberOfLines={2}>{item.title}</WelcomeText>
-            //                 <WelcomeText2>{item.release_date}</WelcomeText2>
-            //                 <LearnText numberOfLines={2}>{item.genres}</LearnText>
-            //                 <LearnText2 numberOfLines={4}>{item.overview}</LearnText2>
-            //             </View>
-            //         </Pressable>
-            //     }
-            //     sliderHeight={452}
-            //     sliderWidth={weedth}
-            // />
+                    <Pressable onPress={() =>Linking.openURL(item.url)} 
+                    // onPress={()=> console.log("okkkk",Math.floor(Math.random() * (3 - 1 + 1)) + 1)}
+                    //onPress={() => navigation.push('TitleDetailScreen', { titleObj: item })}
+                        style={{
+                            backgroundColor: item.key == 1 || item.key == 3 ? "#4388F1" : "#1EC072",
+                            flexDirection: "row", borderRadius: 10, margin: 10, padding: 0
+                        }}>
+                        <View style={{ width: "100%" }}>
+                                <HustleImageCover resizeMode={Platform.isPad ? 'stretch':'cover'}
+                                //  source={{ uri: item.poster_path }}
+                                 source={item.image}
+                                 />
+                        </View>
+                        {/* <View style={{ width: "62%", paddingTop: 10, marginLeft: 10 }}>
+                            <WelcomeText numberOfLines={2}>{item.title}</WelcomeText>
+                            <WelcomeText2>{item.release_date}</WelcomeText2>
+                            <LearnText numberOfLines={2}>{item.genres}</LearnText>
+                            <LearnText2 numberOfLines={4}>{item.overview}</LearnText2>
+                        </View> */}
+                    </Pressable>
+                }
+                sliderHeight={452}
+                sliderWidth={weedth}
+            />          
             //  :
             //  <GuessingGames navigation={navigation} advertise={true} />)
-            <GuessingGamesRandom navigation={navigation} />
-          ) : (
+            // <GuessingGamesRandom navigation={navigation} />)
+          ) 
+          : (
             <Carousel
               activeSlideAlignment={"center"}
               data={Advertise2}
@@ -1416,7 +1438,8 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
               sliderHeight={452}
               sliderWidth={weedth}
             />
-          )}
+          )
+          }
         </>
       );
     };
@@ -1438,10 +1461,13 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
         // console.log(onActive)
         if (onActive) {
           const offset = Math.round(y / 240);
-          let calOffset = muteIndex <= 12 ? offset * 2 : offset * 2 - 2;
-          if (offset * 2 !== setMuteIndex) {
+          let calOffset = muteIndex <= 12 ? offset * 2 :-1// muteIndex >= 32 ? -1 : offset * 2 - 2;
+          // console.log("calOffset",calOffset)
+          if (offset * 2 !== setMuteIndex &&  muteIndex <= 22) {
             setMuteIndex(calOffset); //offset * 2)
             setisMute(false);
+          }else{
+            setisMute(true);
           }
           setFocusedIndex(offset);
         }
@@ -1469,7 +1495,7 @@ const SectionDiscover = ({ navigation, route, refreshControl }) => {
       newestReels,
       moreFiltersReels,
     ]);
-    // const extraDa = selectedSection === "Watchlist" ? watchlistReels : selectedSection === "Following" ? followingReels : selectedSection === "Newest" ? newestReels : moreFiltersReels;
+
     return (
       <InTheatersContainer>
         <HeaderContainer>

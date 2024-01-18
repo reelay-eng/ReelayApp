@@ -1,4 +1,4 @@
-import { Alert, Dimensions, Pressable, TouchableOpacity, View, Image, ImageBackground } from 'react-native';
+import { Alert, Dimensions, Pressable, TouchableOpacity, View, Image, ImageBackground, Linking } from 'react-native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { TopicsGiantIconSVG } from '../global/SVGs';
 
@@ -124,7 +124,14 @@ const LearnText2 = styled(ReelayText.Subtitle1)`
 		color: white;
 	`
 
+    const ADVERTIS1 = require("../../assets/images/advertise/adv1.jpeg");
+    const ADVERTIS2 = require("../../assets/images/advertise/adv2.jpeg");
+    const ADVERTIS3 = require("../../assets/images/advertise/adv3.jpeg");
+
 export default EmptyDiscover = ({ navigation, topic }) => {
+
+    const NewAdv = [{key:1, image:ADVERTIS1, url:"https://www.disneyplus.com/"}, {key:2, image:ADVERTIS2, url:"https://www.peacocktv.com/"}, {key:3, image:ADVERTIS3, url:"https://www.max.com/"}, ]
+
     const Advertise1 = [
         {
             "key": 1,
@@ -529,7 +536,7 @@ export default EmptyDiscover = ({ navigation, topic }) => {
             {topic?.valIndex == 0 ?
      <Carousel
         activeSlideAlignment={'center'}
-        data={Advertise1}
+        data={NewAdv} //Advertise1}
         loop={true}
         // activeIndex={2}
         inactiveSlideScale={0.95}
@@ -538,25 +545,29 @@ export default EmptyDiscover = ({ navigation, topic }) => {
         itemHeight={height}
         renderItem={({ item, index }) =>
 
-            <Pressable onPress={() => navigation.push('TitleDetailScreen', { titleObj: item })}>
+            <Pressable onPress={() =>Linking.openURL(item.url)} //onPress={() => navigation.push('TitleDetailScreen', { titleObj: item })}>
+            >
             <ImageBackground
-            source={{ uri: item.poster_path }}    
+            // source={{ uri: item.poster_path }}    
+            source={item.image}
+            resizeMode='stretch'
             style={{
-                    backgroundColor: item.key == 1 || item.key == 3 ? "#4388F1" : "#1EC072",overflow:"hidden",
-                    borderRadius: 10, margin: 10,height:height/2,justifyContent:"flex-end"
+                    backgroundColor: item.key == 1 || item.key == 3 ? "#4388F1" : "#1EC072",
+                    overflow:"hidden",
+                    borderRadius: 10, margin: 10,height:250,justifyContent:"flex-end",
                 }}>
                 {/* <View style={{  }}>
                     <View style={{ justifyContent: "center", alignSelf: "center" }}>
                         <HustleImage resizeMode='contain' source={{ uri: item.poster_path }} />
                     </View>
                 </View> */}
-                <View style={{paddingTop: 10, padding: 10, marginLeft: 10 }}>
+                {/* <View style={{paddingTop: 10, padding: 10, marginLeft: 10 }}>
                     <WelcomeText numberOfLines={2}>{item.title}</WelcomeText>
                     <WelcomeText2>{item.release_date}</WelcomeText2>
                     <LearnText numberOfLines={2}>{item.genres}</LearnText>
                     <LearnText2 numberOfLines={4}>{item.overview}</LearnText2>
-                </View>
-                <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
+                </View> */}
+                {/* <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} /> */}
                 </ImageBackground>
                 
             </Pressable>
